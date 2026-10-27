@@ -1,0 +1,931 @@
+{
+  "slug": "slack",
+  "name": "Slack",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Create a Slack app, make it installable in any workspace, and plug it into Composio. No review unless you list it in the Marketplace.",
+  "appType": "Slack app (OAuth v2)",
+  "composio": {
+    "toolkit": "slack",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 15,
+      "max": 30
+    },
+    "approvalWait": null,
+    "review": "optional",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Free. Slack doesn't charge for Marketplace listing either.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create the Slack app from a manifest",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "Click Create from manifest and sign in to Slack.",
+        "Pick a development workspace. You can let other workspaces install it later.",
+        "Replace \"Your App Name\" in the JSON (max 35 characters). Users see it on the consent screen.",
+        "Click Next, check the summary, then click Create.",
+        "Prefer the form? Create an app → Blank app, then add the values below under OAuth & Permissions.",
+        "No review. The app exists as soon as you click Create."
+      ],
+      "fields": [
+        {
+          "label": "App name",
+          "value": "Your product name",
+          "hint": "Shown to users when they connect",
+          "copy": false
+        },
+        {
+          "label": "Redirect URL",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Already in the manifest. Must match your Composio auth config."
+        },
+        {
+          "label": "User Token Scopes",
+          "value": "channels:read, channels:history, groups:read, groups:history, im:read, im:history, mpim:read, mpim:history, chat:write, users:read, reactions:write, search:read",
+          "hint": "Our starter set. Trim to the tools your agent uses."
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Composio's Slack toolkit acts as the signed-in user, so the starter scopes are user scopes, not bot scopes.",
+          "sources": [
+            "composio-slack-toolkit"
+          ],
+          "unconfirmed": "Composio doesn't publish its Slack scope list. This starter set is ours."
+        },
+        {
+          "text": "search:read is a legacy scope. Slack recommends Real-time Search API scopes instead.",
+          "sources": [
+            "slack-scope-search-read"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Create from manifest",
+          "url": "https://api.slack.com/apps?new_app=1&manifest_json=%7B%22display_information%22%3A%7B%22name%22%3A%22Your%20App%20Name%22%7D%2C%22oauth_config%22%3A%7B%22redirect_urls%22%3A%5B%22https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback%22%5D%2C%22scopes%22%3A%7B%22user%22%3A%5B%22channels%3Aread%22%2C%22channels%3Ahistory%22%2C%22groups%3Aread%22%2C%22groups%3Ahistory%22%2C%22im%3Aread%22%2C%22im%3Ahistory%22%2C%22mpim%3Aread%22%2C%22mpim%3Ahistory%22%2C%22chat%3Awrite%22%2C%22users%3Aread%22%2C%22reactions%3Awrite%22%2C%22search%3Aread%22%5D%7D%7D%2C%22settings%22%3A%7B%22token_rotation_enabled%22%3Afalse%7D%7D"
+        },
+        {
+          "label": "Open Slack apps",
+          "url": "https://api.slack.com/apps"
+        }
+      ],
+      "sources": [
+        "slack-manifests",
+        "slack-manifest-ref",
+        "slack-quickstart",
+        "composio-custom-auth"
+      ],
+      "checks": [
+        "apps-page",
+        "manifest-link",
+        "composio-callback"
+      ],
+      "unconfirmed": "The link loads, but Slack only shows the prefilled manifest after sign-in. We couldn't check that part without a Slack login.",
+      "problems": [
+        {
+          "q": "Slack rejects the manifest",
+          "a": [
+            "display_information.name is required and can be at most 35 characters.",
+            "Each scope must be a real Slack scope name. Check spelling against Slack's scopes reference."
+          ],
+          "sources": [
+            "slack-manifest-ref"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "oauth-settings",
+      "title": "Check OAuth & Permissions",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 3
+      },
+      "instructions": [
+        "In your app's settings, open OAuth & Permissions.",
+        "Under Redirect URLs, confirm the Composio callback is listed and saved.",
+        "Under Scopes → User Token Scopes, confirm your scopes.",
+        "Add Bot Token Scopes only if your Composio auth config asks for bot scopes.",
+        "Leave token rotation off unless you've confirmed Composio refreshes Slack tokens.",
+        "Leave PKCE off. It's for public clients that can't keep a secret."
+      ],
+      "fields": [
+        {
+          "label": "Redirect URL",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "HTTPS, no # anchor"
+        },
+        {
+          "label": "Token rotation",
+          "value": "Off (default)",
+          "copy": false
+        },
+        {
+          "label": "PKCE",
+          "value": "Off (default)",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Token rotation makes tokens expire every 12 hours, and you can't turn it off once it's on.",
+          "sources": [
+            "slack-token-rotation"
+          ],
+          "unconfirmed": "We didn't test whether Composio refreshes rotating Slack tokens."
+        },
+        {
+          "text": "Turning on PKCE marks the app as a public client. Only Slack support can undo it.",
+          "sources": [
+            "slack-pkce"
+          ]
+        }
+      ],
+      "sources": [
+        "slack-oauth",
+        "slack-quickstart",
+        "slack-token-rotation",
+        "slack-pkce",
+        "composio-slack-toolkit"
+      ],
+      "checks": [
+        "composio-callback"
+      ],
+      "problems": [
+        {
+          "q": "Slack says bad_redirect_uri when a user connects",
+          "a": [
+            "The redirect URI Composio sends doesn't match a Redirect URL saved in your Slack app.",
+            "Copy the Redirect URI from your Composio auth config and add it under OAuth & Permissions → Redirect URLs."
+          ],
+          "sources": [
+            "slack-oauth",
+            "composio-slack-toolkit"
+          ]
+        },
+        {
+          "q": "Slack says invalid_scope",
+          "a": [
+            "A requested scope doesn't exist, or scopes conflict.",
+            "Sign in with Slack scopes (openid, profile, email) can't be mixed with other user scopes. Remove them."
+          ],
+          "sources": [
+            "slack-oauth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the Client ID and Client Secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Open Basic Information → App Credentials.",
+        "Copy the Client ID. Reveal and copy the Client Secret.",
+        "Store the secret in a secret manager, never in git.",
+        "You need the Signing Secret only for event triggers (optional step below).",
+        "Slack checks these only when a real user connects. We can't validate them for you ahead of time."
+      ],
+      "sources": [
+        "slack-token-rotation",
+        "slack-oauth-access"
+      ],
+      "checks": [
+        "token-fake-code",
+        "authorize-signin"
+      ],
+      "problems": [
+        {
+          "q": "A connection fails with bad_client_secret",
+          "a": [
+            "The Client Secret in your Composio auth config is wrong.",
+            "Copy it again from Basic Information → App Credentials and paste it with no extra spaces."
+          ],
+          "sources": [
+            "slack-oauth-access"
+          ]
+        },
+        {
+          "q": "A connection fails with invalid_client_id",
+          "a": [
+            "The Client ID in Composio isn't this app's.",
+            "Copy Client ID from App Credentials, not another ID on the page or the secret."
+          ],
+          "sources": [
+            "slack-oauth-access"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "distribute",
+      "title": "Activate public distribution",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "optional": true,
+      "when": "Skip if only your app's own workspace will ever connect.",
+      "instructions": [
+        "Open Manage Distribution → Share Your App with Other Workspaces.",
+        "Complete every item in the checklist. Redirect URLs must use HTTPS.",
+        "Click Activate Public Distribution. Slack doesn't review this.",
+        "Any workspace can now install your app. It's \"unlisted\": not in the Slack Marketplace.",
+        "Don't deactivate it later. That removes the app from every other workspace."
+      ],
+      "warnings": [
+        {
+          "text": "Since May 29, 2025, new installs of unlisted apps get 1 request/min and max 15 messages on conversations.history and .replies.",
+          "sources": [
+            "slack-rate-limit-change"
+          ]
+        },
+        {
+          "text": "Slack's conversations.history reference still says Tier 3 and limit up to 999. The 2025 notice overrides it for unlisted apps.",
+          "sources": [
+            "slack-history-method",
+            "slack-rate-limit-change"
+          ]
+        },
+        {
+          "text": "Slack's API terms call the Marketplace the only appropriate channel for commercially distributed apps.",
+          "sources": [
+            "slack-rate-limit-change"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Slack apps",
+          "url": "https://api.slack.com/apps"
+        }
+      ],
+      "sources": [
+        "slack-distribution",
+        "slack-rate-limit-change",
+        "slack-history-method"
+      ],
+      "checks": [
+        "distribution-doc",
+        "rate-limit-changelog",
+        "history-reference-tier"
+      ],
+      "unconfirmed": "Slack's docs don't list the checklist items, and we couldn't open it without signing in.",
+      "problems": [
+        {
+          "q": "Slack says invalid_team_for_non_distributed_app",
+          "a": [
+            "The user is in a different workspace and your app isn't distributed yet.",
+            "Activate public distribution, then have them connect again."
+          ],
+          "sources": [
+            "slack-oauth"
+          ]
+        },
+        {
+          "q": "Channel history returns only 15 messages or hits rate limits",
+          "a": [
+            "That's Slack's limit for new installs of unlisted apps: 1 request per minute, 15 messages per call.",
+            "Read less history, use events or search, or list the app in the Slack Marketplace.",
+            "Internal apps used only in your own org keep the higher limits."
+          ],
+          "sources": [
+            "slack-rate-limit-change"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Slack toolkit in Composio and create an auth config.",
+        "Use the values below, then paste your Client ID and Client Secret.",
+        "Every scope in the auth config must also be in your Slack app, or users hit scope errors.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the Slack Redirect URL exactly"
+        },
+        {
+          "label": "Scopes",
+          "value": "channels:read,channels:history,groups:read,groups:history,im:read,im:history,mpim:read,mpim:history,chat:write,users:read,reactions:write,search:read",
+          "hint": "Same list as your Slack app's User Token Scopes"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Slack (acts as a user) and Slackbot (acts as a bot) are separate Composio toolkits. Each needs its own auth config.",
+          "sources": [
+            "composio-slack-toolkit"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Slack in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/slack"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-dashboard-nav",
+        "composio-slack-toolkit"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "Composio doesn't say whether it requests these as Slack user or bot scopes, and we couldn't open auth config creation without logging in.",
+      "problems": [
+        {
+          "q": "Users get missing-scope or Insufficient scopes errors",
+          "a": [
+            "A scope in your auth config isn't added in the Slack app. Add it under OAuth & Permissions.",
+            "Existing tokens keep their old scopes. Users must reconnect to get new ones."
+          ],
+          "sources": [
+            "composio-slack-toolkit",
+            "slack-distribution"
+          ]
+        },
+        {
+          "q": "The link didn't open the Slack toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Slack, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { slack: \"ac_your_slack_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"slack\": \"ac_your_slack_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for slack.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test workspace",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Start a connection for a test user and open the link.",
+        "Pick a workspace. The consent screen should show your app name, not Composio.",
+        "A note that the app isn't approved by Slack is normal for unlisted apps.",
+        "Try a second workspace too, to confirm distribution works.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "sources": [
+        "composio-white-label",
+        "composio-slack-toolkit"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Slack sign-in.",
+      "problems": [
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        },
+        {
+          "q": "Slack says the app isn't listed in the Slack Marketplace",
+          "a": [
+            "That workspace only allows Marketplace apps.",
+            "An admin can turn off Require apps from Slack Marketplace. See the admin approval step below."
+          ],
+          "sources": [
+            "composio-slack-toolkit"
+          ]
+        },
+        {
+          "q": "Slack asks the user to submit a request",
+          "a": [
+            "The workspace has Require approved apps on. An owner or admin must approve the install.",
+            "Owners can install directly. Members need approval."
+          ],
+          "sources": [
+            "composio-slack-toolkit"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "slack-support"
+      ]
+    },
+    {
+      "id": "workspace-approval",
+      "title": "Get workspace admin approval",
+      "who": "their-admin",
+      "minutes": {
+        "min": 1,
+        "max": 5
+      },
+      "optional": true,
+      "when": "Only if a user's workspace requires approved apps or Marketplace-only apps.",
+      "instructions": [
+        "Your user requests the app on Slack's install screen.",
+        "A workspace owner or admin approves the request.",
+        "Or the admin turns off Require approved apps and Require apps from Slack Marketplace.",
+        "Those live in Settings → Apps & Workflows → App Management Settings.",
+        "Admins see your full scope list. Fewer scopes make approval easier."
+      ],
+      "sources": [
+        "composio-slack-toolkit",
+        "slack-distribution"
+      ],
+      "checks": [
+        "composio-slack-faq"
+      ],
+      "unconfirmed": "Slack's docs don't say how long a pending request lasts or whether the user is notified when it's approved.",
+      "problems": [
+        {
+          "q": "The admin won't allow non-Marketplace apps",
+          "a": [
+            "Only a Slack Marketplace listing gets past a Marketplace-only policy.",
+            "See the optional Marketplace steps below."
+          ],
+          "sources": [
+            "slack-distribution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triggers",
+      "title": "Send Slack events to Composio triggers",
+      "who": "you",
+      "minutes": {
+        "min": 5,
+        "max": 10
+      },
+      "optional": true,
+      "when": "Only if your agent uses Composio Slack triggers.",
+      "instructions": [
+        "Copy the Signing Secret from Basic Information → App Credentials.",
+        "For DMs, private channels or reactions, create an App-Level Token with authorizations:read.",
+        "Create a Composio webhook endpoint for slack with both values.",
+        "Paste its webhook_url into Event Subscriptions → Request URL. Composio answers Slack's check."
+      ],
+      "fields": [
+        {
+          "label": "App-level token scope",
+          "value": "authorizations:read"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Store the secret in Composio before setting the Request URL. Slack may disable an endpoint after ~36 hours of failures.",
+          "sources": [
+            "composio-custom-webhooks"
+          ]
+        }
+      ],
+      "sources": [
+        "composio-custom-webhooks",
+        "composio-slack-toolkit"
+      ],
+      "problems": [
+        {
+          "q": "Slack events never reach my trigger",
+          "a": [
+            "Check the endpoint has the Signing Secret. Unsigned or mismatched requests get a 400.",
+            "For DMs, private channels and reactions, add the App-Level Token too."
+          ],
+          "sources": [
+            "composio-custom-webhooks"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "slack-support"
+      ]
+    },
+    {
+      "id": "marketplace-submit",
+      "title": "Submit to the Slack Marketplace",
+      "who": "you",
+      "minutes": {
+        "min": 60,
+        "max": 240
+      },
+      "optional": true,
+      "when": "Optional. Lifts the unlisted rate limits and works in Marketplace-only workspaces.",
+      "instructions": [
+        "First reach 10+ installs on active workspaces (used in the past 28 days). Stay at 10+ during review.",
+        "Test install, onboarding, use and uninstall on a workspace other than your dev one.",
+        "Open Submit to the Slack Marketplace in your app settings. Fix what the automated checks flag.",
+        "Give Slack test account credentials and a short demo video from install to uninstall.",
+        "Request only the scopes your features need. Slack reviews each one."
+      ],
+      "warnings": [
+        {
+          "text": "Slack cut the bar to 5 active workspaces in August 2025, then raised it back to 10 in July 2026.",
+          "sources": [
+            "slack-mkt-install-2025",
+            "slack-mkt-install-2026"
+          ]
+        },
+        {
+          "text": "Not accepted: apps that only provide an MCP server, or that use Slack data to train LLMs.",
+          "sources": [
+            "slack-mkt-guidelines"
+          ]
+        },
+        {
+          "text": "Automation platforms must limit installs to paid Slack plans, using the team.billing:read bot scope.",
+          "sources": [
+            "slack-mkt-guidelines"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Slack apps",
+          "url": "https://api.slack.com/apps"
+        }
+      ],
+      "sources": [
+        "slack-mkt-review",
+        "slack-mkt-guidelines",
+        "slack-mkt-install-2026",
+        "slack-rate-limit-change"
+      ],
+      "checks": [
+        "marketplace-install-requirement",
+        "marketplace-review-timeline"
+      ],
+      "problems": [
+        {
+          "q": "Slack won't let me submit",
+          "a": [
+            "Slack blocks submissions under 10 installs on active workspaces.",
+            "Active means used in the past 28 days. Sandboxes don't count."
+          ],
+          "sources": [
+            "slack-mkt-review",
+            "slack-mkt-guidelines"
+          ]
+        },
+        {
+          "q": "My submission was returned",
+          "a": [
+            "Slack returns apps that aren't production-ready or that it can't install.",
+            "Fix every point and resubmit. Each resubmission resets your place in the queue."
+          ],
+          "sources": [
+            "slack-mkt-review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "marketplace-review",
+      "title": "Wait for Marketplace review",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "optional": true,
+      "when": "Only after you submit to the Slack Marketplace.",
+      "instructions": [
+        "Preliminary review: feedback in up to 10 business days.",
+        "Functional review: up to 10 weeks for new apps, 6 weeks for changes to published apps.",
+        "Feedback arrives in your app settings and by email. Address every point.",
+        "Slack can't speed it up. Once approved, you choose when to publish."
+      ],
+      "wait": {
+        "min": 2,
+        "max": 12,
+        "unit": "weeks",
+        "openEnded": true,
+        "asStated": "Up to 10 business days for preliminary feedback, then up to 10 weeks for functional review.",
+        "summary": "Up to ~12 weeks"
+      },
+      "sources": [
+        "slack-mkt-review"
+      ],
+      "checks": [
+        "marketplace-review-timeline"
+      ],
+      "problems": [
+        {
+          "q": "Review is taking longer than stated",
+          "a": [
+            "Slack says times vary with volume. Check the estimate on your app's submission page.",
+            "For process questions, email the Marketplace team."
+          ],
+          "sources": [
+            "slack-mkt-review",
+            "slack-dev-policy"
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "slack-oauth",
+      "title": "Slack · Installing with OAuth",
+      "url": "https://docs.slack.dev/authentication/installing-with-oauth"
+    },
+    {
+      "id": "slack-oauth-access",
+      "title": "Slack · oauth.v2.access",
+      "url": "https://docs.slack.dev/reference/methods/oauth.v2.access"
+    },
+    {
+      "id": "slack-manifests",
+      "title": "Slack · Configuring apps with manifests",
+      "url": "https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests"
+    },
+    {
+      "id": "slack-manifest-ref",
+      "title": "Slack · App manifest reference",
+      "url": "https://docs.slack.dev/reference/app-manifest"
+    },
+    {
+      "id": "slack-quickstart",
+      "title": "Slack · Quickstart with app settings",
+      "url": "https://docs.slack.dev/app-management/quickstart-app-settings"
+    },
+    {
+      "id": "slack-token-rotation",
+      "title": "Slack · Using token rotation",
+      "url": "https://docs.slack.dev/authentication/using-token-rotation"
+    },
+    {
+      "id": "slack-pkce",
+      "title": "Slack · PKCE is generally available",
+      "url": "https://docs.slack.dev/changelog/2026/03/30/pkce"
+    },
+    {
+      "id": "slack-scope-search-read",
+      "title": "Slack · search:read scope",
+      "url": "https://docs.slack.dev/reference/scopes/search.read"
+    },
+    {
+      "id": "slack-distribution",
+      "title": "Slack · App lifecycle & distribution",
+      "url": "https://docs.slack.dev/app-management/distribution"
+    },
+    {
+      "id": "slack-rate-limit-change",
+      "title": "Slack · Rate limits for non-Marketplace apps",
+      "url": "https://docs.slack.dev/changelog/2025/05/29/rate-limit-changes-for-non-marketplace-apps"
+    },
+    {
+      "id": "slack-history-method",
+      "title": "Slack · conversations.history",
+      "url": "https://docs.slack.dev/reference/methods/conversations.history"
+    },
+    {
+      "id": "slack-mkt-review",
+      "title": "Slack · Marketplace review guide",
+      "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+    },
+    {
+      "id": "slack-mkt-guidelines",
+      "title": "Slack · Marketplace guidelines",
+      "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-app-guidelines-and-requirements"
+    },
+    {
+      "id": "slack-mkt-install-2025",
+      "title": "Slack · Marketplace install bar (Jul 2025)",
+      "url": "https://docs.slack.dev/changelog/2025/07/08/slack-marketplace"
+    },
+    {
+      "id": "slack-mkt-install-2026",
+      "title": "Slack · Marketplace install bar (Sep 2026)",
+      "url": "https://docs.slack.dev/changelog/2026/09/01/slack-marketplace-install-requirement"
+    },
+    {
+      "id": "slack-dev-support",
+      "title": "Slack · Developer support",
+      "url": "https://docs.slack.dev/developer-support"
+    },
+    {
+      "id": "slack-dev-policy",
+      "title": "Slack · Developer policy",
+      "url": "https://docs.slack.dev/developer-policy"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-slack-toolkit",
+      "title": "Composio · Slack toolkit",
+      "url": "https://docs.composio.dev/toolkits/slack"
+    },
+    {
+      "id": "composio-custom-webhooks",
+      "title": "Composio · Custom OAuth webhooks",
+      "url": "https://docs.composio.dev/docs/setting-up-triggers/custom-oauth-webhooks"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "slack-support",
+      "label": "Slack Developer Support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://slack.com/help/requests/new",
+      "when": "OAuth errors, app settings, rate limits, or Slack behaviour the docs don't explain.",
+      "sources": [
+        "slack-dev-support"
+      ],
+      "checks": [
+        "slack-support-page"
+      ]
+    },
+    {
+      "id": "slack-marketplace-email",
+      "label": "Slack Marketplace team",
+      "org": "provider",
+      "kind": "email",
+      "target": "feedback@slack.com",
+      "when": "Questions about Slack Marketplace listing or the review process.",
+      "sources": [
+        "slack-dev-policy"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

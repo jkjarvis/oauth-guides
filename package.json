@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "probe": "node scripts/probe-github.mjs"
+    "probe": "node scripts/probe.mjs",
+    "validate": "tsx scripts/validate.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -29,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

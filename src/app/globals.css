@@ -135,12 +135,14 @@
     --success: oklch(0.6 0.15 155);
     --warning: oklch(0.72 0.15 75);
     --info: oklch(0.55 0.2 260);
+    --admin: oklch(0.55 0.2 305);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --success: oklch(0.72 0.16 155);
       --warning: oklch(0.8 0.14 80);
       --info: oklch(0.7 0.15 260);
+      --admin: oklch(0.74 0.14 305);
     }
   }
 }
@@ -148,4 +150,5 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-admin: var(--admin);
 }

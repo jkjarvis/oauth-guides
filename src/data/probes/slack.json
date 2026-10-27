@@ -1,0 +1,159 @@
+{
+  "guide": "slack",
+  "ranAt": "2026-10-27T22:56:51.975Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio slack toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/slack (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "apps-page",
+      "title": "Slack app settings page loads",
+      "request": "GET https://api.slack.com/apps?new_app=1",
+      "expect": "HTTP 200, \"Slack API: Applications\" page",
+      "observed": "HTTP 200, Applications page",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "manifest-link",
+      "title": "Prefilled manifest link loads",
+      "request": "GET https://api.slack.com/apps?new_app=1&manifest_json=%7B%22display_information%22%3A%7B%22name%22%3A%22Your%20App%20Name%22%7D%2C%22oauth_config%22%3A%7B%22redirect_urls%22%3A%5B%22https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback%22%5D%2C%22scopes%22%3A%7B%22user%22%3A%5B%22channels%3Aread%22%2C%22channels%3Ahistory%22%2C%22groups%3Aread%22%2C%22groups%3Ahistory%22%2C%22im%3Aread%22%2C%22im%3Ahistory%22%2C%22mpim%3Aread%22%2C%22mpim%3Ahistory%22%2C%22chat%3Awrite%22%2C%22users%3Aread%22%2C%22reactions%3Awrite%22%2C%22search%3Aread%22%5D%7D%7D%2C%22settings%22%3A%7B%22token_rotation_enabled%22%3Afalse%7D%7D",
+      "expect": "HTTP 200 Applications page (prefill shows after sign-in)",
+      "observed": "HTTP 200, 637 chars",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "authorize-signin",
+      "title": "Authorize sends signed-out users to sign-in",
+      "request": "GET https://slack.com/oauth/v2/authorize?client_id=1111111111.2222222222&user_scope=channels:read&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&tracked=1",
+      "expect": "302 to workspace-signin, even for a fake client_id",
+      "observed": "HTTP 302 → https://slack.com/workspace-signin",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "token-fake-code",
+      "title": "Token exchange checks the code first",
+      "request": "POST https://slack.com/api/oauth.v2.access (fake client_id, secret, code)",
+      "expect": "error: invalid_code",
+      "observed": "ok: false, error: invalid_code",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "oidc-discovery",
+      "title": "OIDC is Sign in with Slack only",
+      "request": "GET https://slack.com/.well-known/openid-configuration",
+      "expect": "Issuer https://slack.com, scopes openid/profile/email",
+      "observed": "issuer https://slack.com; scopes openid profile email",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "rate-limit-changelog",
+      "title": "Non-Marketplace rate limit notice is live",
+      "request": "GET https://docs.slack.dev/changelog/2025/05/29/rate-limit-changes-for-non-marketplace-apps.md",
+      "expect": "Mentions 1 request per minute and 15 objects",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "history-reference-tier",
+      "title": "conversations.history reference still says Tier 3",
+      "request": "GET https://docs.slack.dev/reference/methods/conversations.history.md",
+      "expect": "Lists Tier 3 and limit max 999, no non-Marketplace note",
+      "observed": "HTTP 200; Tier 3: true; non-Marketplace note: false",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "marketplace-install-requirement",
+      "title": "Marketplace needs 10 active installs",
+      "request": "GET https://docs.slack.dev/changelog/2026/09/01/slack-marketplace-install-requirement.md",
+      "expect": "Says at least 10 installations on active workspaces",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "marketplace-review-timeline",
+      "title": "Marketplace review timeline is published",
+      "request": "GET https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide.md",
+      "expect": "Up to 10 business days, then up to 10 weeks",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "distribution-doc",
+      "title": "Public distribution steps are published",
+      "request": "GET https://docs.slack.dev/app-management/distribution.md",
+      "expect": "Mentions Manage Distribution and Activate Public Distribution",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "composio-slack-faq",
+      "title": "Composio Slack FAQ covers admin approval",
+      "request": "GET https://docs.composio.dev/toolkits/slack.md",
+      "expect": "Mentions Require approved apps and Marketplace setting",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    },
+    {
+      "id": "slack-support-page",
+      "title": "Slack support request page resolves",
+      "request": "GET https://slack.com/help/requests/new",
+      "expect": "Redirects to the help request form, not 404",
+      "observed": "HTTP 302 → 200 https://slack.com/intl/en-in/help/requests/new",
+      "pass": true,
+      "ranAt": "2026-10-27T22:56:51.975Z"
+    }
+  ]
+}

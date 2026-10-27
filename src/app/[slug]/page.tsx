@@ -47,9 +47,9 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
 
       <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
         <Fact label="Hands-on time" value={formatMinutes(guide.facts.handsOnMinutes)} />
-        <Fact label="Approval wait" value={formatWait(guide.facts.approvalWait)} />
+        <Fact label="Approval wait" value={formatWait(guide.facts.approvalWait)} detail={guide.facts.approvalWait?.asStated} />
         <Fact label="Provider review" value={REVIEW_LABEL[guide.facts.review]} />
-        <Fact label="Cost" value={guide.facts.cost.asStated} />
+        <Fact label="Cost" value={guide.facts.cost.summary} detail={guide.facts.cost.asStated} />
       </dl>
 
       <GuideSteps guide={guide} probes={getProbes(guide.slug)?.results ?? []} />
@@ -57,11 +57,12 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
   )
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, detail }: { label: string; value: string; detail?: string }) {
   return (
     <div className="space-y-1 bg-card px-5 py-4">
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="text-lg font-semibold tracking-tight">{value}</dd>
+      {detail && detail !== value && <dd className="text-xs text-muted-foreground">{detail}</dd>}
     </div>
   )
 }

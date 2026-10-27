@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CopyButton } from "@/components/guide/copy-button"
 import { ClientIdCheck } from "@/components/guide/client-id-check"
 import { WhoChip } from "@/components/guide/labels"
+import { StepHelp } from "@/components/guide/step-help"
 import { formatMinutes } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import type { Guide, ProbeResult, Step } from "@/lib/guide-schema"
@@ -122,6 +123,7 @@ export function GuideSteps({ guide, probes }: { guide: Guide; probes: ProbeResul
                   <span className={cn("flex-1 leading-snug", state === "done" && "line-through decoration-muted-foreground/40")}>
                     {step.title}
                   </span>
+                  <StepTag step={step} />
                 </button>
               </li>
             )
@@ -184,11 +186,17 @@ function StepView({
             </span>
             <WhoChip who={step.who} />
             {step.minutes.max > 0 && <span className="font-mono tabular-nums">{formatMinutes(step.minutes)}</span>}
+            {step.wait && <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning">Wait: {step.wait.summary ?? step.wait.asStated}</span>}
             {step.optional && <span className="rounded-full border px-2 py-0.5">Optional</span>}
             {state === "blocked" && <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning">Blocked</span>}
           </div>
           <h2 className="text-2xl font-semibold tracking-tight">{step.title}</h2>
           {step.when && <p className="text-sm text-muted-foreground">{step.when}</p>}
+          {step.wait?.summary && (
+            <p className="text-sm">
+              <span className="text-muted-foreground">Provider says:</span> {step.wait.asStated}
+            </p>
+          )}
         </header>
 
         <ol className="space-y-2.5">
@@ -271,6 +279,8 @@ function StepView({
             ))}
           </div>
         )}
+
+        <StepHelp guide={guide} step={step} />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t px-5 py-4 sm:px-8">
@@ -364,6 +374,20 @@ function StepView({
       )}
     </article>
   )
+}
+
+// Flags steps that aren't plain hands-on work, so the nav shows where waits and hand-offs are.
+function StepTag({ step }: { step: Step }) {
+  const tag =
+    step.who === "wait"
+      ? { label: "wait", className: "text-warning" }
+      : step.who === "their-admin"
+        ? { label: "their admin", className: "text-admin" }
+        : step.optional
+          ? { label: "optional", className: "text-muted-foreground" }
+          : null
+  if (!tag) return null
+  return <span className={cn("shrink-0 text-[10px] font-medium tracking-wide uppercase", tag.className)}>{tag.label}</span>
 }
 
 function StatusIcon({ state, current }: { state?: Status; current: boolean }) {

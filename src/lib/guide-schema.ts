@@ -14,6 +14,8 @@ export const Wait = Range.extend({
   unit: z.enum(["minutes", "hours", "days", "business_days", "weeks"]),
   openEnded: z.boolean().default(false),
   asStated: Short,
+  // Short form for cards and chips ("3–8 weeks"); asStated keeps the provider's exact wording.
+  summary: z.string().min(1).max(24).optional(),
 })
 
 export const Field = z.object({
@@ -35,11 +37,21 @@ export const Warning = z.object({
   unconfirmed: Short.optional(),
 })
 
+// Our own explanation of a problem people hit in this step, shown before any "ask the provider" option.
+export const Problem = z.object({
+  q: z.string().min(1).max(100),
+  a: z.array(Short).min(1).max(4),
+  sources: z.array(z.string()).default([]),
+})
+
 export const Step = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   title: Title,
-  who: z.enum(["you", "agent", "wait"]),
+  // you: hands-on work · agent: an agent or this site can do it · wait: the provider's clock
+  // their-admin: someone in your user's organization has to act (e.g. admin consent)
+  who: z.enum(["you", "agent", "wait", "their-admin"]),
   minutes: Range,
+  wait: Wait.optional(),
   optional: z.boolean().default(false),
   when: Short.optional(),
   instructions: z.array(Short).min(1).max(8),
@@ -52,6 +64,20 @@ export const Step = z.object({
   sources: z.array(z.string()).default([]),
   checks: z.array(z.string()).default([]),
   unconfirmed: Short.optional(),
+  problems: z.array(Problem).max(5).default([]),
+  // Support contacts (ids) to offer for this step; defaults to the guide's provider contacts.
+  contacts: z.array(z.string()).default([]),
+})
+
+export const Contact = z.object({
+  id: z.string(),
+  label: Title,
+  org: z.enum(["provider", "composio"]),
+  kind: z.enum(["email", "page"]),
+  target: z.string().min(3),
+  when: Short,
+  sources: z.array(z.string()).default([]),
+  checks: z.array(z.string()).default([]),
 })
 
 export const Source = z.object({
@@ -78,13 +104,28 @@ export const Guide = z
       handsOnMinutes: Range,
       approvalWait: Wait.nullable(),
       review: z.enum(["none", "optional", "required"]),
-      cost: z.object({ usdPerYear: z.number().nonnegative(), asStated: Short }),
+      cost: z.object({ usdPerYear: z.number().nonnegative(), asStated: Short, summary: z.string().min(1).max(24) }),
     }),
     steps: z.array(Step).min(1),
+    contacts: z.array(Contact).min(1),
     sources: z.array(Source),
   })
   .superRefine((g, ctx) => {
     const sourceIds = new Set(g.sources.map((s) => s.id))
+    const contactIds = new Set(g.contacts.map((c) => c.id))
+    if (g.facts.approvalWait && !g.facts.approvalWait.summary)
+      ctx.addIssue({ code: "custom", message: "facts.approvalWait needs a short summary" })
+    for (const c of g.contacts) {
+      if (c.kind === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.target))
+        ctx.addIssue({ code: "custom", message: `Contact "${c.label}" is not a valid email` })
+      if (c.kind === "page" && !/^https:\/\//.test(c.target))
+        ctx.addIssue({ code: "custom", message: `Contact "${c.label}" must be an https URL` })
+      if (c.sources.length === 0 && c.checks.length === 0)
+        ctx.addIssue({ code: "custom", message: `Contact "${c.label}" needs a source or a live check` })
+      for (const id of c.sources) {
+        if (!sourceIds.has(id)) ctx.addIssue({ code: "custom", message: `Contact "${c.label}" cites unknown source "${id}"` })
+      }
+    }
     const stepIds = new Set<string>()
     for (const s of g.steps) {
       if (stepIds.has(s.id)) ctx.addIssue({ code: "custom", message: `Duplicate step id: ${s.id}` })
@@ -95,7 +136,11 @@ export const Guide = z
         if (w.sources.length === 0 && !w.unconfirmed)
           ctx.addIssue({ code: "custom", message: `Warning in "${s.title}" needs a source or an unconfirmed note` })
       }
-      for (const id of [...s.sources, ...s.warnings.flatMap((w) => w.sources)]) {
+      if (s.who === "wait" && !s.wait) ctx.addIssue({ code: "custom", message: `Wait step "${s.title}" needs a wait duration` })
+      for (const c of s.contacts) {
+        if (!contactIds.has(c)) ctx.addIssue({ code: "custom", message: `"${s.title}" offers unknown contact "${c}"` })
+      }
+      for (const id of [...s.sources, ...s.warnings.flatMap((w) => w.sources), ...s.problems.flatMap((p) => p.sources)]) {
         if (!sourceIds.has(id)) ctx.addIssue({ code: "custom", message: `"${s.title}" cites unknown source "${id}"` })
       }
     }
@@ -120,6 +165,7 @@ export const ProbeRun = z.object({
 export type Guide = z.infer<typeof Guide>
 export type Step = z.infer<typeof Step>
 export type Source = z.infer<typeof Source>
+export type Contact = z.infer<typeof Contact>
 export type ProbeRun = z.infer<typeof ProbeRun>
 export type ProbeResult = z.infer<typeof ProbeResult>
 export type Wait = z.infer<typeof Wait>

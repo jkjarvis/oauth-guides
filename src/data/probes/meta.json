@@ -1,0 +1,186 @@
+{
+  "guide": "meta",
+  "ranAt": "2026-10-27T23:00:17.956Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio facebook toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/facebook (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "composio-instagram-toolkit-page",
+      "title": "Composio instagram toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/instagram",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "graph-latest-version",
+      "title": "Latest Graph API version is v26.0",
+      "request": "GET https://developers.facebook.com/docs/graph-api/changelog",
+      "expect": "Changelog says the latest version is v26.0",
+      "observed": "latest: v26.0",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "dialog-malformed-app",
+      "title": "Malformed App ID is rejected by the login dialog",
+      "request": "GET https://www.facebook.com/v26.0/dialog/oauth?client_id=0000000000000001&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&scope=pages_show_list&state=probe",
+      "expect": "Redirect to /oauth/error/ with PLATFORM__INVALID_APP_ID",
+      "observed": "HTTP 302, error_code=PLATFORM__INVALID_APP_ID",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "dialog-defers-check",
+      "title": "Dialog checks well-formed App IDs only after sign-in",
+      "request": "GET https://www.facebook.com/v26.0/dialog/oauth?client_id=1000000000000001&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&scope=pages_show_list&state=probe and https://www.facebook.com/v26.0/dialog/oauth?client_id=145634995501895&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&scope=pages_show_list&state=probe",
+      "expect": "Both an unknown and a real App ID redirect to login.php",
+      "observed": "unknown → login.php; real → login.php",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Unknown App ID fails token exchange",
+      "request": "GET https://graph.facebook.com/v26.0/oauth/access_token (fake client_id)",
+      "expect": "OAuthException code 101: Missing or invalid client id.",
+      "observed": "code 101: Missing or invalid client id.",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "token-unregistered-redirect",
+      "title": "Unregistered redirect URI fails with Can't load URL",
+      "request": "GET https://graph.facebook.com/v26.0/oauth/access_token (real app, Composio callback not registered)",
+      "expect": "OAuthException code 191: Can't load URL: The domain of this URL isn't included…",
+      "observed": "code 191: Can't load URL: The domain of this URL isn't included in the app's domains. To be able to ",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "token-wrong-secret",
+      "title": "Wrong App Secret is rejected",
+      "request": "GET https://graph.facebook.com/v26.0/oauth/access_token (real app, wrong secret, client_credentials)",
+      "expect": "OAuthException code 1: Error validating client secret.",
+      "observed": "code 1: Error validating client secret.",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "oidc-id-token-only",
+      "title": "Facebook OIDC discovery is id_token only",
+      "request": "GET https://www.facebook.com/.well-known/openid-configuration",
+      "expect": "200; response_types has no code flow, so Composio uses plain OAuth 2.0",
+      "observed": "HTTP 200; response_types: id_token, token id_token",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "ig-token-unknown-client",
+      "title": "Instagram Login rejects an unknown Instagram App ID",
+      "request": "POST https://api.instagram.com/oauth/access_token (fake client_id)",
+      "expect": "error_message: \"Invalid platform app\"",
+      "observed": "error_message: Invalid platform app",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "pages-usecase-doc",
+      "title": "Pages use-case doc names FLfB Settings → Redirect URI",
+      "request": "GET https://developers.facebook.com/documentation/pages-api/create-an-app.md",
+      "expect": "Mentions Manage everything on your Page, Facebook Login for Business, Redirect URI",
+      "observed": "HTTP 200; all labels present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "app-review-decision-wording",
+      "title": "App Review guide promises a decision within a week",
+      "request": "GET https://developers.facebook.com/documentation/resp-plat-initiatives/individual-processes/app-review/submission-guide.md",
+      "expect": "Contains \"receive a decision\" … \"within a week\"",
+      "observed": "HTTP 200; wording present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "meta-support-page",
+      "title": "Meta Developer Support page resolves",
+      "request": "GET https://developers.facebook.com/support/",
+      "expect": "Title \"Developer Support\"",
+      "observed": "HTTP 200; Developer Support - Meta for Developers",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "meta-bug-tool",
+      "title": "Meta bug-reporting tool resolves",
+      "request": "GET https://developers.facebook.com/support/bugs/",
+      "expect": "Title \"Platform Bug Reports\"",
+      "observed": "HTTP 200; Platform Bug Reports - Meta for Developers",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "meta-business-direct-support",
+      "title": "Meta Business direct support link exists",
+      "request": "GET https://business.facebook.com/direct-support/",
+      "expect": "Redirects to Business login with the path kept in next=",
+      "observed": "HTTP 302; next=https://business.facebook.com/direct-support/",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    },
+    {
+      "id": "meta-community-forum",
+      "title": "Meta Developer Community Forum resolves",
+      "request": "GET https://developers.facebook.com/community/",
+      "expect": "Title \"Developer Community Forum\"",
+      "observed": "HTTP 200; Developer Community Forum - Meta for Developers",
+      "pass": true,
+      "ranAt": "2026-10-27T23:00:17.956Z"
+    }
+  ]
+}

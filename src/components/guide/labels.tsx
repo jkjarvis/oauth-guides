@@ -1,4 +1,4 @@
-import { Bot, Hourglass, User } from "lucide-react"
+import { Bot, Building2, Hourglass, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Step } from "@/lib/guide-schema"
 
@@ -6,6 +6,7 @@ const WHO = {
   you: { label: "You", icon: User, className: "text-foreground" },
   agent: { label: "Agent", icon: Bot, className: "text-info" },
   wait: { label: "Wait", icon: Hourglass, className: "text-warning" },
+  "their-admin": { label: "Their admin", icon: Building2, className: "text-admin" },
 } as const
 
 export function WhoChip({ who }: { who: Step["who"] }) {

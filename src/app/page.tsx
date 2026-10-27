@@ -35,7 +35,7 @@ export default function LibraryPage() {
                 <dl className="grid grid-cols-3 gap-2 text-xs">
                   <Stat icon={Clock} label="Hands-on" value={formatMinutes(g.facts.handsOnMinutes)} />
                   <Stat icon={Hourglass} label="Wait" value={formatWait(g.facts.approvalWait)} />
-                  <Stat icon={Wallet} label="Cost" value={g.facts.cost.asStated} />
+                  <Stat icon={Wallet} label="Cost" value={g.facts.cost.summary} />
                 </dl>
                 <div className="flex items-center justify-between border-t pt-3 font-mono text-[11px] text-muted-foreground">
                   <span>{g.steps.length} steps</span>

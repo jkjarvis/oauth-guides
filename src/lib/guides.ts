@@ -1,22 +1,47 @@
 import githubGuide from "@/data/guides/github.json"
 import githubProbes from "@/data/probes/github.json"
+import slackGuide from "@/data/guides/slack.json"
+import slackProbes from "@/data/probes/slack.json"
+import gmailGuide from "@/data/guides/gmail.json"
+import gmailProbes from "@/data/probes/gmail.json"
+import outlookGuide from "@/data/guides/outlook.json"
+import outlookProbes from "@/data/probes/outlook.json"
+import metaGuide from "@/data/guides/meta.json"
+import metaProbes from "@/data/probes/meta.json"
 import { Guide, ProbeRun } from "@/lib/guide-schema"
 export { formatMinutes, formatWait } from "@/lib/format"
 
 // Parsing at import time means a malformed guide fails the build, not the page.
-const guides = [Guide.parse(githubGuide)]
-const probeRuns: Record<string, ProbeRun> = { github: ProbeRun.parse(githubProbes) }
+const entries = [
+  { guide: githubGuide, probes: githubProbes },
+  { guide: slackGuide, probes: slackProbes },
+  { guide: gmailGuide, probes: gmailProbes },
+  { guide: outlookGuide, probes: outlookProbes },
+  { guide: metaGuide, probes: metaProbes },
+].map(({ guide, probes }) => {
+  const g = Guide.parse(guide)
+  const run = ProbeRun.parse(probes)
+  const results = new Map(run.results.map((r) => [r.id, r]))
+  for (const id of [...g.steps.flatMap((s) => s.checks), ...g.contacts.flatMap((c) => c.checks)]) {
+    const r = results.get(id)
+    if (!r) throw new Error(`${g.slug}: cites live check "${id}", which has no probe result`)
+    if (!r.pass) throw new Error(`${g.slug}: cites live check "${id}", which failed (${r.observed})`)
+  }
+  return { guide: g, probes: run }
+})
 
-export const planned = ["Slack", "Gmail", "Microsoft Outlook", "Meta"]
+export const planned = ["Slack", "Gmail", "Microsoft Outlook", "Meta"].filter(
+  (name) => !entries.some((e) => e.guide.name === name),
+)
 
 export function listGuides() {
-  return guides
+  return entries.map((e) => e.guide)
 }
 
 export function getGuide(slug: string) {
-  return guides.find((g) => g.slug === slug)
+  return entries.find((e) => e.guide.slug === slug)?.guide
 }
 
 export function getProbes(slug: string) {
-  return probeRuns[slug]
+  return entries.find((e) => e.guide.slug === slug)?.probes
 }
