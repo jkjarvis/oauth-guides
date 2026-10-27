@@ -1,0 +1,132 @@
+{
+  "guide": "linear",
+  "ranAt": "2026-10-27T23:15:46.618Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio linear toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/linear (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "oauth-metadata",
+      "title": "OAuth endpoints and refresh grant published",
+      "request": "GET https://api.linear.app/.well-known/oauth-authorization-server",
+      "expect": "authorize at linear.app/oauth/authorize, token at api.linear.app/oauth/token, refresh_token grant",
+      "observed": "HTTP 200; grants: authorization_code, refresh_token, client_credentials, urn:ietf:params:oauth:grant-type:jwt-bearer",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Wrong client credentials are rejected",
+      "request": "POST https://api.linear.app/oauth/token (unknown client_id, wrong secret, grant_type=authorization_code)",
+      "expect": "error: invalid_client",
+      "observed": "HTTP 400; error: invalid_client",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "refresh-unknown-client",
+      "title": "Refresh uses the same token endpoint",
+      "request": "POST https://api.linear.app/oauth/token (unknown client_id, grant_type=refresh_token)",
+      "expect": "error: invalid_client",
+      "observed": "HTTP 400; error: invalid_client",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "token-lifetime-doc",
+      "title": "Docs: 24-hour tokens since April 1, 2026",
+      "request": "GET https://linear.app/developers/oauth-2-0-authentication.md",
+      "expect": "Says all apps moved to refresh tokens on April 1, 2026 and access tokens last 24 hours",
+      "observed": "HTTP 200; April 1, 2026 stated; 24 hours stated",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "public-distribution-doc",
+      "title": "Docs: apps are private by default",
+      "request": "GET https://linear.app/developers/oauth-app-manifests.md",
+      "expect": "distribution allows private or public; default private",
+      "observed": "HTTP 200; private default stated",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "admin-page-doc",
+      "title": "Docs: OAuth apps need workspace admin",
+      "request": "GET https://linear.app/docs/api-and-webhooks.md",
+      "expect": "OAuth applications live in Settings > Administration > API, admin only",
+      "observed": "HTTP 200; admin requirement stated",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "linear-support-page",
+      "title": "Linear Contact support page is live",
+      "request": "GET https://linear.app/contact/support",
+      "expect": "Page titled 'Contact support – Linear' listing support@linear.app",
+      "observed": "HTTP 200; title matches; support@linear.app listed",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "linear-slack",
+      "title": "Linear community Slack link resolves",
+      "request": "GET https://linear.app/join-slack",
+      "expect": "Page links a join.slack.com invite",
+      "observed": "HTTP 200; invite to linearcustomers",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    },
+    {
+      "id": "directory-contact-doc",
+      "title": "Docs: directory submissions go to integrations@",
+      "request": "GET https://linear.app/developers/integration-directory.md",
+      "expect": "Mentions integrations@linear.app and the submission form",
+      "observed": "HTTP 200; email and form present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:15:46.618Z"
+    }
+  ]
+}

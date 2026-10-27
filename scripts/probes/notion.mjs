@@ -39,9 +39,10 @@ const probes = [
   {
     id: "marketplace-dashboard",
     title: "Marketplace listing dashboard exists",
-    request: "GET https://www.notion.so/profile/connections (control: /profile/zzznotreal)",
+    // Docs link www.notion.so/profile/connections, which blocks scripted requests; Notion's app now lives on app.notion.com.
+    request: "GET https://app.notion.com/profile/connections (control: /profile/zzznotreal)",
     expect: "200; control 404s",
-    run: () => routeVsControl("https://www.notion.so/profile/connections", "https://www.notion.so/profile/zzznotreal"),
+    run: () => routeVsControl("https://app.notion.com/profile/connections", "https://app.notion.com/profile/zzznotreal"),
   },
   {
     id: "authorize-signin-first",

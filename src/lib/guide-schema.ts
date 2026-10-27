@@ -3,6 +3,8 @@ import { z } from "zod"
 // Short text keeps guides scannable: instructions, not paragraphs.
 const Short = z.string().min(1).max(160)
 const Title = z.string().min(1).max(60)
+// Guides can arrive through share links, so every link must be plain https.
+const HttpsUrl = z.url().refine((u) => u.startsWith("https://"), "must be an https URL")
 
 export const Range = z.object({
   min: z.number().nonnegative(),
@@ -59,7 +61,7 @@ export const Step = z.object({
   check: z.enum(["github-client-id"]).optional(),
   snippets: z.array(Snippet).default([]),
   warnings: z.array(Warning).default([]),
-  actions: z.array(z.object({ label: Title, url: z.url() })).max(2).default([]),
+  actions: z.array(z.object({ label: Title, url: HttpsUrl })).max(2).default([]),
   // Where the step's facts come from: docs we read, and live checks we ran.
   sources: z.array(z.string()).default([]),
   checks: z.array(z.string()).default([]),
@@ -83,7 +85,7 @@ export const Contact = z.object({
 export const Source = z.object({
   id: z.string(),
   title: Title,
-  url: z.url(),
+  url: HttpsUrl,
 })
 
 export const Guide = z
@@ -98,7 +100,7 @@ export const Guide = z
       toolkit: z.string(),
       managedAvailable: z.boolean(),
       authScheme: z.string(),
-      callbackUrl: z.url(),
+      callbackUrl: HttpsUrl,
     }),
     facts: z.object({
       handsOnMinutes: Range,

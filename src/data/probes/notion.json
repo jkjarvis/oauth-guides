@@ -1,0 +1,132 @@
+{
+  "guide": "notion",
+  "ranAt": "2026-10-27T23:11:23.363Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio notion toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/notion (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "developer-portal",
+      "title": "Developer portal connections page exists",
+      "request": "GET https://app.notion.com/developers/connections (control: /developers/zzznotreal)",
+      "expect": "200; control 404s",
+      "observed": "HTTP 200; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "marketplace-dashboard",
+      "title": "Marketplace listing dashboard exists",
+      "request": "GET https://app.notion.com/profile/connections (control: /profile/zzznotreal)",
+      "expect": "200; control 404s",
+      "observed": "HTTP 200; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "authorize-signin-first",
+      "title": "Authorize URL goes to the install page first",
+      "request": "GET https://api.notion.com/v1/oauth/authorize?client_id=00000000-0000-0000-0000-000000000000&response_type=code&owner=user&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback",
+      "expect": "302 to app.notion.com/install-integration, client_id kept, no error yet",
+      "observed": "HTTP 302 → https://app.notion.com/install-integration",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Wrong client credentials are rejected",
+      "request": "POST https://api.notion.com/v1/oauth/token (Basic auth, unknown client ID, wrong secret, grant_type=authorization_code)",
+      "expect": "401 error: invalid_client",
+      "observed": "HTTP 401; error: invalid_client",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "refresh-unknown-client",
+      "title": "Refresh uses the same token endpoint",
+      "request": "POST https://api.notion.com/v1/oauth/token (Basic auth, unknown client ID, grant_type=refresh_token)",
+      "expect": "401 error: invalid_client",
+      "observed": "HTTP 401; error: invalid_client",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "scope-fixed-doc",
+      "title": "Docs say installation scope can't change",
+      "request": "GET https://developers.notion.com/guides/get-started/public-connections.md",
+      "expect": "Says installation scope can't be changed afterward",
+      "observed": "HTTP 200; statement present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "auth-url-review-doc",
+      "title": "Docs tie the Authorization URL to review",
+      "request": "GET https://developers.notion.com/guides/get-started/authorization.md",
+      "expect": "Says the Authorization URL field populates after review submission",
+      "observed": "HTTP 200; statement present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "notion-help-contact",
+      "title": "Notion Help Center offers support contact",
+      "request": "GET https://www.notion.com/help",
+      "expect": "200 with a 'Reach out to Notion support' option",
+      "observed": "HTTP 200; support option present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    },
+    {
+      "id": "notion-devs-slack",
+      "title": "Notion Devs Slack invite resolves",
+      "request": "GET https://join.slack.com/t/notiondevs/shared_invite/zt-3u9oid9q8-HLUBmMVWYK~g9HFo4U4raA",
+      "expect": "Redirects to notiondevs.slack.com",
+      "observed": "HTTP 302 → https://notiondevs.slack.com/join/shared_invite/zt-3u9oid9q8",
+      "pass": true,
+      "ranAt": "2026-10-27T23:11:23.363Z"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { z } from "zod"
 import { Guide, type ProbeResult } from "@/lib/guide-schema"
-import { SYSTEM_PROMPT, userMessage } from "@/lib/research/prompt"
+import { COMPOSIO_SOURCES, SYSTEM_PROMPT, userMessage } from "@/lib/research/prompt"
 import {
   COMPOSIO_CALLBACK,
   composioBaseProbes,
@@ -25,10 +25,10 @@ export type ResearchEvent =
 
 const MODEL = "claude-opus-5-5"
 // Vercel functions here stop at 300s; ask for a submission early enough to finish.
-const SOFT_DEADLINE_MS = 190_000
+const SOFT_DEADLINE_MS = 165_000
 const HARD_DEADLINE_MS = 285_000
 const MAX_TURNS = 40
-const MAX_PROBES = 16
+const MAX_PROBES = 10
 const MAX_SUBMITS = 4
 
 const COMPOSIO_DISCORD = {
@@ -64,8 +64,8 @@ const guideJsonSchema = (() => {
 })()
 
 const tools: Anthropic.Beta.BetaToolUnion[] = [
-  { type: "web_search_20260209", name: "web_search", max_uses: 10 },
-  { type: "web_fetch_20260209", name: "web_fetch", max_uses: 24, max_content_tokens: 16000 },
+  { type: "web_search_20260209", name: "web_search", max_uses: 6 },
+  { type: "web_fetch_20260209", name: "web_fetch", max_uses: 14, max_content_tokens: 16000 },
   {
     name: "composio_toolkit",
     description: "Look up a Composio toolkit by slug: whether it exists, its auth type, whether Composio offers a managed OAuth app, and Composio's setup page for the provider.",
@@ -164,14 +164,30 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
   let probesRun = 0
   let nudged = false
 
-  emit({ type: "status", message: "Checking Composio's callback and dashboard" })
-  for (const p of await composioBaseProbes()) {
+  // Composio's own docs are checked by us, so the agent can cite them without spending fetches.
+  for (const s of COMPOSIO_SOURCES) session.fetched.add(normalizeUrl(s.url))
+
+  emit({ type: "status", message: "Checking Composio's toolkit, callback and dashboard" })
+  const guess = app.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[./\s]/)[0]
+  const [base, toolkit] = await Promise.all([composioBaseProbes(), composioToolkit(guess).catch(() => null)])
+  for (const p of base) {
     session.probes.set(p.id, p)
     emit({ type: "probe", result: p })
   }
+  if (toolkit?.info.exists) {
+    session.toolkit = toolkit.info
+    session.probes.set(toolkit.probe.id, toolkit.probe)
+    session.fetched.add(normalizeUrl(toolkit.info.docUrl))
+    emit({ type: "toolkit", info: toolkit.info })
+    emit({ type: "probe", result: toolkit.probe })
+  }
   emit({ type: "status", message: `Researching ${app}` })
 
-  const messages: Anthropic.Beta.BetaMessageParam[] = [{ role: "user", content: userMessage(app, today) }]
+  const messages: Anthropic.Beta.BetaMessageParam[] = [
+    { role: "user", content: userMessage(app, today, toolkit?.info.exists ? toolkit.info : null, [...session.probes.values()]) },
+  ]
+  const seenReads = new Set<string>()
+  const seenSearches = new Set<string>()
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     if (signal?.aborted) throw new Error("Cancelled")
@@ -195,15 +211,18 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
     stream.on("contentBlock", (block) => {
       if (block.type === "server_tool_use") {
         const input = block.input as { query?: string; url?: string }
-        if (block.name === "web_search" && input.query) emit({ type: "search", query: input.query })
+        if (block.name === "web_search" && input.query && !seenSearches.has(input.query)) {
+          seenSearches.add(input.query)
+          emit({ type: "search", query: input.query })
+        }
       } else if (block.type === "web_fetch_tool_result") {
         const c = block.content
         if (c.type === "web_fetch_result") {
           session.fetched.add(normalizeUrl(c.url))
-          const title = c.content.title ?? undefined
-          emit({ type: "read", url: c.url, title, ok: true })
-        } else {
-          emit({ type: "read", url: "", ok: false })
+          if (!seenReads.has(normalizeUrl(c.url))) {
+            seenReads.add(normalizeUrl(c.url))
+            emit({ type: "read", url: c.url, title: c.content.title ?? undefined, ok: true })
+          }
         }
       }
     })
@@ -286,6 +305,7 @@ async function runTool(
       if (!input.success) return { content: `Invalid input: ${input.error.issues.map((i) => i.message).join("; ")}`, is_error: true }
       if (!hooks.countProbe()) return { content: "Probe limit reached. Submit the guide with the checks you have.", is_error: true }
       const { id, title, expect, ...req } = input.data
+      if (id.startsWith("composio-")) return { content: `"${id}" is reserved: the composio-* checks already ran (see the first message). Cite them directly.`, is_error: true }
       const request = `${req.method ?? "GET"} ${req.url}${req.form ? " (form: " + Object.keys(req.form).join(", ") + ")" : ""}`
       let result: ProbeResult
       let detail: object

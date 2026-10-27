@@ -8,6 +8,10 @@ import outlookGuide from "@/data/guides/outlook.json"
 import outlookProbes from "@/data/probes/outlook.json"
 import metaGuide from "@/data/guides/meta.json"
 import metaProbes from "@/data/probes/meta.json"
+import notionGuide from "@/data/guides/notion.json"
+import notionProbes from "@/data/probes/notion.json"
+import linearGuide from "@/data/guides/linear.json"
+import linearProbes from "@/data/probes/linear.json"
 import { Guide, ProbeRun } from "@/lib/guide-schema"
 export { formatMinutes, formatWait } from "@/lib/format"
 
@@ -18,6 +22,8 @@ const entries = [
   { guide: gmailGuide, probes: gmailProbes },
   { guide: outlookGuide, probes: outlookProbes },
   { guide: metaGuide, probes: metaProbes },
+  { guide: notionGuide, probes: notionProbes },
+  { guide: linearGuide, probes: linearProbes },
 ].map(({ guide, probes }) => {
   const g = Guide.parse(guide)
   const run = ProbeRun.parse(probes)
@@ -30,9 +36,6 @@ const entries = [
   return { guide: g, probes: run }
 })
 
-export const planned = ["Slack", "Gmail", "Microsoft Outlook", "Meta"].filter(
-  (name) => !entries.some((e) => e.guide.name === name),
-)
 
 export function listGuides() {
   return entries.map((e) => e.guide)

@@ -1,5 +1,15 @@
 import githubGuide from "@/data/guides/github.json"
-import { COMPOSIO_CALLBACK } from "@/lib/research/probe"
+import { COMPOSIO_CALLBACK, type ToolkitInfo } from "@/lib/research/probe"
+import type { ProbeResult } from "@/lib/guide-schema"
+
+// Composio pages we've verified; the agent may cite these without fetching them.
+export const COMPOSIO_SOURCES = [
+  { id: "composio-quickstart", title: "Composio · Quickstart", url: "https://docs.composio.dev/docs/quickstart" },
+  { id: "composio-dashboard-nav", title: "Composio · Dashboard auth configs", url: "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation" },
+  { id: "composio-managed-vs-custom", title: "Composio · Managed vs custom auth", url: "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app" },
+  { id: "composio-custom-auth", title: "Composio · Custom auth configs", url: "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs" },
+  { id: "composio-white-label", title: "Composio · White-labeling", url: "https://docs.composio.dev/docs/authentication/white-labeling-authentication" },
+]
 
 // Stable across runs so it caches; per-run details go in the user message.
 export const SYSTEM_PROMPT = `You research how a developer sets up THEIR OWN OAuth app with a provider and plugs it into Composio (instead of Composio's managed OAuth app), then write a step-by-step guide that a developer can follow without help.
@@ -7,14 +17,15 @@ export const SYSTEM_PROMPT = `You research how a developer sets up THEIR OWN OAu
 Accuracy matters more than coverage. A developer will follow this guide literally; a wrong menu label, URL or wait time costs them hours.
 
 # Method
-1. Call composio_toolkit with your best guess of Composio's toolkit slug (lowercase app name, e.g. "zoho", "pipedrive"). It tells you whether Composio has the toolkit and whether it already offers a managed OAuth app, plus a Composio setup page for the provider if one exists. If the slug doesn't exist, try one alternative (e.g. "zoho_crm"); if still missing, say in the tagline that Composio has no toolkit for it and keep the Composio steps generic.
+1. The first message says whether Composio has a toolkit for this app and whether it offers a managed OAuth app. If no toolkit was found, call composio_toolkit with one or two likely slugs (e.g. "zoho_crm", "googlecalendar"); if still missing, say in the tagline that Composio has no toolkit for it and keep the Composio steps generic.
 2. Find the provider's official developer docs with web_search. Prefer the provider's own domains over blogs. Fetch (web_fetch) the pages you rely on: app/client registration, OAuth authorization (endpoints, redirect URI rules, PKCE, refresh tokens), scopes, and any review, verification, marketplace or production-approval process. Read Composio's setup page for the provider if one exists, but trust the provider's docs when they disagree.
 3. Look specifically for what blocks or delays developers: mandatory reviews and their stated timelines, user/install caps before approval, admin consent in the end user's organization, business or domain verification, security assessments, paid tiers, short token lifetimes, scope restrictions, recent (2025–2026) policy changes, and conflicting statements between pages.
 4. Run live checks with http_probe. Useful, credential-free probes: the OIDC discovery document (/.well-known/openid-configuration) if one should exist; the authorize URL with a fake client_id and redirect_uri=${COMPOSIO_CALLBACK} (record the exact error or sign-in redirect); the token endpoint with fake credentials via POST form (record the error name); the developer console URL; the provider's support/contact page. Set "expect" so the check passes when reality matches what the guide claims. A check that fails is a finding: change the guide, don't cite the failed check.
+Budget: a run must finish in about three minutes. Search a few times, fetch each page at most once (roughly 6–12 pages), and run 4–8 probes. Don't re-run the composio-* checks: they already ran, and you can cite them.
 5. Call submit_guide with the complete guide. If it returns errors, fix them and submit again. When it is accepted, reply with one short sentence and stop.
 
 # Accuracy rules
-- Only cite sources you fetched in this session (sources[].url must be a URL you web_fetch'ed or http_probe'd). Never invent URLs, menu paths, email addresses, scopes or timelines.
+- Only cite sources you fetched in this session (sources[].url must be a URL you web_fetch'ed or http_probe'd), plus these pre-verified Composio pages, which you may cite without fetching: ${JSON.stringify(COMPOSIO_SOURCES)}. Never invent URLs, menu paths, email addresses, scopes or timelines.
 - Use the console's exact labels as the docs show them. If the docs don't show the current label, describe the action plainly and put what you couldn't confirm in the step's "unconfirmed" note.
 - Waits: quote the provider's own wording in wait.asStated ("3–5 business days", "within a week", "no published timeline"); never convert to a number the provider didn't state. If no timeline is published, say so and set openEnded.
 - When two official sources disagree, add a warning that states both.
@@ -42,8 +53,13 @@ Accuracy matters more than coverage. A developer will follow this guide literall
 # Example of a complete, accepted guide (GitHub)
 ${JSON.stringify(githubGuide)}`
 
-export function userMessage(app: string, today: string) {
+export function userMessage(app: string, today: string, toolkit: ToolkitInfo | null, probes: ProbeResult[]) {
   return `Write the guide for: ${app}
 
-Today is ${today}. Treat anything you remember about this provider as a lead to verify, not a fact.`
+Today is ${today}. Treat anything you remember about this provider as a lead to verify, not a fact.
+
+Composio toolkit lookup: ${toolkit ? JSON.stringify(toolkit) : "no toolkit matched the app name; try composio_toolkit with likely slugs."}
+
+Checks already run (cite passing ids in steps; don't re-run them):
+${probes.map((p) => `- ${p.id}: ${p.pass ? "PASS" : "FAIL"} (${p.title})`).join("\n")}`
 }

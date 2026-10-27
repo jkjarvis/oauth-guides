@@ -1,0 +1,691 @@
+{
+  "slug": "notion",
+  "name": "Notion",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Create a Notion public connection and plug it into Composio. No review needed; Marketplace listing is optional.",
+  "appType": "Public connection (OAuth)",
+  "composio": {
+    "toolkit": "notion",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 10,
+      "max": 20
+    },
+    "approvalWait": null,
+    "review": "optional",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Free. A free Notion workspace is enough to create and test the connection.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "create-connection",
+      "title": "Create a public connection",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "Open the Notion Developer portal. In the Build section of the sidebar, select Public connections.",
+        "Click Create new connection.",
+        "Enter a connection name and pick the development workspace you'll test in.",
+        "Installation scope: pick Any workspace so any Notion user can connect.",
+        "Keep the form open. Redirect URIs and capabilities are on the same form (next step)."
+      ],
+      "fields": [
+        {
+          "label": "Connection name",
+          "value": "Your product name",
+          "hint": "Shown to users on Notion's consent prompt",
+          "copy": false
+        },
+        {
+          "label": "Installation scope",
+          "value": "Any workspace",
+          "hint": "Selected workspaces only limits installs to workspaces you pick now",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Installation scope can't be changed after creation. Picking the wrong one means creating a new connection.",
+          "sources": [
+            "notion-public"
+          ]
+        },
+        {
+          "text": "Selected workspaces only can't be listed on the Marketplace, and since Sep 1, 2026 it is subject to Free-plan block limits.",
+          "sources": [
+            "notion-public",
+            "notion-changelog"
+          ]
+        },
+        {
+          "text": "Older guides send you to notion.so/profile/integrations and call this a public integration. The docs now use the Developer portal.",
+          "sources": [
+            "notion-public",
+            "composio-notion-auth"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Developer portal",
+          "url": "https://app.notion.com/developers/connections"
+        }
+      ],
+      "sources": [
+        "notion-public",
+        "notion-auth"
+      ],
+      "checks": [
+        "developer-portal",
+        "scope-fixed-doc"
+      ],
+      "unconfirmed": "Notion's docs list name, workspace, redirect URIs, scope and capabilities. We couldn't open the form logged out to see other required fields."
+    },
+    {
+      "id": "redirect-capabilities",
+      "title": "Add the redirect URI and capabilities",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "instructions": [
+        "Under OAuth Domain & URIs, add the Composio callback below as a redirect URI.",
+        "Under capabilities, tick only what your Notion tools need.",
+        "Read content to search and fetch; Update content to edit; Insert content to create pages.",
+        "Add Read comments / Insert comments only if your agent works with comments.",
+        "User capabilities: pick No user information unless a tool needs names or emails.",
+        "Create the connection."
+      ],
+      "fields": [
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "HTTPS, exact match, no trailing slash"
+        },
+        {
+          "label": "Starter capabilities",
+          "value": "Read content, Update content, Insert content",
+          "hint": "Trim to what your tools use",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Changing capabilities later makes every connected user re-authorize.",
+          "sources": [
+            "notion-capabilities"
+          ]
+        },
+        {
+          "text": "Notion has no OAuth scopes. Capabilities here plus the pages each user picks decide access.",
+          "sources": [
+            "notion-capabilities",
+            "composio-notion-toolkit"
+          ]
+        }
+      ],
+      "sources": [
+        "notion-public",
+        "notion-capabilities",
+        "notion-create-token",
+        "composio-notion-auth"
+      ],
+      "checks": [
+        "composio-callback",
+        "authorize-signin-first"
+      ],
+      "problems": [
+        {
+          "q": "Connecting fails with a redirect URI error",
+          "a": [
+            "The redirect URI under OAuth Domain & URIs doesn't match the one in your Composio auth config.",
+            "Paste the Composio callback exactly, with no trailing slash, and save."
+          ],
+          "sources": [
+            "composio-notion-auth",
+            "notion-create-token"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the client ID and secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Open your connection's Configuration tab.",
+        "Copy the OAuth client ID and OAuth client secret.",
+        "Store the secret in a secret manager, never in git.",
+        "Ignore the Authorization URL field. Composio builds the sign-in URL from your client ID."
+      ],
+      "warnings": [
+        {
+          "text": "Notion says the Authorization URL field stays empty until the connection is submitted for review. Composio doesn't need it.",
+          "sources": [
+            "notion-auth",
+            "composio-notion-auth"
+          ],
+          "unconfirmed": "We couldn't create a connection, so we didn't see whether the field is still empty before review."
+        }
+      ],
+      "sources": [
+        "notion-public",
+        "notion-auth"
+      ],
+      "checks": [
+        "auth-url-review-doc",
+        "token-unknown-client"
+      ],
+      "problems": [
+        {
+          "q": "Connecting fails with invalid_client",
+          "a": [
+            "Notion didn't accept the client ID and secret pair Composio sent.",
+            "Copy both again from the Configuration tab and update your Composio auth config."
+          ],
+          "sources": [
+            "notion-refresh",
+            "notion-create-token"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Notion toolkit in Composio and create an auth config.",
+        "Use the values below, then paste your OAuth client ID and client secret.",
+        "Leave scopes empty. Notion doesn't use them.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the redirect URI in Notion exactly"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Notion in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/notion"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-notion-auth",
+        "composio-notion-toolkit",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "The link didn't open the Notion toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Notion, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { notion: \"ac_your_notion_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"notion\": \"ac_your_notion_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for notion.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Start a connection for a test user and open the link.",
+        "Notion's prompt should show your connection name and capabilities, not Composio.",
+        "Click Select pages and pick the pages or databases the agent should use. Children are included.",
+        "Click Allow access. Pages are only shared once Composio finishes the token exchange.",
+        "Each Notion user connects separately. One user's connection doesn't cover teammates.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "warnings": [
+        {
+          "text": "The page picker only lists pages the user has full access to.",
+          "sources": [
+            "notion-auth"
+          ]
+        },
+        {
+          "text": "Every refresh returns a new refresh token too. Notion doesn't document how long access tokens last.",
+          "sources": [
+            "notion-auth",
+            "notion-refresh"
+          ],
+          "unconfirmed": "Composio says it refreshes Notion tokens automatically. We didn't test a refresh end to end."
+        }
+      ],
+      "sources": [
+        "notion-auth",
+        "composio-white-label",
+        "composio-notion-toolkit"
+      ],
+      "checks": [
+        "authorize-signin-first",
+        "refresh-unknown-client"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Notion sign-in.",
+      "problems": [
+        {
+          "q": "Tools return object_not_found or can't see my pages",
+          "a": [
+            "The page wasn't shared during sign-in. Notion only exposes pages picked in the page picker.",
+            "In Notion: Settings → Connections → your connection → Select pages or Manage access, then add pages."
+          ],
+          "sources": [
+            "notion-status-codes",
+            "composio-notion-toolkit"
+          ]
+        },
+        {
+          "q": "An older connection stopped working after the user reconnected",
+          "a": [
+            "Reconnecting the same user to the same app can invalidate the older refresh token.",
+            "Keep one connection per user and reuse it. Delete the stale one."
+          ],
+          "sources": [
+            "composio-notion-toolkit",
+            "notion-changelog"
+          ]
+        },
+        {
+          "q": "The connection returns access_denied",
+          "a": [
+            "The user clicked Cancel on Notion's prompt.",
+            "Start a new connection and have them click Select pages, then Allow access."
+          ],
+          "sources": [
+            "notion-auth"
+          ]
+        },
+        {
+          "q": "The consent prompt still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "notion-support"
+      ]
+    },
+    {
+      "id": "enterprise-approval",
+      "title": "Get approved in Enterprise workspaces",
+      "who": "their-admin",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "optional": true,
+      "when": "Only if a user's Enterprise workspace limits which connections members can install.",
+      "instructions": [
+        "The user asks their workspace owner. Notion has no in-product request flow for this.",
+        "The owner installs your connection first. Only installed connections can be approved.",
+        "Then Settings → Connections → Manage → + Add approved connection, and pick yours.",
+        "Owner installs land on the approved list automatically.",
+        "After approval, the user connects with their own account."
+      ],
+      "sources": [
+        "notion-help-enterprise",
+        "notion-help-connections"
+      ],
+      "unconfirmed": "We had no Enterprise workspace, so we didn't see the error a blocked member gets during OAuth.",
+      "problems": [
+        {
+          "q": "A user can't install the connection in their workspace",
+          "a": [
+            "Their Enterprise workspace is set to Approved only or Approved & recommended.",
+            "A workspace owner must install it and add it to the approved list."
+          ],
+          "sources": [
+            "notion-help-enterprise"
+          ]
+        }
+      ],
+      "contacts": [
+        "notion-support"
+      ]
+    },
+    {
+      "id": "marketplace-listing",
+      "title": "List on the Notion Marketplace",
+      "who": "wait",
+      "minutes": {
+        "min": 15,
+        "max": 30
+      },
+      "optional": true,
+      "when": "Only if you want Notion users to find you in the Marketplace. Not needed for OAuth to work.",
+      "instructions": [
+        "Needs installation scope Any workspace.",
+        "Open the Marketplace listing dashboard → Listings → Connections → Start a new connection listing.",
+        "Add name, description, category, tags, images, logo, and pick your public connection.",
+        "Save the draft, then submit it for review from Listings → Connections.",
+        "Notion replies by email. If changes are needed, fix them and resubmit."
+      ],
+      "wait": {
+        "min": 5,
+        "max": 10,
+        "unit": "business_days",
+        "openEnded": false,
+        "asStated": "Expect to hear back from our team within 5-10 business days via email.",
+        "summary": "5–10 business days"
+      },
+      "actions": [
+        {
+          "label": "Open listing dashboard",
+          "url": "https://app.notion.com/profile/connections"
+        }
+      ],
+      "sources": [
+        "notion-marketplace",
+        "notion-overview"
+      ],
+      "checks": [
+        "marketplace-dashboard"
+      ],
+      "problems": [
+        {
+          "q": "My listing was rejected",
+          "a": [
+            "Notion emails the reason: brand or trademark issues, quality, or missing baseline criteria.",
+            "Fix what they list and resubmit from Listings → Connections."
+          ],
+          "sources": [
+            "notion-marketplace"
+          ]
+        }
+      ],
+      "contacts": [
+        "notion-support"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "notion-public",
+      "title": "Notion · Public connections",
+      "url": "https://developers.notion.com/guides/get-started/public-connections"
+    },
+    {
+      "id": "notion-auth",
+      "title": "Notion · Authorization",
+      "url": "https://developers.notion.com/guides/get-started/authorization"
+    },
+    {
+      "id": "notion-capabilities",
+      "title": "Notion · Connection capabilities",
+      "url": "https://developers.notion.com/reference/capabilities"
+    },
+    {
+      "id": "notion-create-token",
+      "title": "Notion · Create a token",
+      "url": "https://developers.notion.com/reference/create-a-token"
+    },
+    {
+      "id": "notion-refresh",
+      "title": "Notion · Refresh a token",
+      "url": "https://developers.notion.com/reference/refresh-a-token"
+    },
+    {
+      "id": "notion-status-codes",
+      "title": "Notion · Status codes",
+      "url": "https://developers.notion.com/reference/status-codes"
+    },
+    {
+      "id": "notion-marketplace",
+      "title": "Notion · List on the Marketplace",
+      "url": "https://developers.notion.com/guides/get-started/marketplace-listing"
+    },
+    {
+      "id": "notion-overview",
+      "title": "Notion · Developer overview",
+      "url": "https://developers.notion.com/guides/get-started/overview"
+    },
+    {
+      "id": "notion-changelog",
+      "title": "Notion · Developer changelog",
+      "url": "https://developers.notion.com/page/changelog"
+    },
+    {
+      "id": "notion-help-connections",
+      "title": "Notion Help · Add & manage connections",
+      "url": "https://www.notion.com/help/add-and-manage-connections-with-the-api"
+    },
+    {
+      "id": "notion-help-enterprise",
+      "title": "Notion Help · Enterprise connection settings",
+      "url": "https://www.notion.com/help/enterprise-connection-settings"
+    },
+    {
+      "id": "notion-help",
+      "title": "Notion Help Center",
+      "url": "https://www.notion.com/help"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-notion-auth",
+      "title": "Composio · Notion OAuth setup",
+      "url": "https://composio.dev/auth/notion"
+    },
+    {
+      "id": "composio-notion-toolkit",
+      "title": "Composio · Notion toolkit",
+      "url": "https://docs.composio.dev/toolkits/notion"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "notion-support",
+      "label": "Notion support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://www.notion.com/help",
+      "when": "Account, workspace, Marketplace or connection problems the docs don't explain. Use Get in touch on the page.",
+      "sources": [
+        "notion-help"
+      ],
+      "checks": [
+        "notion-help-contact"
+      ]
+    },
+    {
+      "id": "notion-devs-slack",
+      "label": "Notion Devs Slack",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://join.slack.com/t/notiondevs/shared_invite/zt-3u9oid9q8-HLUBmMVWYK~g9HFo4U4raA",
+      "when": "API and OAuth questions for Notion's developer community.",
+      "sources": [
+        "notion-overview"
+      ],
+      "checks": [
+        "notion-devs-slack"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

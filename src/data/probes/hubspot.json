@@ -1,0 +1,159 @@
+{
+  "guide": "hubspot",
+  "ranAt": "2026-10-27T23:14:06.176Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio hubspot toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/hubspot (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "cli-on-npm",
+      "title": "HubSpot CLI is published on npm",
+      "request": "GET https://registry.npmjs.org/@hubspot/cli/latest",
+      "expect": "A version at or above 8.16.0 (the docs' recommended version)",
+      "observed": "HTTP 200; latest 8.18.0",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "create-app-doc",
+      "title": "Create-an-app doc uses hs project create",
+      "request": "GET https://developers.hubspot.com/docs/apps/developer-platform/build-apps/create-an-app.md",
+      "expect": "Mentions hs project create, hs project upload and Client credentials",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "legacy-apps-closed",
+      "title": "Legacy public apps can't be created",
+      "request": "GET https://developers.hubspot.com/docs/apps/legacy-apps/public-apps/overview.md",
+      "expect": "Says legacy public apps \"can no longer be created\"",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "redirect-https-rule",
+      "title": "Redirect URLs must use HTTPS",
+      "request": "GET https://developers.hubspot.com/docs/apps/developer-platform/build-apps/app-configuration.md",
+      "expect": "redirectUrls rule says HTTPS (localhost excepted)",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "authorize-signin-first",
+      "title": "Authorize URL loads the sign-in app",
+      "request": "GET https://app.hubspot.com/oauth/authorize?client_id=00000000-0000-0000-0000-000000000000&scope=oauth&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback",
+      "expect": "HTTP 200 oauth-ui page; client ID is checked only after sign-in",
+      "observed": "HTTP 200; oauth-ui app",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "token-endpoint-v3",
+      "title": "Token endpoint is /oauth/v3/token",
+      "request": "POST https://api.hubapi.com/oauth/v3/token (fake client, fake code)",
+      "expect": "400 invalid_request with HubSpot status BAD_AUTH_CODE",
+      "observed": "HTTP 400; invalid_request: BAD_AUTH_CODE",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "refresh-bad-token",
+      "title": "Bad refresh token is rejected by name",
+      "request": "POST https://api.hubapi.com/oauth/v3/token (grant_type=refresh_token, fake token)",
+      "expect": "400 with status BAD_REFRESH_TOKEN",
+      "observed": "HTTP 400; BAD_REFRESH_TOKEN",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "install-limits",
+      "title": "Install limits: 10 private, 25 unlisted",
+      "request": "GET https://developers.hubspot.com/docs/apps/developer-platform/build-apps/manage-apps-in-hubspot.md",
+      "expect": "States 10 allowlisted accounts and 25 accounts before listing",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "solutions-partner-cap",
+      "title": "Solutions Partner private cap is 100",
+      "request": "GET https://developers.hubspot.com/changelog/new-marketplace-distribution-app-install-limits",
+      "expect": "Changelog says 25 until listed and 100 for Solution Partners",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "listing-requirements",
+      "title": "Listing needs 3 active installs",
+      "request": "GET https://developers.hubspot.com/docs/apps/developer-platform/list-apps/listing-your-app/app-marketplace-listing-requirements.md",
+      "expect": "Three active installs; initial review within 10 business days",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "ai-connector-rule",
+      "title": "AI connectors need user-level permissions",
+      "request": "GET https://developers.hubspot.com/docs/apps/developer-platform/list-apps/listing-your-app/marketplace-restrictions.md",
+      "expect": "Says such apps must enforce user-level permissions",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    },
+    {
+      "id": "hubspot-dev-forum",
+      "title": "HubSpot points developers to its forum",
+      "request": "GET https://developers.hubspot.com/community",
+      "expect": "Links to community.hubspot.com/c/develop-build-integrate/58",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:14:06.176Z"
+    }
+  ]
+}

@@ -48,8 +48,7 @@ function readStorage(key: string) {
   }
 }
 
-function useProgress(slug: string) {
-  const key = `oauth-guides:${slug}`
+function useProgress(key: string) {
   // null on the server and during hydration, so the first paint matches the static HTML.
   const raw = useSyncExternalStore(subscribe, () => readStorage(key), () => null)
   const progress = useMemo<ProgressMap>(() => {
@@ -72,8 +71,8 @@ function useProgress(slug: string) {
 
 const LANG_LABEL = { ts: "TypeScript", python: "Python", bash: "Shell" } as const
 
-export function GuideSteps({ guide, probes }: { guide: Guide; probes: ProbeResult[] }) {
-  const { progress, loaded, save } = useProgress(guide.slug)
+export function GuideSteps({ guide, probes, storageKey }: { guide: Guide; probes: ProbeResult[]; storageKey?: string }) {
+  const { progress, loaded, save } = useProgress(storageKey ?? `oauth-guides:${guide.slug}`)
   // null follows the first unfinished step.
   const [selectedId, setSelectedId] = useState<string | null>(null)
 

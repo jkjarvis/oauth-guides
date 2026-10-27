@@ -28,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </Link>
               <nav className="flex items-center gap-4 text-sm text-muted-foreground sm:gap-6">
                 <Link href="/" className="hover:text-foreground">Library</Link>
+                <Link href="/new" className="hover:text-foreground">Generate a guide</Link>
                 <a href="https://docs.composio.dev/toolkits/managed-auth" target="_blank" rel="noreferrer" className="hidden hover:text-foreground sm:inline">
                   Composio managed auth ↗
                 </a>

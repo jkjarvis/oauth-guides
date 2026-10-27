@@ -1,68 +1,26 @@
-import Link from "next/link"
-import { ArrowRight, Clock, Hourglass, Wallet } from "lucide-react"
-import { formatMinutes, formatWait, listGuides, planned } from "@/lib/guides"
+import { LibraryGrid } from "@/components/library/library-grid"
+import { formatMinutes, formatWait, listGuides } from "@/lib/guides"
 
 export default function LibraryPage() {
-  const guides = listGuides()
+  const guides = listGuides().map((g) => ({
+    slug: g.slug,
+    name: g.name,
+    tagline: g.tagline,
+    handsOn: formatMinutes(g.facts.handsOnMinutes),
+    wait: formatWait(g.facts.approvalWait),
+    cost: g.facts.cost.summary,
+    steps: g.steps.length,
+    review: g.facts.review,
+  }))
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <div className="space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight">Get your own OAuth app ready</h1>
         <p className="max-w-2xl text-muted-foreground">
           Per-provider guides for registering an OAuth app, getting it approved, and plugging it into Composio.
         </p>
       </div>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">Guides</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {guides.map((g) => (
-              <Link
-                key={g.slug}
-                href={`/${g.slug}`}
-                className="group flex flex-col justify-between gap-5 rounded-xl border bg-card p-5 transition-colors hover:border-foreground/30"
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">{g.name}</span>
-                    <span className="flex items-center gap-1.5 text-xs text-success">
-                      <span className="size-1.5 rounded-full bg-success" />
-                      Ready
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{g.tagline}</p>
-                </div>
-                <dl className="grid grid-cols-3 gap-2 text-xs">
-                  <Stat icon={Clock} label="Hands-on" value={formatMinutes(g.facts.handsOnMinutes)} />
-                  <Stat icon={Hourglass} label="Wait" value={formatWait(g.facts.approvalWait)} />
-                  <Stat icon={Wallet} label="Cost" value={g.facts.cost.summary} />
-                </dl>
-                <div className="flex items-center justify-between border-t pt-3 font-mono text-[11px] text-muted-foreground">
-                  <span>{g.steps.length} steps</span>
-                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-          ))}
-          {planned.map((name) => (
-            <div key={name} className="flex flex-col justify-between gap-5 rounded-xl border border-dashed p-5 text-muted-foreground">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">{name}</span>
-                <span className="text-xs">In research</span>
-              </div>
-              <p className="text-sm">Guide coming next.</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  )
-}
-
-function Stat({ icon: Icon, label, value }: { icon: typeof Clock; label: string; value: string }) {
-  return (
-    <div className="space-y-0.5">
-      <dt className="flex items-center gap-1 text-muted-foreground"><Icon className="size-3" />{label}</dt>
-      <dd className="font-medium">{value}</dd>
+      <LibraryGrid guides={guides} />
     </div>
   )
 }
