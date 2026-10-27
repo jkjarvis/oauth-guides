@@ -19,7 +19,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-screen min-w-[1024px]">
         <TooltipProvider>
           <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-            <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-8">
+            <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-10">
               <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
                 <span className="grid size-6 place-items-center rounded-md bg-foreground text-background">
                   <KeyRound className="size-3.5" />
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </nav>
             </div>
           </header>
-          <main className="mx-auto max-w-6xl px-8 py-10">{children}</main>
+          <main className="mx-auto max-w-[1600px] px-10 py-10">{children}</main>
         </TooltipProvider>
       </body>
     </html>

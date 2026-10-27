@@ -91,7 +91,7 @@ export function GuideSteps({ guide, probes }: { guide: Guide; probes: ProbeResul
   }
 
   return (
-    <div className="grid grid-cols-[260px_1fr] items-start gap-8">
+    <div className="grid grid-cols-[280px_1fr] items-start gap-8">
       <nav className="sticky top-20 space-y-4" aria-label="Steps">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
