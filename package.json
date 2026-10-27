@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "probe": "node scripts/probe.mjs",
-    "validate": "tsx scripts/validate.mts"
+    "validate": "tsx scripts/validate.mts",
+    "research": "tsx --env-file=.env.local scripts/research.mts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@base-ui/react": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
