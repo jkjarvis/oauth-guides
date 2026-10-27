@@ -91,8 +91,8 @@ export function GuideSteps({ guide, probes }: { guide: Guide; probes: ProbeResul
   }
 
   return (
-    <div className="grid grid-cols-[280px_1fr] items-start gap-8">
-      <nav className="sticky top-20 space-y-4" aria-label="Steps">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[280px_1fr] lg:gap-8">
+      <nav className="space-y-4 lg:sticky lg:top-20" aria-label="Steps">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium">Steps</span>
@@ -176,7 +176,7 @@ function StepView({
 
   return (
     <article className="min-w-0 rounded-xl border bg-card">
-      <div className="space-y-6 p-8">
+      <div className="space-y-6 p-5 sm:p-8">
         <header className="space-y-3">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="font-mono">
@@ -205,8 +205,8 @@ function StepView({
         {step.fields.length > 0 && (
           <dl className="divide-y rounded-lg border bg-background text-sm">
             {step.fields.map((f) => (
-              <div key={f.label} className="grid grid-cols-[220px_1fr_auto] items-center gap-3 px-4 py-2.5">
-                <dt className="text-muted-foreground">{f.label}</dt>
+              <div key={f.label} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-4 py-2.5 sm:grid-cols-[220px_1fr_auto]">
+                <dt className="col-span-2 text-muted-foreground sm:col-span-1">{f.label}</dt>
                 <dd className="min-w-0">
                   <span className={cn("break-all", f.copy && "font-mono text-xs")}>{f.value}</span>
                   {f.hint && <span className="block text-xs text-muted-foreground">{f.hint}</span>}
@@ -242,7 +242,7 @@ function StepView({
         )}
 
         {step.actions.length > 0 && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {step.actions.map((a) => (
               <a
                 key={a.url}
@@ -273,8 +273,8 @@ function StepView({
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t px-8 py-4">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-5 py-4 sm:px-8">
+        <div className="flex flex-wrap items-center gap-2">
           {finished ? (
             <>
               <span className="flex items-center gap-1.5 text-sm text-success">
@@ -322,7 +322,7 @@ function StepView({
       </div>
 
       {(sources.length > 0 || checks.length > 0 || step.unconfirmed) && (
-        <footer className="space-y-3 border-t bg-muted/30 px-8 py-5 text-sm">
+        <footer className="space-y-3 border-t bg-muted/30 px-5 py-5 text-sm sm:px-8">
           {checks.length > 0 && (
             <div className="space-y-1.5">
               <h3 className="text-xs font-medium text-muted-foreground">Checked live</h3>

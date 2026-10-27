@@ -15,7 +15,7 @@ export default function LibraryPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">Guides</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {guides.map((g) => (
               <Link
                 key={g.slug}

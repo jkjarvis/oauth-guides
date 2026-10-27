@@ -30,7 +30,7 @@ export function ClientIdCheck({ onValid }: { onValid: () => void }) {
 
   return (
     <div className="space-y-2">
-      <form onSubmit={check} className="flex gap-2">
+      <form onSubmit={check} className="flex flex-wrap gap-2">
         <Input
           id="github-client-id"
           value={clientId}

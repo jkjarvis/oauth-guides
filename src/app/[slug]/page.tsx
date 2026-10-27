@@ -29,21 +29,23 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
           <span className="mx-2">/</span>
           <span className="text-foreground">{guide.name}</span>
         </nav>
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight">{guide.name}</h1>
             <p className="text-muted-foreground">{guide.tagline}</p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{guide.appType}</Badge>
               <Badge variant="outline">Composio toolkit: {guide.composio.toolkit}</Badge>
               <Badge variant="outline" className="text-muted-foreground">Verified {formatDate(guide.lastVerified)}</Badge>
             </div>
           </div>
-          <ShareButton />
+          <div className="shrink-0">
+            <ShareButton />
+          </div>
         </div>
       </div>
 
-      <dl className="grid grid-cols-4 divide-x rounded-xl border bg-card">
+      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
         <Fact label="Hands-on time" value={formatMinutes(guide.facts.handsOnMinutes)} />
         <Fact label="Approval wait" value={formatWait(guide.facts.approvalWait)} />
         <Fact label="Provider review" value={REVIEW_LABEL[guide.facts.review]} />
@@ -57,7 +59,7 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-1 px-5 py-4">
+    <div className="space-y-1 bg-card px-5 py-4">
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="text-lg font-semibold tracking-tight">{value}</dd>
     </div>

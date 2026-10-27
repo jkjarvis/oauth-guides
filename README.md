@@ -68,6 +68,5 @@ src/app/api/check/github     checks a Client ID against GitHub's sign-in page
 
 ## Limitations
 
-- Desktop only.
 - Progress is stored per browser. It isn't shared across devices or teammates.
 - One guide so far. Live generation for apps outside the library comes next.
