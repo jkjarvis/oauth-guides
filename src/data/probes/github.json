@@ -1,6 +1,6 @@
 {
   "guide": "github",
-  "ranAt": "2026-10-27T22:47:45.813Z",
+  "ranAt": "2026-10-27T23:40:15.884Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "authorize-valid-client",
@@ -54,7 +54,7 @@
       "expect": "Sign-in page says \"continue to <app name>\"",
       "observed": "continue to \"GitHub CLI\"",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "authorize-unknown-client",
@@ -63,7 +63,7 @@
       "expect": "Generic sign-in page, no app name",
       "observed": "generic sign-in page",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "token-wrong-secret",
@@ -72,7 +72,7 @@
       "expect": "error: incorrect_client_credentials",
       "observed": "error: incorrect_client_credentials",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "token-unknown-client",
@@ -81,7 +81,7 @@
       "expect": "error: Not Found",
       "observed": "error: Not Found",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "new-app-page",
@@ -90,7 +90,7 @@
       "expect": "Redirects to sign-in (page needs a logged-in user)",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "no-oidc",
@@ -99,7 +99,7 @@
       "expect": "404: plain OAuth 2.0, no ID tokens",
       "observed": "HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     },
     {
       "id": "github-support-page",
@@ -108,7 +108,7 @@
       "expect": "Redirects to the support request page",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T22:47:45.813Z"
+      "ranAt": "2026-10-27T23:40:15.884Z"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "guide": "jira",
-  "ranAt": "2026-10-27T23:20:15.997Z",
+  "ranAt": "2026-10-27T23:40:48.860Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-console",
@@ -54,7 +54,7 @@
       "expect": "HTTP 200, page titled \"Developer console\"",
       "observed": "HTTP 200; \"Developer console\"",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-oidc-endpoints",
@@ -63,7 +63,7 @@
       "expect": "authorize at auth.atlassian.com/authorize, token at /oauth/token",
       "observed": "HTTP 200; authorize https://auth.atlassian.com/authorize; token https://auth.atlassian.com/oauth/token",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-authorize-signin-first",
@@ -72,7 +72,7 @@
       "expect": "302 to id.atlassian.com/login even with an unknown client_id",
       "observed": "HTTP 302; to id.atlassian.com/login",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-refresh-rejected",
@@ -81,7 +81,7 @@
       "expect": "HTTP 403 with an error body",
       "observed": "HTTP 403; unauthorized_client: refresh_token is invalid",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-accessible-resources",
@@ -90,7 +90,7 @@
       "expect": "HTTP 401",
       "observed": "HTTP 401",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-doc-refresh-rotation",
@@ -99,7 +99,7 @@
       "expect": "States 90-day inactivity expiry and offline_access",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-doc-distribution",
@@ -108,7 +108,7 @@
       "expect": "Says apps start private and users see a not-reviewed warning",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-doc-no-customer-apps",
@@ -117,7 +117,7 @@
       "expect": "Forbids asking customers to create their own 3LO apps",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-doc-grant-types",
@@ -126,7 +126,7 @@
       "expect": "Lists both grant types and per-site consent",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-site-admin-kb",
@@ -135,7 +135,7 @@
       "expect": "Describes the site admin error and Connected apps fix",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-marketplace-approval-time",
@@ -144,7 +144,7 @@
       "expect": "States 10-15 business days",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-dev-support",
@@ -153,7 +153,7 @@
       "expect": "Support page with Ecosystem Support Request",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     },
     {
       "id": "atl-community",
@@ -162,7 +162,7 @@
       "expect": "HTTP 200, \"The Atlassian Developer Community\"",
       "observed": "HTTP 200; \"The Atlassian Developer Community\"",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:15.997Z"
+      "ranAt": "2026-10-27T23:40:48.860Z"
     }
   ]
 }

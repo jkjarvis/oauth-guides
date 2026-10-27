@@ -1,6 +1,6 @@
 {
   "guide": "zoom",
-  "ranAt": "2026-10-27T23:20:45.438Z",
+  "ranAt": "2026-10-27T23:41:44.523Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "marketplace-up",
@@ -54,7 +54,7 @@
       "expect": "HTTP 200",
       "observed": "HTTP 200",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "create-app-doc",
@@ -63,7 +63,7 @@
       "expect": "Build an app, General app, OAuth allow lists, Local Test, Add App Now",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "authorize-signin-first",
@@ -72,7 +72,7 @@
       "expect": "302 to zoom.us/oauth/signin, even for an unknown client ID",
       "observed": "HTTP 302 → https://zoom.us/oauth/signin",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "token-unknown-client",
@@ -81,7 +81,7 @@
       "expect": "invalid_client: \"Invalid client_id or client_secret\"",
       "observed": "HTTP 400; invalid_client: Invalid client_id or client_secret",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "token-lifetimes",
@@ -90,7 +90,7 @@
       "expect": "Says access tokens expire after one hour and refresh tokens after 90 days",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "granular-scopes",
@@ -99,7 +99,7 @@
       "expect": "Lists 7 starter scopes",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "classic-scopes-legacy",
@@ -108,7 +108,7 @@
       "expect": "Says existing apps keep the macro scopes, now called classic",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "beta-sharing-rules",
@@ -117,7 +117,7 @@
       "expect": "Request to Share, 3-4 business days, 4 weeks, caps of 10 and 100",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "review-process",
@@ -126,7 +126,7 @@
       "expect": "Technical Design, OWASP Top 10, private and beta apps skip review",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "submission-test-account",
@@ -135,7 +135,7 @@
       "expect": "Test account section; first submissions use the Production Client ID",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "domain-verification",
@@ -144,7 +144,7 @@
       "expect": "Redirect URL for OAuth is checked; manual approval via devForum within 48 hours",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     },
     {
       "id": "zoom-devforum",
@@ -153,7 +153,7 @@
       "expect": "Category marketplace with id 19",
       "observed": "HTTP 200; marketplace id 19",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:45.438Z"
+      "ranAt": "2026-10-27T23:41:44.523Z"
     }
   ]
 }

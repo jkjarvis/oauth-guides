@@ -1,6 +1,6 @@
 {
   "guide": "slack",
-  "ranAt": "2026-10-27T22:56:51.975Z",
+  "ranAt": "2026-10-27T23:41:34.127Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "apps-page",
@@ -54,7 +54,7 @@
       "expect": "HTTP 200, \"Slack API: Applications\" page",
       "observed": "HTTP 200, Applications page",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "manifest-link",
@@ -63,7 +63,7 @@
       "expect": "HTTP 200 Applications page (prefill shows after sign-in)",
       "observed": "HTTP 200, 637 chars",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "authorize-signin",
@@ -72,7 +72,7 @@
       "expect": "302 to workspace-signin, even for a fake client_id",
       "observed": "HTTP 302 → https://slack.com/workspace-signin",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "token-fake-code",
@@ -81,7 +81,7 @@
       "expect": "error: invalid_code",
       "observed": "ok: false, error: invalid_code",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "oidc-discovery",
@@ -90,7 +90,7 @@
       "expect": "Issuer https://slack.com, scopes openid/profile/email",
       "observed": "issuer https://slack.com; scopes openid profile email",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "rate-limit-changelog",
@@ -99,7 +99,7 @@
       "expect": "Mentions 1 request per minute and 15 objects",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "history-reference-tier",
@@ -108,7 +108,7 @@
       "expect": "Lists Tier 3 and limit max 999, no non-Marketplace note",
       "observed": "HTTP 200; Tier 3: true; non-Marketplace note: false",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "marketplace-install-requirement",
@@ -117,7 +117,7 @@
       "expect": "Says at least 10 installations on active workspaces",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "marketplace-review-timeline",
@@ -126,7 +126,7 @@
       "expect": "Up to 10 business days, then up to 10 weeks",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "distribution-doc",
@@ -135,7 +135,7 @@
       "expect": "Mentions Manage Distribution and Activate Public Distribution",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "composio-slack-faq",
@@ -144,7 +144,7 @@
       "expect": "Mentions Require approved apps and Marketplace setting",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     },
     {
       "id": "slack-support-page",
@@ -153,7 +153,7 @@
       "expect": "Redirects to the help request form, not 404",
       "observed": "HTTP 302 → 200 https://slack.com/intl/en-in/help/requests/new",
       "pass": true,
-      "ranAt": "2026-10-27T22:56:51.975Z"
+      "ranAt": "2026-10-27T23:41:34.127Z"
     }
   ]
 }

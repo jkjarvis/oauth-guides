@@ -1,6 +1,6 @@
 {
   "guide": "hubspot",
-  "ranAt": "2026-10-27T23:14:06.176Z",
+  "ranAt": "2026-10-27T23:40:41.951Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "cli-on-npm",
@@ -54,7 +54,7 @@
       "expect": "A version at or above 8.16.0 (the docs' recommended version)",
       "observed": "HTTP 200; latest 8.18.0",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "create-app-doc",
@@ -63,7 +63,7 @@
       "expect": "Mentions hs project create, hs project upload and Client credentials",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "legacy-apps-closed",
@@ -72,7 +72,7 @@
       "expect": "Says legacy public apps \"can no longer be created\"",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "redirect-https-rule",
@@ -81,7 +81,7 @@
       "expect": "redirectUrls rule says HTTPS (localhost excepted)",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "authorize-signin-first",
@@ -90,7 +90,7 @@
       "expect": "HTTP 200 oauth-ui page; client ID is checked only after sign-in",
       "observed": "HTTP 200; oauth-ui app",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "token-endpoint-v3",
@@ -99,7 +99,7 @@
       "expect": "400 invalid_request with HubSpot status BAD_AUTH_CODE",
       "observed": "HTTP 400; invalid_request: BAD_AUTH_CODE",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "refresh-bad-token",
@@ -108,7 +108,7 @@
       "expect": "400 with status BAD_REFRESH_TOKEN",
       "observed": "HTTP 400; BAD_REFRESH_TOKEN",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "install-limits",
@@ -117,7 +117,7 @@
       "expect": "States 10 allowlisted accounts and 25 accounts before listing",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "solutions-partner-cap",
@@ -126,7 +126,7 @@
       "expect": "Changelog says 25 until listed and 100 for Solution Partners",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "listing-requirements",
@@ -135,7 +135,7 @@
       "expect": "Three active installs; initial review within 10 business days",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "ai-connector-rule",
@@ -144,7 +144,7 @@
       "expect": "Says such apps must enforce user-level permissions",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     },
     {
       "id": "hubspot-dev-forum",
@@ -153,7 +153,7 @@
       "expect": "Links to community.hubspot.com/c/develop-build-integrate/58",
       "observed": "HTTP 200; all phrases found",
       "pass": true,
-      "ranAt": "2026-10-27T23:14:06.176Z"
+      "ranAt": "2026-10-27T23:40:41.951Z"
     }
   ]
 }

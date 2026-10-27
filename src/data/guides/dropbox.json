@@ -19,10 +19,10 @@
     "approvalWait": {
       "min": 0,
       "max": 0,
-      "unit": "days",
+      "unit": "business_days",
       "openEnded": true,
-      "asStated": "While you may submit your request for production status anytime, it will not be reviewed until your app has linked with at least 50 Dropbox users.",
-      "summary": "No time stated"
+      "asStated": "\"We respond to nearly all production requests within a few business days.\" Review starts only once the app has linked 50 users.",
+      "summary": "A few business days"
     },
     "review": "required",
     "cost": {
@@ -638,13 +638,14 @@
       "wait": {
         "min": 0,
         "max": 0,
-        "unit": "days",
+        "unit": "business_days",
         "openEnded": true,
-        "asStated": "While you may submit your request for production status anytime, it will not be reviewed until your app has linked with at least 50 Dropbox users.",
-        "summary": "No time stated"
+        "asStated": "\"We respond to nearly all production requests within a few business days.\" Review starts only once the app has linked 50 users.",
+        "summary": "A few business days"
       },
       "sources": [
-        "dbx-dev-guide"
+        "dbx-dev-guide",
+        "dbx-support"
       ],
       "checks": [
         "dbx-doc-production"

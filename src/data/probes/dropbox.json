@@ -1,6 +1,6 @@
 {
   "guide": "dropbox",
-  "ranAt": "2026-10-27T23:20:01.397Z",
+  "ranAt": "2026-10-27T23:39:59.850Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-app-console",
@@ -54,7 +54,7 @@
       "expect": "Redirect to /login with cont= pointing back to the App Console",
       "observed": "HTTP 302, cont= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-oidc-endpoints",
@@ -63,7 +63,7 @@
       "expect": "authorize on www.dropbox.com, token on api.dropboxapi.com",
       "observed": "HTTP 200; authorize https://www.dropbox.com/oauth2/authorize; token https://api.dropboxapi.com/oauth2/token",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-authorize-unknown-key",
@@ -72,7 +72,7 @@
       "expect": "302 to /oauth2/authorize_error with error_name=unknown_client_id",
       "observed": "HTTP 302; error_name=unknown_client_id",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-token-bad-client",
@@ -81,7 +81,7 @@
       "expect": "400 invalid_client: Invalid client_id or client_secret",
       "observed": "HTTP 400; invalid_client: Invalid client_id or client_secret",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-doc-dev-status",
@@ -90,7 +90,7 @@
       "expect": "States 500-user cap and the 2-week deadline after 50 users",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-doc-production",
@@ -99,7 +99,7 @@
       "expect": "Review waits for 50 users; name locks in production",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-doc-dev-tools",
@@ -108,7 +108,7 @@
       "expect": "Wrapping platforms' developers must use their own app key",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-doc-offline",
@@ -117,7 +117,7 @@
       "expect": "Documents offline access and the online default",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-doc-scope-changes",
@@ -126,7 +126,7 @@
       "expect": "Blog says existing grants keep their old scopes",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-doc-free",
@@ -135,7 +135,7 @@
       "expect": "Support FAQ says the API is free",
       "observed": "HTTP 200; all phrases present",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-contact",
@@ -144,7 +144,7 @@
       "expect": "Redirect to /login with cont= pointing back to the form",
       "observed": "HTTP 302, cont= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     },
     {
       "id": "dbx-forum",
@@ -153,7 +153,7 @@
       "expect": "HTTP 200, \"Dropbox API Support and Feedback\"",
       "observed": "HTTP 200; https://community.dropbox.com/en/categories/dropbox-api-support-feedback; \"Dropbox API Support and Feedback - Dropbox Community\"",
       "pass": true,
-      "ranAt": "2026-10-27T23:20:01.397Z"
+      "ranAt": "2026-10-27T23:39:59.850Z"
     }
   ]
 }

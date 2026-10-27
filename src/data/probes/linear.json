@@ -1,6 +1,6 @@
 {
   "guide": "linear",
-  "ranAt": "2026-10-27T23:15:46.618Z",
+  "ranAt": "2026-10-27T23:40:58.752Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "oauth-metadata",
@@ -54,7 +54,7 @@
       "expect": "authorize at linear.app/oauth/authorize, token at api.linear.app/oauth/token, refresh_token grant",
       "observed": "HTTP 200; grants: authorization_code, refresh_token, client_credentials, urn:ietf:params:oauth:grant-type:jwt-bearer",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "token-unknown-client",
@@ -63,7 +63,7 @@
       "expect": "error: invalid_client",
       "observed": "HTTP 400; error: invalid_client",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "refresh-unknown-client",
@@ -72,7 +72,7 @@
       "expect": "error: invalid_client",
       "observed": "HTTP 400; error: invalid_client",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "token-lifetime-doc",
@@ -81,7 +81,7 @@
       "expect": "Says all apps moved to refresh tokens on April 1, 2026 and access tokens last 24 hours",
       "observed": "HTTP 200; April 1, 2026 stated; 24 hours stated",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "public-distribution-doc",
@@ -90,7 +90,7 @@
       "expect": "distribution allows private or public; default private",
       "observed": "HTTP 200; private default stated",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "admin-page-doc",
@@ -99,7 +99,7 @@
       "expect": "OAuth applications live in Settings > Administration > API, admin only",
       "observed": "HTTP 200; admin requirement stated",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "linear-support-page",
@@ -108,7 +108,7 @@
       "expect": "Page titled 'Contact support – Linear' listing support@linear.app",
       "observed": "HTTP 200; title matches; support@linear.app listed",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "linear-slack",
@@ -117,7 +117,7 @@
       "expect": "Page links a join.slack.com invite",
       "observed": "HTTP 200; invite to linearcustomers",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     },
     {
       "id": "directory-contact-doc",
@@ -126,7 +126,7 @@
       "expect": "Mentions integrations@linear.app and the submission form",
       "observed": "HTTP 200; email and form present",
       "pass": true,
-      "ranAt": "2026-10-27T23:15:46.618Z"
+      "ranAt": "2026-10-27T23:40:58.752Z"
     }
   ]
 }
