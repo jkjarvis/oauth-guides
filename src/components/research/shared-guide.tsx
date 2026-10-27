@@ -58,6 +58,7 @@ export function SharedGuide() {
       guide={guide}
       probes={probes}
       storageKey={`oauth-guides:generated:${guide.slug}`}
+      dateLabel="Researched"
       actions={<ShareButton keepHash />}
       notice={<GeneratedNotice passed={probes.filter((p) => p.pass).length} />}
     />

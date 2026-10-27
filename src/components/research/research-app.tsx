@@ -221,6 +221,11 @@ function Result({ run, onNew }: { run: Extract<Run, { state: "done" }>; onNew: (
   const reads = run.events.filter((e) => e.type === "read" && e.ok).length
   const passed = run.probes.filter((p) => p.pass).length
 
+  // Put the guide in the address bar, so a refresh or bookmark keeps it.
+  useEffect(() => {
+    encodeShare(run.guide, run.probes, run.generatedAt).then((fragment) => window.history.replaceState(null, "", `/g#${fragment}`))
+  }, [run.guide, run.probes, run.generatedAt])
+
   async function share() {
     const fragment = await encodeShare(run.guide, run.probes, run.generatedAt)
     const url = `${window.location.origin}/g#${fragment}`
@@ -239,6 +244,7 @@ function Result({ run, onNew }: { run: Extract<Run, { state: "done" }>; onNew: (
         guide={run.guide}
         probes={run.probes}
         storageKey={`oauth-guides:generated:${run.guide.slug}`}
+        dateLabel="Researched"
         actions={
           <>
             <Button variant="outline" onClick={onNew}>

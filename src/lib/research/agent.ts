@@ -20,10 +20,17 @@ export type ResearchEvent =
   | { type: "read"; url: string; title?: string; ok: boolean }
   | { type: "probe"; result: ProbeResult }
   | { type: "submit"; ok: boolean; errors: string[] }
-  | { type: "done"; guide: Guide; probes: ProbeResult[]; seconds: number }
+  | { type: "done"; guide: Guide; probes: ProbeResult[]; seconds: number; usage: Usage }
   | { type: "error"; message: string }
 
 const MODEL = "claude-opus-5-5"
+
+export type Usage = { inputTokens: number; cacheReadTokens: number; cacheWriteTokens: number; outputTokens: number; searches: number; fetches: number; costUsd: number }
+
+// claude-opus-5-5 list prices per million tokens; web search is billed per 1,000 searches.
+function estimateCost(u: Omit<Usage, "costUsd">) {
+  return (u.inputTokens * 4 + u.cacheWriteTokens * 5 + u.cacheReadTokens * 0.2 + u.outputTokens * 20) / 1e6 + u.searches * 0.01
+}
 // Vercel functions here stop at 300s; ask for a submission early enough to finish.
 const SOFT_DEADLINE_MS = 150_000
 const HARD_DEADLINE_MS = 285_000
@@ -199,6 +206,7 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
   const seenSearches = new Set<string>()
   let searches = 0
   let fetches = 0
+  const tokens = { inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0 }
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     if (signal?.aborted) throw new Error("Cancelled")
@@ -242,6 +250,10 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
 
     const message = await stream.finalMessage()
     messages.push({ role: "assistant", content: message.content })
+    tokens.inputTokens += message.usage.input_tokens
+    tokens.cacheReadTokens += message.usage.cache_read_input_tokens ?? 0
+    tokens.cacheWriteTokens += message.usage.cache_creation_input_tokens ?? 0
+    tokens.outputTokens += message.usage.output_tokens
 
     if (message.stop_reason === "pause_turn") continue
     if (message.stop_reason === "refusal") throw new Error("The model declined this request.")
@@ -271,7 +283,10 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
 
     if (accepted) {
       const probes = [...session.probes.values()]
-      emit({ type: "done", guide: accepted, probes, seconds: Math.round((Date.now() - started) / 1000) })
+      const base = { ...tokens, searches, fetches }
+      const usage = { ...base, costUsd: Math.round(estimateCost(base) * 100) / 100 }
+      console.log(`research "${app}" done in ${Math.round((Date.now() - started) / 1000)}s`, JSON.stringify(usage))
+      emit({ type: "done", guide: accepted, probes, seconds: Math.round((Date.now() - started) / 1000), usage })
       return
     }
 

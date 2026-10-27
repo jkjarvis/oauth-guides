@@ -12,12 +12,14 @@ export function GuideView({
   storageKey,
   actions,
   notice,
+  dateLabel = "Verified",
 }: {
   guide: Guide
   probes: ProbeResult[]
   storageKey?: string
   actions?: React.ReactNode
   notice?: React.ReactNode
+  dateLabel?: string
 }) {
   return (
     <div className="space-y-8">
@@ -32,7 +34,7 @@ export function GuideView({
               {guide.composio.managedAvailable ? "Composio-managed app also available" : "No Composio-managed app"}
             </Badge>
             <Badge variant="outline" className="text-muted-foreground">
-              Verified {formatDate(guide.lastVerified)}
+              {dateLabel} {formatDate(guide.lastVerified)}
             </Badge>
           </div>
         </div>
