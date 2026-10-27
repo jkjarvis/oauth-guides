@@ -227,17 +227,18 @@ export function StepTracker({ guide }: { guide: Guide }) {
                           )}
                         </>
                       )}
-                      {step.action && (
+                      {step.actions.map((a) => (
                         <a
-                          href={step.action.url}
+                          key={a.url}
+                          href={a.url}
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex h-7 items-center gap-1 rounded-md border px-2.5 text-[0.8rem] font-medium hover:bg-muted"
                         >
-                          {step.action.label}
+                          {a.label}
                           <ArrowUpRight className="size-3.5" />
                         </a>
-                      )}
+                      ))}
                     </div>
                     <EvidenceBadge evidence={step.evidence} sources={guide.sources} />
                   </div>

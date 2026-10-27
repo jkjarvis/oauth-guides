@@ -16,7 +16,6 @@ import {
   listGuides,
   uncertainItems,
 } from "@/lib/guides"
-import type { Guide } from "@/lib/guide-schema"
 
 export function generateStaticParams() {
   return listGuides().map((g) => ({ slug: g.slug }))
@@ -57,15 +56,12 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
         </div>
       </div>
 
-      <dl className="grid grid-cols-5 divide-x rounded-xl border bg-card">
+      <dl className="grid grid-cols-4 divide-x rounded-xl border bg-card">
         <Fact label="Hands-on time" value={formatMinutes(guide.facts.handsOnMinutes)} />
         <Fact label="Approval wait" value={formatWait(guide.facts.approvalWait)} />
         <Fact label="Provider review" value={REVIEW_LABEL[guide.facts.review]} />
         <Fact label="Cost" value={guide.facts.cost.asStated} />
-        <Fact label="Who does it" value={whoSummary(guide)} />
       </dl>
-
-      <ManagedCallout guide={guide} />
 
       <Tabs defaultValue="setup" className="gap-6">
         <TabsList>
@@ -165,10 +161,10 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
 
           <div className="grid grid-cols-2 gap-6">
             <SideCard title="Couldn't verify">
-              {uncertainItems(guide).length === 0 ? (
+              {uncertainItems(guide).length + guide.unverified.length === 0 && (
                 <p className="py-2.5 text-sm text-muted-foreground">Nothing open.</p>
-              ) : (
-                uncertainItems(guide).map((u) => (
+              )}
+              {uncertainItems(guide).map((u) => (
                   <div key={u.title} className="flex gap-2 py-2.5">
                     <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning" />
                     <div>
@@ -176,15 +172,16 @@ export default async function GuidePage({ params }: PageProps<"/[slug]">) {
                       <p className="text-xs text-muted-foreground">{u.evidence.note}</p>
                     </div>
                   </div>
-                ))
-              )}
-              <div className="flex gap-2 py-2.5">
-                <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-                <div>
-                  <div className="text-sm font-medium">Full connection with a real auth config</div>
-                  <p className="text-xs text-muted-foreground">Needs a Composio API key and a user sign-in. Not run for this guide.</p>
+              ))}
+              {guide.unverified.map((u) => (
+                <div key={u.title} className="flex gap-2 py-2.5">
+                  <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+                  <div>
+                    <div className="text-sm font-medium">{u.title}</div>
+                    <p className="text-xs text-muted-foreground">{u.detail}</p>
+                  </div>
                 </div>
-              </div>
+              ))}
             </SideCard>
             <SideCard title="Sources">
               {guide.sources.map((s) => (
@@ -206,27 +203,6 @@ function Fact({ label, value }: { label: string; value: string }) {
     <div className="space-y-1 px-5 py-4">
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="text-lg font-semibold tracking-tight">{value}</dd>
-    </div>
-  )
-}
-
-function ManagedCallout({ guide }: { guide: Guide }) {
-  return (
-    <div className="flex items-center gap-6 rounded-xl border border-dashed px-5 py-4">
-      <div className="w-56 shrink-0">
-        <div className="text-sm font-medium">Do you need your own app?</div>
-        <div className="text-xs text-muted-foreground">
-          {guide.composio.managedAvailable ? "Composio-managed works today. Switch for:" : "Yes. Composio has no managed app here."}
-        </div>
-      </div>
-      <div className="grid flex-1 grid-cols-3 gap-4">
-        {guide.switchReasons.map((r) => (
-          <div key={r.title}>
-            <div className="text-sm font-medium">{r.title}</div>
-            <div className="text-xs text-muted-foreground">{r.detail}</div>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -260,12 +236,6 @@ function CountCard({ kind, count, detail }: { kind: "tested" | "sourced" | "unce
       <div className="text-xs text-muted-foreground">{detail}</div>
     </div>
   )
-}
-
-function whoSummary(g: Guide) {
-  const agent = g.steps.filter((s) => s.who === "agent").length
-  const you = g.steps.filter((s) => s.who === "you").length
-  return `Agent ${agent} · You ${you}`
 }
 
 function formatDate(iso: string) {

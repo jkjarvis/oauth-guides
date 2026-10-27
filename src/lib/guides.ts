@@ -24,7 +24,7 @@ export function getProbes(slug: string) {
 export function allEvidence(g: Guide): Evidence[] {
   return [
     ...g.steps.map((s) => s.evidence),
-    ...[...g.switchReasons, ...g.requirements, ...g.traps, ...g.blockers].map((i) => i.evidence),
+    ...[...g.requirements, ...g.traps, ...g.blockers].map((i) => i.evidence),
   ]
 }
 
@@ -37,6 +37,6 @@ export function evidenceCounts(g: Guide) {
 export function uncertainItems(g: Guide) {
   return [
     ...g.steps.map((s) => ({ title: s.title, evidence: s.evidence })),
-    ...[...g.switchReasons, ...g.requirements, ...g.traps, ...g.blockers],
+    ...[...g.requirements, ...g.traps, ...g.blockers],
   ].filter((i) => i.evidence.kind === "uncertain")
 }

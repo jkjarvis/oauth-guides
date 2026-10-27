@@ -32,6 +32,15 @@ async function status(url) {
   return res.status
 }
 
+// Composio's dashboard sends real routes to login with ?next=<path> and 404s unknown ones,
+// so a login redirect that keeps the path shows the deep link exists.
+async function dashboardRoute(path) {
+  const res = await fetch(`https://dashboard.composio.dev${path}`, { redirect: "manual" })
+  const location = res.headers.get("location")
+  const next = location ? new URL(location, "https://dashboard.composio.dev").searchParams.get("next") : null
+  return { code: res.status, keepsPath: next === path }
+}
+
 const probes = [
   {
     id: "authorize-valid-client",
@@ -81,6 +90,41 @@ const probes = [
     run: async () => {
       const code = await status(CALLBACK)
       return { observed: `HTTP ${code}`, pass: code !== 404 && code < 500 }
+    },
+  },
+  {
+    id: "composio-dashboard-login",
+    title: "Composio sign-up is on the login page",
+    request: "GET https://dashboard.composio.dev/login",
+    expect: "Sign-in page with a sign-up link",
+    run: async () => {
+      const html = await (await fetch("https://dashboard.composio.dev/login")).text()
+      const hasSignUp = /href="\/sign-up/.test(html)
+      return { observed: hasSignUp ? "sign-up link present" : "no sign-up link", pass: hasSignUp }
+    },
+  },
+  {
+    id: "composio-api-keys-page",
+    title: "API keys deep link exists",
+    request: "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+    expect: "Login redirect that keeps the path",
+    run: async () => {
+      const r = await dashboardRoute("/~/project/settings/api-keys")
+      return { observed: `HTTP ${r.code}${r.keepsPath ? ", next= kept" : ""}`, pass: r.keepsPath }
+    },
+  },
+  {
+    id: "composio-github-toolkit-page",
+    title: "GitHub toolkit deep link exists",
+    request: "GET https://dashboard.composio.dev/toolkits/github (control: /toolkits)",
+    expect: "Login redirect that keeps the path; control 404s",
+    run: async () => {
+      const r = await dashboardRoute("/toolkits/github")
+      const control = await dashboardRoute("/toolkits")
+      return {
+        observed: `HTTP ${r.code}${r.keepsPath ? ", next= kept" : ""}; control HTTP ${control.code}`,
+        pass: r.keepsPath && control.code === 404,
+      }
     },
   },
   {

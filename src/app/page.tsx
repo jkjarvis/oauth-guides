@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Clock, Hourglass, ListChecks, ShieldCheck, Wallet } from "lucide-react"
+import { ArrowRight, Clock, Hourglass, Wallet } from "lucide-react"
 import { EvidenceDot } from "@/components/guide/labels"
 import { evidenceCounts, formatMinutes, formatWait, listGuides, planned } from "@/lib/guides"
 
@@ -12,11 +12,6 @@ export default function LibraryPage() {
         <p className="max-w-2xl text-muted-foreground">
           Per-provider guides for registering an OAuth app, getting it approved, and plugging it into Composio.
         </p>
-        <div className="flex gap-6 pt-1 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5"><ListChecks className="size-4" />Steps you can tick off</span>
-          <span className="flex items-center gap-1.5"><Clock className="size-4" />Time and wait up front</span>
-          <span className="flex items-center gap-1.5"><ShieldCheck className="size-4" />Every claim tested, sourced, or flagged</span>
-        </div>
       </div>
 
       <section className="space-y-3">

@@ -44,7 +44,7 @@ export const Step = z.object({
   minutes: Range,
   optional: z.boolean().default(false),
   when: Short.optional(),
-  action: z.object({ label: Title, url: z.url() }).optional(),
+  actions: z.array(z.object({ label: Title, url: z.url() })).max(2).default([]),
   fields: z.array(Field).default([]),
   pointers: z.array(Short).max(5).default([]),
   check: z.enum(["github-client-id"]).optional(),
@@ -89,11 +89,12 @@ export const Guide = z
       review: z.enum(["none", "optional", "required"]),
       cost: z.object({ usdPerYear: z.number().nonnegative(), asStated: Short }),
     }),
-    switchReasons: z.array(Item).max(5),
     requirements: z.array(Item),
     steps: z.array(Step).min(1),
     traps: z.array(Item),
     blockers: z.array(Blocker),
+    // Checks we could not run, e.g. ones that need an account or credentials.
+    unverified: z.array(z.object({ title: Title, detail: Short })).default([]),
     sources: z.array(Source),
   })
   .superRefine((g, ctx) => {
@@ -105,7 +106,7 @@ export const Guide = z
     }
     const evidence = [
       ...g.steps.map((s) => [s.title, s.evidence] as const),
-      ...[...g.switchReasons, ...g.requirements, ...g.traps, ...g.blockers].map((i) => [i.title, i.evidence] as const),
+      ...[...g.requirements, ...g.traps, ...g.blockers].map((i) => [i.title, i.evidence] as const),
     ]
     for (const [title, ev] of evidence) {
       for (const id of ev.sources) {

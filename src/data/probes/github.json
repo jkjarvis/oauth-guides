@@ -1,6 +1,6 @@
 {
   "guide": "github",
-  "ranAt": "2026-10-27T22:03:11.897Z",
+  "ranAt": "2026-10-27T22:20:47.099Z",
   "results": [
     {
       "id": "authorize-valid-client",
@@ -9,7 +9,7 @@
       "expect": "Sign-in page says \"continue to <app name>\"",
       "observed": "continue to \"GitHub CLI\"",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
     },
     {
       "id": "authorize-unknown-client",
@@ -18,7 +18,7 @@
       "expect": "Generic sign-in page, no app name",
       "observed": "generic sign-in page",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
     },
     {
       "id": "token-wrong-secret",
@@ -27,7 +27,7 @@
       "expect": "error: incorrect_client_credentials",
       "observed": "error: incorrect_client_credentials",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
     },
     {
       "id": "token-unknown-client",
@@ -36,7 +36,7 @@
       "expect": "error: Not Found",
       "observed": "error: Not Found",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
     },
     {
       "id": "composio-callback",
@@ -45,7 +45,34 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T22:20:47.099Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T22:20:47.099Z"
+    },
+    {
+      "id": "composio-github-toolkit-page",
+      "title": "GitHub toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/github (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T22:20:47.099Z"
     },
     {
       "id": "new-app-page",
@@ -54,7 +81,7 @@
       "expect": "Redirects to sign-in (page needs a logged-in user)",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
     },
     {
       "id": "no-oidc",
@@ -63,7 +90,7 @@
       "expect": "404: plain OAuth 2.0, no ID tokens",
       "observed": "HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T22:03:11.897Z"
+      "ranAt": "2026-10-27T22:20:47.099Z"
     }
   ]
 }

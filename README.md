@@ -45,11 +45,12 @@ src/app/api/check/github     checks a Client ID against GitHub's sign-in page
 
 ## What was tested, sourced, and left uncertain (GitHub)
 
-**Tested** (`npm run probe`, 7/7 passing on 2026-10-28):
+**Tested** (`npm run probe`, 10/10 passing on 2026-10-28):
 - A valid Client ID shows the app name on GitHub's sign-in page. An unknown one doesn't.
 - The token endpoint returns `incorrect_client_credentials` for a wrong secret, and `Not Found` for an unknown Client ID.
 - Composio's callback URL (`/api/v3/toolkits/auth/callback`) is live.
 - GitHub's registration page exists and requires sign-in.
+- Composio's dashboard deep links exist: `/toolkits/github` and `/~/project/settings/api-keys` redirect to login and keep the path, while unknown paths return 404. The login page links to sign-up.
 - GitHub serves no OIDC discovery document, so this is plain OAuth 2.0.
 
 **Sourced:** GitHub docs (registration, authorization, scopes, org restrictions, transfer) and Composio docs (managed vs custom auth, custom auth configs, white-labeling).
@@ -62,6 +63,7 @@ src/app/api/check/github     checks a Client ID against GitHub's sign-in page
 **Uncertain:**
 - Whether Composio refreshes GitHub's 8-hour tokens correctly. Composio says it auto-refreshes OAuth tokens, but this wasn't tested end to end.
 - A full connection through a real auth config. That needs a Composio API key and a real user sign-in, and wasn't run.
+- What Composio's GitHub page shows after login. The link exists, but whether it opens auth config creation directly needs a logged-in check.
 
 ## Limitations
 
