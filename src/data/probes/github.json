@@ -1,0 +1,69 @@
+{
+  "guide": "github",
+  "ranAt": "2026-10-27T22:03:11.897Z",
+  "results": [
+    {
+      "id": "authorize-valid-client",
+      "title": "Valid Client ID shows the app name",
+      "request": "GET https://github.com/login/oauth/authorize?client_id=178c6fc778ccc68e1d6a&scope=repo&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback",
+      "expect": "Sign-in page says \"continue to <app name>\"",
+      "observed": "continue to \"GitHub CLI\"",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    },
+    {
+      "id": "authorize-unknown-client",
+      "title": "Unknown Client ID shows no app name",
+      "request": "GET https://github.com/login/oauth/authorize?client_id=fakefakefake00000000&scope=repo&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback",
+      "expect": "Generic sign-in page, no app name",
+      "observed": "generic sign-in page",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    },
+    {
+      "id": "token-wrong-secret",
+      "title": "Wrong secret is rejected by name",
+      "request": "POST https://github.com/login/oauth/access_token (real client_id, wrong secret)",
+      "expect": "error: incorrect_client_credentials",
+      "observed": "error: incorrect_client_credentials",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Unknown Client ID returns Not Found",
+      "request": "POST https://github.com/login/oauth/access_token (fake client_id)",
+      "expect": "error: Not Found",
+      "observed": "error: Not Found",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    },
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    },
+    {
+      "id": "new-app-page",
+      "title": "Registration page exists",
+      "request": "GET https://github.com/settings/applications/new",
+      "expect": "Redirects to sign-in (page needs a logged-in user)",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    },
+    {
+      "id": "no-oidc",
+      "title": "No OIDC discovery document",
+      "request": "GET https://github.com/.well-known/openid-configuration",
+      "expect": "404: plain OAuth 2.0, no ID tokens",
+      "observed": "HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T22:03:11.897Z"
+    }
+  ]
+}
