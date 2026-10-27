@@ -1,7 +1,7 @@
 {
   "slug": "github",
   "name": "GitHub",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Register a GitHub OAuth App and plug it into Composio. No review, live in minutes.",
   "appType": "OAuth App",
@@ -12,511 +12,194 @@
     "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
   },
   "facts": {
-    "handsOnMinutes": {
-      "min": 10,
-      "max": 20
-    },
+    "handsOnMinutes": { "min": 10, "max": 20 },
     "approvalWait": null,
     "review": "none",
-    "cost": {
-      "usdPerYear": 0,
-      "asStated": "Free"
-    }
+    "cost": { "usdPerYear": 0, "asStated": "Free" }
   },
-  "requirements": [
-    {
-      "title": "GitHub account",
-      "detail": "Org owner role if the org should own the app.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-create-oauth-app"
-        ]
-      }
-    },
-    {
-      "title": "Composio account",
-      "detail": "Sign up at dashboard.composio.dev. Step 5 covers it.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-quickstart"
-        ]
-      }
-    },
-    {
-      "title": "Public homepage URL",
-      "detail": "Required field on the GitHub form. Shown to users.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-create-oauth-app"
-        ]
-      }
-    },
-    {
-      "title": "List of GitHub tools you use",
-      "detail": "Decides which scopes to request.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-scopes"
-        ]
-      }
-    }
-  ],
   "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": { "min": 2, "max": 3 },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        { "label": "Env var", "value": "COMPOSIO_API_KEY" }
+      ],
+      "actions": [
+        { "label": "Sign up", "url": "https://dashboard.composio.dev/login" },
+        { "label": "API keys", "url": "https://dashboard.composio.dev/~/project/settings/api-keys" }
+      ],
+      "sources": ["composio-quickstart", "composio-dashboard-nav"],
+      "checks": ["composio-dashboard-login", "composio-api-keys-page"]
+    },
     {
       "id": "choose-owner",
       "title": "Choose who owns the app",
       "who": "you",
-      "minutes": {
-        "min": 1,
-        "max": 1
-      },
-      "pointers": [
-        "Organization: survives team changes. Needs org owner.",
-        "Personal account: fastest. Transfer to an org any time."
+      "minutes": { "min": 1, "max": 1 },
+      "instructions": [
+        "Organization: survives team changes. You need the org owner role.",
+        "Personal account: fastest. You can transfer it to an org later."
       ],
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-create-oauth-app",
-          "gh-transfer"
-        ]
-      }
+      "warnings": [
+        { "text": "Not an org owner? Register under your account now and transfer it to the org later.", "sources": ["gh-transfer"] }
+      ],
+      "sources": ["gh-create-oauth-app", "gh-transfer"]
     },
     {
       "id": "register-app",
       "title": "Register a new OAuth App",
       "who": "you",
-      "minutes": {
-        "min": 3,
-        "max": 5
-      },
+      "minutes": { "min": 3, "max": 5 },
+      "instructions": [
+        "Open GitHub → Settings → Developer settings → OAuth Apps → New OAuth App.",
+        "For an org-owned app use github.com/organizations/<org>/settings/applications/new.",
+        "Fill in the form with the values below, then click Register application.",
+        "No review. The app works as soon as it's registered."
+      ],
       "fields": [
-        {
-          "label": "Application name",
-          "value": "Your product name",
-          "hint": "Shown on the consent screen",
-          "copy": false
-        },
-        {
-          "label": "Homepage URL",
-          "value": "https://your-product.com",
-          "copy": false
-        },
-        {
-          "label": "Authorization callback URL",
-          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
-          "hint": "Must match your Composio auth config exactly"
-        },
-        {
-          "label": "Enable Device Flow",
-          "value": "Leave off",
-          "hint": "Only for CLI or headless sign-in",
-          "copy": false
-        },
-        {
-          "label": "Expire user access tokens",
-          "value": "Leave on (default)",
-          "copy": false
-        }
+        { "label": "Application name", "value": "Your product name", "hint": "Shown to users on the consent screen", "copy": false },
+        { "label": "Homepage URL", "value": "https://your-product.com", "hint": "Required. Shown to users.", "copy": false },
+        { "label": "Authorization callback URL", "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback", "hint": "Must match your Composio auth config exactly" },
+        { "label": "Enable Device Flow", "value": "Leave off", "hint": "Only for CLI or headless sign-in", "copy": false },
+        { "label": "Expire user access tokens", "value": "Leave on (default)", "copy": false }
       ],
-      "pointers": [
-        "Org-owned: github.com/organizations/<org>/settings/applications/new",
-        "No review. The app works as soon as it is registered."
+      "warnings": [
+        { "text": "Tokens now expire after 8 hours by default. Refresh tokens last 6 months if unused.", "sources": ["gh-authorize"], "unconfirmed": "Composio says it refreshes OAuth tokens. We didn't test GitHub's 8-hour tokens end to end." }
       ],
-      "evidence": {
-        "kind": "tested",
-        "sources": [
-          "gh-create-oauth-app",
-          "composio-custom-auth"
-        ],
-        "probes": [
-          "new-app-page",
-          "composio-callback"
-        ]
-      },
       "actions": [
-        {
-          "label": "Open GitHub",
-          "url": "https://github.com/settings/applications/new"
-        }
-      ]
+        { "label": "Open GitHub", "url": "https://github.com/settings/applications/new" }
+      ],
+      "sources": ["gh-create-oauth-app", "composio-custom-auth"],
+      "checks": ["new-app-page", "composio-callback"]
     },
     {
       "id": "client-secret",
       "title": "Generate a client secret",
       "who": "you",
-      "minutes": {
-        "min": 1,
-        "max": 1
-      },
-      "pointers": [
-        "Shown once. Copy it before leaving the page.",
+      "minutes": { "min": 1, "max": 1 },
+      "instructions": [
+        "On the app page, click Generate a new client secret.",
+        "Copy it before leaving the page. GitHub shows it once.",
         "Store it in a secret manager, never in git.",
-        "The Client ID is public. The secret is not."
+        "Note the Client ID too. It's public; the secret is not."
       ],
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-github-auth"
-        ]
-      }
+      "warnings": [
+        { "text": "Lost the secret? Generate a new one and update your Composio auth config.", "sources": ["composio-github-auth"] }
+      ],
+      "sources": ["composio-github-auth"],
+      "checks": ["token-wrong-secret"]
     },
     {
       "id": "verify-client-id",
       "title": "Check your Client ID",
       "who": "agent",
-      "minutes": {
-        "min": 0,
-        "max": 1
-      },
+      "minutes": { "min": 0, "max": 1 },
+      "instructions": [
+        "Paste your Client ID below. We open GitHub's sign-in page with it.",
+        "A valid ID makes GitHub say \"continue to <your app name>\". That's what your users will see."
+      ],
       "check": "github-client-id",
-      "pointers": [
-        "Loads GitHub's sign-in page with your Client ID.",
-        "Valid ID: page says \"continue to <your app name>\"."
-      ],
-      "evidence": {
-        "kind": "tested",
-        "probes": [
-          "authorize-valid-client",
-          "authorize-unknown-client"
-        ]
-      }
-    },
-    {
-      "id": "composio-account",
-      "title": "Set up your Composio account",
-      "who": "you",
-      "minutes": {
-        "min": 2,
-        "max": 3
-      },
-      "optional": true,
-      "when": "Skip if you already have a Composio project",
-      "actions": [
-        {
-          "label": "Sign up",
-          "url": "https://dashboard.composio.dev/login"
-        },
-        {
-          "label": "API keys",
-          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
-        }
-      ],
-      "fields": [
-        {
-          "label": "Env var",
-          "value": "COMPOSIO_API_KEY",
-          "hint": "Your agent reads the key from here"
-        }
-      ],
-      "pointers": [
-        "Sign up from the login page.",
-        "Copy an API key from Settings → API keys.",
-        "Auth configs belong to one project. Stay in the same project."
-      ],
-      "evidence": {
-        "kind": "tested",
-        "sources": [
-          "composio-quickstart",
-          "composio-dashboard-nav"
-        ],
-        "probes": [
-          "composio-dashboard-login",
-          "composio-api-keys-page"
-        ]
-      }
+      "checks": ["authorize-valid-client", "authorize-unknown-client"]
     },
     {
       "id": "auth-config",
       "title": "Create a Composio auth config",
       "who": "you",
-      "minutes": {
-        "min": 2,
-        "max": 4
-      },
+      "minutes": { "min": 2, "max": 4 },
+      "instructions": [
+        "Open the GitHub toolkit in Composio and create an auth config.",
+        "Use the values below, then paste your Client ID and client secret.",
+        "Pick scopes from the GitHub tools your agent actually uses.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
       "fields": [
-        {
-          "label": "Toolkit",
-          "value": "GitHub",
-          "copy": false
-        },
-        {
-          "label": "Auth scheme",
-          "value": "OAuth2",
-          "copy": false
-        },
-        {
-          "label": "Use your own developer credentials",
-          "value": "On",
-          "copy": false
-        },
-        {
-          "label": "Starter scopes",
-          "value": "repo read:user user:email",
-          "hint": "Trim to what your tools need"
-        }
+        { "label": "Auth scheme", "value": "OAuth2", "copy": false },
+        { "label": "Use your own developer credentials", "value": "On", "copy": false },
+        { "label": "Redirect URI", "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback", "hint": "Must match the GitHub callback URL exactly" },
+        { "label": "Starter scopes", "value": "repo read:user user:email", "hint": "Trim to what your tools need" }
       ],
-      "pointers": [
-        "Paste the Client ID and client secret.",
-        "Redirect URI must match the GitHub callback URL exactly.",
-        "Copy the auth config ID (ac_…) for the next step.",
-        "Link opens elsewhere? Use Auth Configs → Create Auth Config."
+      "warnings": [
+        { "text": "repo grants full read and write on every private repo. GitHub has no read-only private-repo scope.", "sources": ["gh-scopes"] }
       ],
-      "evidence": {
-        "kind": "tested",
-        "sources": [
-          "composio-custom-auth",
-          "composio-github-auth",
-          "composio-dashboard-nav"
-        ],
-        "probes": [
-          "composio-github-toolkit-page"
-        ]
-      },
       "actions": [
-        {
-          "label": "Open GitHub in Composio",
-          "url": "https://dashboard.composio.dev/toolkits/github"
-        }
-      ]
+        { "label": "Open GitHub in Composio", "url": "https://dashboard.composio.dev/toolkits/github" }
+      ],
+      "sources": ["composio-custom-auth", "composio-github-auth", "composio-dashboard-nav"],
+      "checks": ["composio-github-toolkit-page"],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config."
     },
     {
       "id": "wire-session",
       "title": "Use the auth config in your agent",
       "who": "agent",
-      "minutes": {
-        "min": 1,
-        "max": 2
-      },
-      "pointers": [
-        "Toolkits you don't list keep using managed auth.",
-        "Your coding agent can paste this in."
+      "minutes": { "min": 1, "max": 2 },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
       ],
       "snippets": [
-        {
-          "lang": "ts",
-          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { github: \"ac_your_github_config\" },\n})"
-        },
-        {
-          "lang": "python",
-          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"github\": \"ac_your_github_config\"},\n)"
-        }
+        { "lang": "ts", "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { github: \"ac_your_github_config\" },\n})" },
+        { "lang": "python", "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"github\": \"ac_your_github_config\"},\n)" }
       ],
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-managed-vs-custom"
-        ]
-      }
+      "warnings": [
+        { "text": "Check runs and check suites need a GitHub App. They fail with an OAuth App token.", "sources": ["composio-github-toolkit"] }
+      ],
+      "sources": ["composio-managed-vs-custom"]
     },
     {
       "id": "test-connection",
       "title": "Connect a test account",
       "who": "you",
-      "minutes": {
-        "min": 2,
-        "max": 3
-      },
-      "pointers": [
-        "Consent screen shows your app name, not Composio.",
-        "Org access section? Grant it, or request it.",
-        "Users connected through managed auth must reconnect."
+      "minutes": { "min": 2, "max": 3 },
+      "instructions": [
+        "Start a connection for a test user and open the link.",
+        "The consent screen should show your app name, not Composio.",
+        "If an organization access section appears, grant or request access.",
+        "Users already connected through managed auth must reconnect."
       ],
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-white-label",
-          "composio-github-auth"
-        ]
-      }
+      "warnings": [
+        { "text": "GitHub keeps 10 tokens per user and scope set. The 11th connection revokes an older one.", "sources": ["gh-authorize"] }
+      ],
+      "sources": ["composio-white-label", "composio-github-auth"],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real GitHub sign-in."
     },
     {
       "id": "org-approval",
       "title": "Get org approval",
       "who": "wait",
-      "minutes": {
-        "min": 0,
-        "max": 0
-      },
+      "minutes": { "min": 0, "max": 0 },
       "optional": true,
-      "when": "Only if your users' orgs restrict OAuth apps",
-      "pointers": [
-        "Restrictions are on by default for new orgs.",
-        "Users click Request on the consent screen.",
-        "An org owner approves. GitHub sets no deadline."
+      "when": "Only if your users' GitHub orgs restrict OAuth apps. New orgs do by default.",
+      "instructions": [
+        "Until approved, your users' private org repos stay hidden from your app.",
+        "Your user clicks Request next to the org on the consent screen.",
+        "An org owner approves it in the org's settings. GitHub sets no deadline."
       ],
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-org-restrictions"
-        ]
-      }
-    }
-  ],
-  "traps": [
-    {
-      "title": "Secret is shown once",
-      "detail": "Lost it? Generate a new one and update the Composio auth config.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-github-auth"
-        ]
-      }
-    },
-    {
-      "title": "repo is all or nothing",
-      "detail": "Full read and write on every private repo. No read-only private scope exists.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-scopes"
-        ]
-      }
-    },
-    {
-      "title": "Callback must match exactly",
-      "detail": "Composio's redirect URI and GitHub's callback URL must be identical.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-custom-auth",
-          "gh-authorize"
-        ]
-      }
-    },
-    {
-      "title": "10 tokens per user",
-      "detail": "The 11th token for the same user and scopes revokes an older one.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-authorize"
-        ]
-      }
-    },
-    {
-      "title": "8-hour tokens",
-      "detail": "Expiring tokens are on by default. Refresh tokens last 6 months unused.",
-      "evidence": {
-        "kind": "uncertain",
-        "sources": [
-          "gh-authorize"
-        ],
-        "note": "Composio says it refreshes OAuth tokens. Not tested end to end for GitHub."
-      }
-    },
-    {
-      "title": "Some tools need a GitHub App",
-      "detail": "Check runs and check suites fail with OAuth App tokens.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "composio-github-toolkit"
-        ]
-      }
-    }
-  ],
-  "blockers": [
-    {
-      "title": "Your users' org blocks the app",
-      "detail": "Private org repos stay hidden until approved.",
-      "owner": "your users",
-      "fix": "User clicks Request. An org owner approves in org settings.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-org-restrictions"
-        ]
-      }
-    },
-    {
-      "title": "You're not an org owner",
-      "detail": "Only owners can register org-owned apps.",
-      "owner": "you",
-      "fix": "Register under your account, then transfer to the org.",
-      "evidence": {
-        "kind": "sourced",
-        "sources": [
-          "gh-transfer"
-        ]
-      }
+      "sources": ["gh-org-restrictions"]
     }
   ],
   "sources": [
-    {
-      "id": "gh-create-oauth-app",
-      "title": "GitHub · Creating an OAuth app",
-      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
-    },
-    {
-      "id": "gh-authorize",
-      "title": "GitHub · Authorizing OAuth apps",
-      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
-    },
-    {
-      "id": "gh-scopes",
-      "title": "GitHub · Scopes for OAuth apps",
-      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps"
-    },
-    {
-      "id": "gh-org-restrictions",
-      "title": "GitHub · OAuth app access restrictions",
-      "url": "https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/about-oauth-app-access-restrictions"
-    },
-    {
-      "id": "gh-transfer",
-      "title": "GitHub · Transferring an OAuth app",
-      "url": "https://docs.github.com/en/apps/oauth-apps/maintaining-oauth-apps/transferring-ownership-of-an-oauth-app"
-    },
-    {
-      "id": "composio-managed-vs-custom",
-      "title": "Composio · Managed vs custom auth",
-      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
-    },
-    {
-      "id": "composio-custom-auth",
-      "title": "Composio · Custom auth configs",
-      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
-    },
-    {
-      "id": "composio-white-label",
-      "title": "Composio · White-labeling",
-      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
-    },
-    {
-      "id": "composio-github-auth",
-      "title": "Composio · GitHub OAuth setup",
-      "url": "https://composio.dev/auth/github"
-    },
-    {
-      "id": "composio-github-toolkit",
-      "title": "Composio · GitHub toolkit",
-      "url": "https://docs.composio.dev/toolkits/github"
-    },
-    {
-      "id": "composio-quickstart",
-      "title": "Composio · Quickstart",
-      "url": "https://docs.composio.dev/docs/quickstart"
-    },
-    {
-      "id": "composio-dashboard-nav",
-      "title": "Composio · Dashboard auth configs",
-      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
-    }
-  ],
-  "unverified": [
-    {
-      "title": "Full connection with a real auth config",
-      "detail": "Needs a Composio API key and a user sign-in. Not run for this guide."
-    },
-    {
-      "title": "Composio GitHub page after login",
-      "detail": "The deep link exists. Whether it opens auth config creation directly needs a logged-in check."
-    }
+    { "id": "gh-create-oauth-app", "title": "GitHub · Creating an OAuth app", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app" },
+    { "id": "gh-authorize", "title": "GitHub · Authorizing OAuth apps", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps" },
+    { "id": "gh-scopes", "title": "GitHub · Scopes for OAuth apps", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps" },
+    { "id": "gh-org-restrictions", "title": "GitHub · OAuth app access restrictions", "url": "https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/about-oauth-app-access-restrictions" },
+    { "id": "gh-transfer", "title": "GitHub · Transferring an OAuth app", "url": "https://docs.github.com/en/apps/oauth-apps/maintaining-oauth-apps/transferring-ownership-of-an-oauth-app" },
+    { "id": "composio-quickstart", "title": "Composio · Quickstart", "url": "https://docs.composio.dev/docs/quickstart" },
+    { "id": "composio-dashboard-nav", "title": "Composio · Dashboard auth configs", "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation" },
+    { "id": "composio-managed-vs-custom", "title": "Composio · Managed vs custom auth", "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app" },
+    { "id": "composio-custom-auth", "title": "Composio · Custom auth configs", "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs" },
+    { "id": "composio-white-label", "title": "Composio · White-labeling", "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication" },
+    { "id": "composio-github-auth", "title": "Composio · GitHub OAuth setup", "url": "https://composio.dev/auth/github" },
+    { "id": "composio-github-toolkit", "title": "Composio · GitHub toolkit", "url": "https://docs.composio.dev/toolkits/github" }
   ]
 }

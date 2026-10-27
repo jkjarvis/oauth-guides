@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { ArrowRight, Clock, Hourglass, Wallet } from "lucide-react"
-import { EvidenceDot } from "@/components/guide/labels"
-import { evidenceCounts, formatMinutes, formatWait, listGuides, planned } from "@/lib/guides"
+import { formatMinutes, formatWait, listGuides, planned } from "@/lib/guides"
 
 export default function LibraryPage() {
   const guides = listGuides()
@@ -17,9 +16,7 @@ export default function LibraryPage() {
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">Guides</h2>
         <div className="grid grid-cols-3 gap-4">
-          {guides.map((g) => {
-            const counts = evidenceCounts(g)
-            return (
+          {guides.map((g) => (
               <Link
                 key={g.slug}
                 href={`/${g.slug}`}
@@ -41,16 +38,11 @@ export default function LibraryPage() {
                   <Stat icon={Wallet} label="Cost" value={g.facts.cost.asStated} />
                 </dl>
                 <div className="flex items-center justify-between border-t pt-3 font-mono text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-3">
-                    <span className="flex items-center gap-1"><EvidenceDot kind="tested" />{counts.tested}</span>
-                    <span className="flex items-center gap-1"><EvidenceDot kind="sourced" />{counts.sourced}</span>
-                    <span className="flex items-center gap-1"><EvidenceDot kind="uncertain" />{counts.uncertain}</span>
-                  </span>
+                  <span>{g.steps.length} steps</span>
                   <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </Link>
-            )
-          })}
+          ))}
           {planned.map((name) => (
             <div key={name} className="flex flex-col justify-between gap-5 rounded-xl border border-dashed p-5 text-muted-foreground">
               <div className="flex items-center justify-between">

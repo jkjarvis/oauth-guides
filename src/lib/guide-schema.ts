@@ -1,17 +1,8 @@
 import { z } from "zod"
 
-// Short text keeps guides scannable: pointers, not paragraphs.
-const Short = z.string().min(1).max(140)
+// Short text keeps guides scannable: instructions, not paragraphs.
+const Short = z.string().min(1).max(160)
 const Title = z.string().min(1).max(60)
-
-export const EvidenceKind = z.enum(["tested", "sourced", "uncertain"])
-
-export const Evidence = z.object({
-  kind: EvidenceKind,
-  sources: z.array(z.string()).default([]),
-  probes: z.array(z.string()).default([]),
-  note: Short.optional(),
-})
 
 export const Range = z.object({
   min: z.number().nonnegative(),
@@ -37,6 +28,13 @@ export const Snippet = z.object({
   code: z.string().min(1),
 })
 
+// Something easy to get wrong in this step. Either backed by a source or marked unconfirmed.
+export const Warning = z.object({
+  text: Short,
+  sources: z.array(z.string()).default([]),
+  unconfirmed: Short.optional(),
+})
+
 export const Step = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   title: Title,
@@ -44,23 +42,16 @@ export const Step = z.object({
   minutes: Range,
   optional: z.boolean().default(false),
   when: Short.optional(),
-  actions: z.array(z.object({ label: Title, url: z.url() })).max(2).default([]),
+  instructions: z.array(Short).min(1).max(8),
   fields: z.array(Field).default([]),
-  pointers: z.array(Short).max(5).default([]),
   check: z.enum(["github-client-id"]).optional(),
   snippets: z.array(Snippet).default([]),
-  evidence: Evidence,
-})
-
-export const Item = z.object({
-  title: Title,
-  detail: Short,
-  evidence: Evidence,
-})
-
-export const Blocker = Item.extend({
-  owner: z.enum(["you", "your users"]),
-  fix: Short,
+  warnings: z.array(Warning).default([]),
+  actions: z.array(z.object({ label: Title, url: z.url() })).max(2).default([]),
+  // Where the step's facts come from: docs we read, and live checks we ran.
+  sources: z.array(z.string()).default([]),
+  checks: z.array(z.string()).default([]),
+  unconfirmed: Short.optional(),
 })
 
 export const Source = z.object({
@@ -89,12 +80,7 @@ export const Guide = z
       review: z.enum(["none", "optional", "required"]),
       cost: z.object({ usdPerYear: z.number().nonnegative(), asStated: Short }),
     }),
-    requirements: z.array(Item),
     steps: z.array(Step).min(1),
-    traps: z.array(Item),
-    blockers: z.array(Blocker),
-    // Checks we could not run, e.g. ones that need an account or credentials.
-    unverified: z.array(z.object({ title: Title, detail: Short })).default([]),
     sources: z.array(Source),
   })
   .superRefine((g, ctx) => {
@@ -103,21 +89,15 @@ export const Guide = z
     for (const s of g.steps) {
       if (stepIds.has(s.id)) ctx.addIssue({ code: "custom", message: `Duplicate step id: ${s.id}` })
       stepIds.add(s.id)
-    }
-    const evidence = [
-      ...g.steps.map((s) => [s.title, s.evidence] as const),
-      ...[...g.requirements, ...g.traps, ...g.blockers].map((i) => [i.title, i.evidence] as const),
-    ]
-    for (const [title, ev] of evidence) {
-      for (const id of ev.sources) {
-        if (!sourceIds.has(id)) ctx.addIssue({ code: "custom", message: `"${title}" cites unknown source "${id}"` })
+      if (s.sources.length === 0 && s.checks.length === 0 && !s.unconfirmed)
+        ctx.addIssue({ code: "custom", message: `"${s.title}" has no source, live check, or unconfirmed note` })
+      for (const w of s.warnings) {
+        if (w.sources.length === 0 && !w.unconfirmed)
+          ctx.addIssue({ code: "custom", message: `Warning in "${s.title}" needs a source or an unconfirmed note` })
       }
-      if (ev.kind === "sourced" && ev.sources.length === 0)
-        ctx.addIssue({ code: "custom", message: `"${title}" is marked sourced but cites nothing` })
-      if (ev.kind === "tested" && ev.probes.length === 0)
-        ctx.addIssue({ code: "custom", message: `"${title}" is marked tested but names no probe` })
-      if (ev.kind === "uncertain" && !ev.note)
-        ctx.addIssue({ code: "custom", message: `"${title}" is uncertain but does not say why` })
+      for (const id of [...s.sources, ...s.warnings.flatMap((w) => w.sources)]) {
+        if (!sourceIds.has(id)) ctx.addIssue({ code: "custom", message: `"${s.title}" cites unknown source "${id}"` })
+      }
     }
   })
 
@@ -139,7 +119,7 @@ export const ProbeRun = z.object({
 
 export type Guide = z.infer<typeof Guide>
 export type Step = z.infer<typeof Step>
-export type Evidence = z.infer<typeof Evidence>
+export type Source = z.infer<typeof Source>
 export type ProbeRun = z.infer<typeof ProbeRun>
 export type ProbeResult = z.infer<typeof ProbeResult>
 export type Wait = z.infer<typeof Wait>
