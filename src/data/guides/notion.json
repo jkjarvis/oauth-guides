@@ -413,11 +413,11 @@
           "q": "Tools return object_not_found or can't see my pages",
           "a": [
             "The page wasn't shared during sign-in. Notion only exposes pages picked in the page picker.",
-            "In Notion: Settings → Connections → your connection → Select pages or Manage access, then add pages."
+            "On the page in Notion: ••• → More → Connections → Add connections, then pick your connection. Or reconnect and pick it."
           ],
           "sources": [
             "notion-status-codes",
-            "composio-notion-toolkit"
+            "notion-help-connections"
           ]
         },
         {
@@ -468,7 +468,7 @@
       "optional": true,
       "when": "Only if a user's Enterprise workspace limits which connections members can install.",
       "instructions": [
-        "The user asks their workspace owner. Notion has no in-product request flow for this.",
+        "The user asks their workspace owner to approve your connection.",
         "The owner installs your connection first. Only installed connections can be approved.",
         "Then Settings → Connections → Manage → + Add approved connection, and pick yours.",
         "Owner installs land on the approved list automatically.",

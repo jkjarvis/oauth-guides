@@ -1,6 +1,6 @@
 {
   "guide": "outlook",
-  "ranAt": "2026-10-27T23:00:09.259Z",
+  "ranAt": "2026-10-27T23:31:52.991Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "oidc-common",
@@ -54,7 +54,7 @@
       "expect": "common authorize + token endpoints; issuer has a {tenantid} slot",
       "observed": "HTTP 200; issuer https://login.microsoftonline.com/{tenantid}/v2.0",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "authorize-signin-first",
@@ -63,7 +63,7 @@
       "expect": "Sign-in page, no AADSTS error before a user signs in",
       "observed": "HTTP 200; \"Sign in to your account\"; no AADSTS code",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "token-wrong-secret",
@@ -72,7 +72,7 @@
       "expect": "AADSTS7000215, hinting at the secret Value vs Secret ID",
       "observed": "invalid_client: AADSTS7000215, says use the Value not the Secret ID",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "token-unknown-client",
@@ -81,7 +81,7 @@
       "expect": "AADSTS700016: application not found",
       "observed": "unauthorized_client: AADSTS700016",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "adminconsent-endpoint",
@@ -90,7 +90,7 @@
       "expect": "200 sign-in page (the admin signs in first)",
       "observed": "HTTP 200; \"Sign in to your account\"",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "entra-admin-center",
@@ -99,7 +99,7 @@
       "expect": "HTTP 200",
       "observed": "HTTP 200",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "managed-consent-policy",
@@ -108,7 +108,7 @@
       "expect": "Microsoft-managed policy's EXCEPT list includes Mail.Read and Calendars.Read",
       "observed": "HTTP 200; Mail.Read listed; Calendars.Read listed",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "qa-entra-tag",
@@ -117,7 +117,7 @@
       "expect": "200, tag page titled Microsoft Entra ID",
       "observed": "HTTP 200; \"Microsoft Security Microsoft Entra Microsoft Entra ID - Microsoft Q&amp;A\"",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     },
     {
       "id": "partner-center-support",
@@ -126,7 +126,7 @@
       "expect": "200, describes Contact Support in Partner Center",
       "observed": "HTTP 200",
       "pass": true,
-      "ranAt": "2026-10-27T23:00:09.259Z"
+      "ranAt": "2026-10-27T23:31:52.991Z"
     }
   ]
 }

@@ -353,9 +353,9 @@
       ],
       "warnings": [
         {
-          "text": "Check runs and check suites need a GitHub App. They fail with an OAuth App token.",
+          "text": "Creating check runs or check suites needs a GitHub App. OAuth App tokens can only read them.",
           "sources": [
-            "composio-github-toolkit"
+            "gh-checks"
           ]
         }
       ],
@@ -532,6 +532,11 @@
       "id": "composio-github-toolkit",
       "title": "Composio · GitHub toolkit",
       "url": "https://docs.composio.dev/toolkits/github"
+    },
+    {
+      "id": "gh-checks",
+      "title": "GitHub · REST API check runs",
+      "url": "https://docs.github.com/en/rest/checks/runs"
     },
     {
       "id": "gh-auth-errors",

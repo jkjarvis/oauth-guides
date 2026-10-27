@@ -122,7 +122,7 @@
         "Business users only? Pick Multiple Entra ID tenants. Single tenant blocks everyone outside your org.",
         "Under Redirect URI, choose platform Web and paste the Composio callback below.",
         "Click Register. Copy the Application (client) ID from Overview.",
-        "Skipped the redirect URI? Open Authentication → Add Redirect URI → Web."
+        "No Redirect URI field, or skipped it? Open Authentication → Add Redirect URI → Web."
       ],
       "fields": [
         {
@@ -540,7 +540,7 @@
       "instructions": [
         "Enroll your company in the Microsoft AI Cloud Partner Program in Partner Center, signed in with a work account.",
         "Use an employee business email for verification, not a personal or free email account.",
-        "Microsoft checks your email, employment and business registration. Upload documents if asked.",
+        "Microsoft checks your email, identity, employment and business registration. Upload documents if asked.",
         "Note the Partner One ID of the partner global account (PGA). A location ID won't work."
       ],
       "wait": {
@@ -591,7 +591,7 @@
       "instructions": [
         "Sign in with MFA as Application Administrator or Cloud Application Administrator.",
         "In your app, open Branding & properties and set the Publisher domain to a DNS-verified domain.",
-        "That domain must match the email domain used for your Partner Center verification.",
+        "It, or another DNS-verified domain in your tenant, must match your Partner Center verification email domain.",
         "Select Add Partner ID to verify publisher, enter your Partner One ID, then Verify and save.",
         "In Partner Center you also need Partner Admin or Accounts Admin.",
         "A blue verified badge appears next to the publisher name, usually within minutes."
@@ -622,10 +622,10 @@
           ]
         },
         {
-          "q": "MPNAccountNotFoundOrNoAccess",
+          "q": "MPNAccountNotFoundOrNoAccess or MPNGlobalAccountNotFound",
           "a": [
-            "You probably entered a partner location ID. Use the partner global account's Partner One ID.",
-            "Your user also needs an admin role on that Partner Center account."
+            "NotFoundOrNoAccess: usually your user lacks an admin role on that Partner Center account, or the app's tenant isn't linked to it.",
+            "GlobalAccountNotFound: you entered a partner location ID. Use the partner global account's Partner One ID."
           ],
           "sources": [
             "ms-pv-troubleshoot"
@@ -829,7 +829,7 @@
     {
       "id": "pc-verification",
       "title": "Partner Center · Account verification",
-      "url": "https://learn.microsoft.com/en-us/partner-center/verification-responses"
+      "url": "https://learn.microsoft.com/en-us/partner-center/enroll/understand-the-verification-process"
     },
     {
       "id": "pc-support",

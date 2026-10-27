@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useSyncExternalStore } from "react"
+import { useMemo, useRef, useState, useSyncExternalStore } from "react"
 import {
   ArrowLeft,
   ArrowRight,
@@ -74,7 +74,16 @@ const LANG_LABEL = { ts: "TypeScript", python: "Python", bash: "Shell" } as cons
 export function GuideSteps({ guide, probes, storageKey }: { guide: Guide; probes: ProbeResult[]; storageKey?: string }) {
   const { progress, loaded, save } = useProgress(storageKey ?? `oauth-guides:${guide.slug}`)
   // null follows the first unfinished step.
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedIdState] = useState<string | null>(null)
+  const viewRef = useRef<HTMLDivElement>(null)
+
+  // On narrow screens the step list sits above the step, so bring the step into view after picking one.
+  function setSelectedId(id: string | null) {
+    setSelectedIdState(id)
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      requestAnimationFrame(() => viewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }))
+    }
+  }
 
   const isFinished = (id: string) => ["done", "skipped"].includes(progress[id]?.status ?? "")
   const current = guide.steps.find((s) => !isFinished(s.id))
@@ -134,6 +143,7 @@ export function GuideSteps({ guide, probes, storageKey }: { guide: Guide; probes
         </Button>
       </nav>
 
+      <div ref={viewRef} className="min-w-0 scroll-mt-20">
       <StepView
         key={selected.id}
         step={selected}
@@ -146,6 +156,7 @@ export function GuideSteps({ guide, probes, storageKey }: { guide: Guide; probes
         onStatus={(s, opts) => setStatus(selected, s, opts)}
         onGo={(i) => setSelectedId(guide.steps[i].id)}
       />
+      </div>
     </div>
   )
 }

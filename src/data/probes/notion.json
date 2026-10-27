@@ -1,6 +1,6 @@
 {
   "guide": "notion",
-  "ranAt": "2026-10-27T23:11:23.363Z",
+  "ranAt": "2026-10-27T23:31:41.451Z",
   "results": [
     {
       "id": "composio-callback",
@@ -9,7 +9,7 @@
       "expect": "Responds (redirect), not 404",
       "observed": "HTTP 302",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "composio-dashboard-login",
@@ -18,7 +18,7 @@
       "expect": "Sign-in page with a sign-up link",
       "observed": "sign-up link present",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "composio-api-keys-page",
@@ -27,7 +27,7 @@
       "expect": "Login redirect that keeps the path",
       "observed": "HTTP 307, next= kept",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "composio-toolkit-page",
@@ -36,7 +36,7 @@
       "expect": "Login redirect that keeps the path; control 404s",
       "observed": "HTTP 307, next= kept; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "composio-discord",
@@ -45,7 +45,7 @@
       "expect": "Redirects to a Discord invite",
       "observed": "HTTP 301",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "developer-portal",
@@ -54,7 +54,7 @@
       "expect": "200; control 404s",
       "observed": "HTTP 200; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "marketplace-dashboard",
@@ -63,7 +63,7 @@
       "expect": "200; control 404s",
       "observed": "HTTP 200; control HTTP 404",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "authorize-signin-first",
@@ -72,7 +72,7 @@
       "expect": "302 to app.notion.com/install-integration, client_id kept, no error yet",
       "observed": "HTTP 302 → https://app.notion.com/install-integration",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "token-unknown-client",
@@ -81,7 +81,7 @@
       "expect": "401 error: invalid_client",
       "observed": "HTTP 401; error: invalid_client",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "refresh-unknown-client",
@@ -90,7 +90,7 @@
       "expect": "401 error: invalid_client",
       "observed": "HTTP 401; error: invalid_client",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "scope-fixed-doc",
@@ -99,7 +99,7 @@
       "expect": "Says installation scope can't be changed afterward",
       "observed": "HTTP 200; statement present",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "auth-url-review-doc",
@@ -108,7 +108,7 @@
       "expect": "Says the Authorization URL field populates after review submission",
       "observed": "HTTP 200; statement present",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "notion-help-contact",
@@ -117,7 +117,7 @@
       "expect": "200 with a 'Reach out to Notion support' option",
       "observed": "HTTP 200; support option present",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     },
     {
       "id": "notion-devs-slack",
@@ -126,7 +126,7 @@
       "expect": "Redirects to notiondevs.slack.com",
       "observed": "HTTP 302 → https://notiondevs.slack.com/join/shared_invite/zt-3u9oid9q8",
       "pass": true,
-      "ranAt": "2026-10-27T23:11:23.363Z"
+      "ranAt": "2026-10-27T23:31:41.451Z"
     }
   ]
 }

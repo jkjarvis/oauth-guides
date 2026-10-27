@@ -1096,8 +1096,10 @@
       "when": "Restricted scopes, and Gmail data is accessed from or through a server. Expect this with Composio.",
       "instructions": [
         "Wait for Google's email. Google, not you, decides your tier and assurance level.",
-        "Tier 2: scan your app, fix failed CWEs, submit results, and receive a Letter of Validation (LOV).",
-        "Or hire an authorized CASA lab. You pay the lab directly; Google charges nothing.",
+        "Contact an authorized CASA lab. It tests your app at the assigned level (AL1 or AL2).",
+        "Fix the failed findings to receive a Letter of Validation (LOV).",
+        "Follow your notification email. CASA's Tier 2 self-scan is deprecated.",
+        "You pay the lab directly; Google charges no fee.",
         "Existing certifications may shorten it through the CASA Accelerator.",
         "Repeat every 12 months from your LOV date. Google emails when it's due."
       ],

@@ -21,7 +21,7 @@
       "max": 1,
       "unit": "weeks",
       "openEnded": true,
-      "asStated": "App Review: \"you should receive a decision within a week\". Meta publishes no timeline for Business Verification.",
+      "asStated": "App Review: \"you should receive a decision within a week\". Meta's developer docs give no Business Verification timeline.",
       "summary": "About a week, no SLA"
     },
     "review": "required",
@@ -251,9 +251,7 @@
             "The login dialog got a redirect URI that isn't in your Valid OAuth Redirect URIs list.",
             "Paste Composio's URI exactly, keep Client and Web OAuth login on, and save."
           ],
-          "sources": [
-            "meta-login-security"
-          ]
+          "sources": []
         },
         {
           "q": "\"Can't load URL: The domain of this URL isn't included in the app's domains\"",
@@ -739,7 +737,7 @@
         "max": 0,
         "unit": "days",
         "openEnded": true,
-        "asStated": "Meta publishes no timeline. Status moves from Pending to Verified.",
+        "asStated": "Meta's developer docs give no timeline. Status moves from Pending to Verified.",
         "summary": "No published timeline"
       },
       "sources": [
@@ -747,7 +745,8 @@
       ],
       "contacts": [
         "meta-business-support"
-      ]
+      ],
+      "unconfirmed": "Search snippets cite \"up to 14 business days\" from Meta's Business Help Center; we couldn't load that page to confirm."
     },
     {
       "id": "review-drafts",
@@ -897,18 +896,27 @@
           "sources": [
             "meta-flfb"
           ]
+        },
+        {
+          "text": "User tokens last about 60 days at most, and data access expires after 90 days of inactivity. Users must then reconnect.",
+          "sources": [
+            "meta-long-lived-tokens",
+            "meta-auth-vs-data"
+          ]
         }
       ],
       "sources": [
         "meta-pages-create-app",
         "meta-release",
-        "meta-app-modes"
+        "meta-app-modes",
+        "meta-long-lived-tokens",
+        "meta-auth-vs-data"
       ],
       "problems": [
         {
           "q": "\"Feature Unavailable: Facebook Login is currently unavailable for this app\"",
           "a": [
-            "Usually a permission the login asks for lacks Advanced Access, often public_profile.",
+            "Usually a permission the login asks for lacks Advanced Access. Facebook Login for Business needs it for public_profile.",
             "Check App Review → Permissions and Features and request or restore Advanced Access.",
             "If it persists, ask Meta Developer Support or file a bug report."
           ],
@@ -1035,6 +1043,16 @@
       "id": "meta-manual-flow",
       "title": "Meta · Manually build a login flow",
       "url": "https://developers.facebook.com/documentation/facebook-login/guides/advanced/manual-flow"
+    },
+    {
+      "id": "meta-long-lived-tokens",
+      "title": "Meta · Long-lived access tokens",
+      "url": "https://developers.facebook.com/documentation/facebook-login/guides/access-tokens/get-long-lived"
+    },
+    {
+      "id": "meta-auth-vs-data",
+      "title": "Meta · Data access expiration",
+      "url": "https://developers.facebook.com/documentation/facebook-login/auth-vs-data"
     },
     {
       "id": "meta-flfb",

@@ -534,10 +534,11 @@
           "q": "Slack says the app isn't listed in the Slack Marketplace",
           "a": [
             "That workspace only allows Marketplace apps.",
-            "An admin can turn off Require apps from Slack Marketplace. See the admin approval step below."
+            "An owner can turn off Only allow apps from the Slack Marketplace. See the admin approval step below."
           ],
           "sources": [
-            "composio-slack-toolkit"
+            "composio-slack-toolkit",
+            "slack-help-app-settings"
           ]
         },
         {
@@ -568,14 +569,16 @@
       "when": "Only if a user's workspace requires approved apps or Marketplace-only apps.",
       "instructions": [
         "Your user requests the app on Slack's install screen.",
-        "A workspace owner or admin approves the request.",
-        "Or the admin turns off Require approved apps and Require apps from Slack Marketplace.",
-        "Those live in Settings → Apps & Workflows → App Management Settings.",
+        "A workspace owner or app manager approves the request.",
+        "Or an owner turns off Require approved apps and Only allow apps from the Slack Marketplace.",
+        "Those live in Admin → Apps and workflows → App management settings.",
         "Admins see your full scope list. Fewer scopes make approval easier."
       ],
       "sources": [
         "composio-slack-toolkit",
-        "slack-distribution"
+        "slack-distribution",
+        "slack-help-app-approval",
+        "slack-help-app-settings"
       ],
       "checks": [
         "composio-slack-faq"
@@ -715,7 +718,7 @@
           "q": "My submission was returned",
           "a": [
             "Slack returns apps that aren't production-ready or that it can't install.",
-            "Fix every point and resubmit. Each resubmission resets your place in the queue."
+            "Fix every point and resubmit. In preliminary review, each resubmission resets your queue spot."
           ],
           "sources": [
             "slack-mkt-review"
@@ -843,6 +846,16 @@
       "id": "slack-mkt-install-2026",
       "title": "Slack · Marketplace install bar (Sep 2026)",
       "url": "https://docs.slack.dev/changelog/2026/09/01/slack-marketplace-install-requirement"
+    },
+    {
+      "id": "slack-help-app-approval",
+      "title": "Slack Help · Manage app approval",
+      "url": "https://slack.com/help/articles/222386767-Manage-app-approval-for-your-workspace"
+    },
+    {
+      "id": "slack-help-app-settings",
+      "title": "Slack Help · Manage app settings",
+      "url": "https://slack.com/help/articles/1500009181142-Manage-app-settings-and-permissions"
     },
     {
       "id": "slack-dev-support",
