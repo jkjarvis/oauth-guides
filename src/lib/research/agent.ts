@@ -25,11 +25,14 @@ export type ResearchEvent =
 
 const MODEL = "claude-opus-5-5"
 // Vercel functions here stop at 300s; ask for a submission early enough to finish.
-const SOFT_DEADLINE_MS = 165_000
+const SOFT_DEADLINE_MS = 150_000
 const HARD_DEADLINE_MS = 285_000
 const MAX_TURNS = 40
 const MAX_PROBES = 10
 const MAX_SUBMITS = 4
+// Whole-run budgets; the API's max_uses only limits a single request.
+const MAX_SEARCHES = 6
+const MAX_FETCHES = 12
 
 const COMPOSIO_DISCORD = {
   id: "composio-discord",
@@ -63,9 +66,7 @@ const guideJsonSchema = (() => {
   return schema
 })()
 
-const tools: Anthropic.Beta.BetaToolUnion[] = [
-  { type: "web_search_20260209", name: "web_search", max_uses: 6 },
-  { type: "web_fetch_20260209", name: "web_fetch", max_uses: 14, max_content_tokens: 16000 },
+const customTools: Anthropic.Beta.BetaToolUnion[] = [
   {
     name: "composio_toolkit",
     description: "Look up a Composio toolkit by slug: whether it exists, its auth type, whether Composio offers a managed OAuth app, and Composio's setup page for the provider.",
@@ -106,6 +107,14 @@ const tools: Anthropic.Beta.BetaToolUnion[] = [
     input_schema: { type: "object", properties: { guide: guideJsonSchema }, required: ["guide"] },
   },
 ]
+
+// Research tools get only what's left of the run's budget; once it's spent (or time is up) only the custom tools remain.
+function toolsFor(searchesLeft: number, fetchesLeft: number, researchOpen: boolean): Anthropic.Beta.BetaToolUnion[] {
+  const research: Anthropic.Beta.BetaToolUnion[] = []
+  if (researchOpen && searchesLeft > 0) research.push({ type: "web_search_20260209", name: "web_search", max_uses: searchesLeft })
+  if (researchOpen && fetchesLeft > 0) research.push({ type: "web_fetch_20260209", name: "web_fetch", max_uses: fetchesLeft, max_content_tokens: 16000 })
+  return [...research, ...customTools]
+}
 
 function normalizeUrl(u: string) {
   try {
@@ -188,6 +197,8 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
   ]
   const seenReads = new Set<string>()
   const seenSearches = new Set<string>()
+  let searches = 0
+  let fetches = 0
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     if (signal?.aborted) throw new Error("Cancelled")
@@ -202,7 +213,7 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
         thinking: { type: "adaptive" },
         output_config: { effort: "high" },
         system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-        tools,
+        tools: toolsFor(MAX_SEARCHES - searches, MAX_FETCHES - fetches, !nudged),
         messages,
       },
       { signal },
@@ -210,6 +221,8 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
 
     stream.on("contentBlock", (block) => {
       if (block.type === "server_tool_use") {
+        if (block.name === "web_search") searches++
+        if (block.name === "web_fetch") fetches++
         const input = block.input as { query?: string; url?: string }
         if (block.name === "web_search" && input.query && !seenSearches.has(input.query)) {
           seenSearches.add(input.query)
@@ -266,7 +279,7 @@ export async function runResearch(app: string, emit: (e: ResearchEvent) => void,
       nudged = true
       messages.push({
         role: "system",
-        content: "Time is nearly up. Stop researching now and call submit_guide with what you have; put anything unverified in unconfirmed notes.",
+        content: "Time is nearly up, and web search/fetch are now off. Call submit_guide with what you have; put anything unverified in unconfirmed notes.",
       })
     }
   }

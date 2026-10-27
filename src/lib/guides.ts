@@ -12,6 +12,14 @@ import notionGuide from "@/data/guides/notion.json"
 import notionProbes from "@/data/probes/notion.json"
 import linearGuide from "@/data/guides/linear.json"
 import linearProbes from "@/data/probes/linear.json"
+import jiraGuide from "@/data/guides/jira.json"
+import jiraProbes from "@/data/probes/jira.json"
+import dropboxGuide from "@/data/guides/dropbox.json"
+import dropboxProbes from "@/data/probes/dropbox.json"
+import hubspotGuide from "@/data/guides/hubspot.json"
+import hubspotProbes from "@/data/probes/hubspot.json"
+import zoomGuide from "@/data/guides/zoom.json"
+import zoomProbes from "@/data/probes/zoom.json"
 import { Guide, ProbeRun } from "@/lib/guide-schema"
 export { formatMinutes, formatWait } from "@/lib/format"
 
@@ -24,6 +32,10 @@ const entries = [
   { guide: metaGuide, probes: metaProbes },
   { guide: notionGuide, probes: notionProbes },
   { guide: linearGuide, probes: linearProbes },
+  { guide: jiraGuide, probes: jiraProbes },
+  { guide: dropboxGuide, probes: dropboxProbes },
+  { guide: hubspotGuide, probes: hubspotProbes },
+  { guide: zoomGuide, probes: zoomProbes },
 ].map(({ guide, probes }) => {
   const g = Guide.parse(guide)
   const run = ProbeRun.parse(probes)

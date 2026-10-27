@@ -1,0 +1,960 @@
+{
+  "slug": "zoom",
+  "name": "Zoom",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Build a Zoom General app and plug it into Composio. Works in your own account at once; other accounts need Zoom's review.",
+  "appType": "General app (OAuth)",
+  "composio": {
+    "toolkit": "zoom",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 60,
+      "max": 300
+    },
+    "approvalWait": {
+      "min": 3,
+      "max": 14,
+      "unit": "days",
+      "openEnded": true,
+      "asStated": "Zoom's docs give no review timeline. Zoom staff on devForum: 72-hour SLA excluding weekends; security review can take up to 2 weeks.",
+      "summary": "No official SLA"
+    },
+    "review": "required",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "No fee to build, review or publish in any Zoom doc we read. You need a Zoom account with developer access.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create a General app",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "You must be the Zoom account owner, an admin, or have the Zoom for developers role.",
+        "Sign in to marketplace.zoom.us and click Developer in the lower-left pane.",
+        "On Created apps, click Develop → Build an app. Select General app, then Create.",
+        "On Basic Info, click the pencil to rename the app. Users see this name.",
+        "Under Select how the app is managed, pick User-managed unless your agent manages a whole account.",
+        "Changing the management type later changes available scopes. Recheck them if you switch."
+      ],
+      "fields": [
+        {
+          "label": "App type",
+          "value": "General app",
+          "copy": false
+        },
+        {
+          "label": "Select how the app is managed",
+          "value": "User-managed",
+          "hint": "Each user authorizes their own data. Admin-managed: an admin adds it for the whole account",
+          "copy": false
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Zoom App Marketplace",
+          "url": "https://marketplace.zoom.us/"
+        }
+      ],
+      "sources": [
+        "zoom-create",
+        "zoom-before"
+      ],
+      "checks": [
+        "marketplace-up",
+        "create-app-doc"
+      ],
+      "problems": [
+        {
+          "q": "I don't see the Developer link",
+          "a": [
+            "It only shows for users with developer permissions.",
+            "An admin enables View and Edit for Zoom for developers under User Management → Roles → Role Settings → Advanced features."
+          ],
+          "sources": [
+            "zoom-create",
+            "zoom-before"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "oauth-info",
+      "title": "Set the redirect URL and allow list",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "instructions": [
+        "On Basic Info, under OAuth Information, paste the Composio callback into OAuth redirect URL.",
+        "Paste the same full URL under OAuth allow lists. Both are required.",
+        "Use Strict Mode URL and Subdomain check are optional. Strict mode only allows exact matches."
+      ],
+      "fields": [
+        {
+          "label": "OAuth redirect URL",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match your Composio auth config exactly"
+        },
+        {
+          "label": "OAuth allow lists",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Full URL, not just the domain"
+        }
+      ],
+      "sources": [
+        "zoom-create",
+        "zoom-oauth",
+        "composio-zoom-auth"
+      ],
+      "checks": [
+        "create-app-doc",
+        "composio-callback"
+      ],
+      "problems": [
+        {
+          "q": "Invalid Redirect: … (4,700)",
+          "a": [
+            "The redirect URL isn't in OAuth allow lists. The OAuth redirect URL field alone isn't enough.",
+            "Add the full Composio callback to OAuth allow lists. On a published app, submit an update request."
+          ],
+          "sources": [
+            "zoom-forum-4700",
+            "zoom-create"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scopes",
+      "title": "Add granular scopes",
+      "who": "you",
+      "minutes": {
+        "min": 5,
+        "max": 10
+      },
+      "instructions": [
+        "Open Scopes → Add Scopes. Pick a Zoom product, tick scopes, then Done.",
+        "Zoom enables no scopes by default. Add only what your tools call.",
+        "Fill in Scope Description for each: why your app needs it. Reviewers reject scopes they think you don't need.",
+        "Scopes ending in :admin must be authorized by a user with matching admin role permissions."
+      ],
+      "fields": [
+        {
+          "label": "Starter scopes",
+          "value": "user:read:user meeting:read:meeting meeting:read:list_meetings meeting:write:meeting meeting:update:meeting meeting:delete:meeting cloud_recording:read:list_user_recordings",
+          "hint": "Granular, user-level. Trim to your tools"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Composio's Zoom guide lists classic scopes (meeting:read …). Zoom keeps classic scopes for existing apps; new apps use granular names.",
+          "sources": [
+            "composio-zoom-auth",
+            "zoom-classic",
+            "zoom-migrate"
+          ]
+        }
+      ],
+      "sources": [
+        "zoom-create",
+        "zoom-granular",
+        "zoom-end-user-auth",
+        "composio-zoom-auth"
+      ],
+      "checks": [
+        "granular-scopes",
+        "classic-scopes-legacy"
+      ],
+      "unconfirmed": "We couldn't see the Add Scopes picker for a new app, so we didn't confirm classic scopes are hidden there.",
+      "problems": [
+        {
+          "q": "A tool fails with a scope or permission error",
+          "a": [
+            "Your app lacks the scope that tool's endpoint needs. Look it up in Zoom's granular scopes list.",
+            "Add it here and in your Composio auth config, then have the user reconnect. Zoom asks them to authorize again."
+          ],
+          "sources": [
+            "zoom-granular",
+            "zoom-oauth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the development credentials",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "On Basic Info, under App Credentials, copy the Client ID and Client secret.",
+        "These are development credentials. Production has a different pair, used once you publish.",
+        "Store the secret in a secret manager, never in git."
+      ],
+      "fields": [
+        {
+          "label": "Credentials to use now",
+          "value": "Development",
+          "hint": "Switch to Production credentials at go-live",
+          "copy": false
+        }
+      ],
+      "sources": [
+        "zoom-create",
+        "composio-zoom-auth"
+      ],
+      "checks": [
+        "token-unknown-client"
+      ],
+      "problems": [
+        {
+          "q": "invalid_client: Invalid client_id or client_secret",
+          "a": [
+            "The ID or secret is wrong, or you mixed development and production values.",
+            "Copy both from the same tab (Development or Production) into your Composio auth config."
+          ],
+          "sources": [
+            "zoom-create"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Zoom toolkit in Composio and create an auth config.",
+        "Choose OAuth2 and turn on your own developer credentials.",
+        "Paste the development Client ID and Client secret.",
+        "Replace the pre-filled scopes with the granular scopes you added in Zoom.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the OAuth redirect URL and allow list in Zoom"
+        },
+        {
+          "label": "Scopes",
+          "value": "user:read:user meeting:read:meeting meeting:read:list_meetings meeting:write:meeting meeting:update:meeting meeting:delete:meeting cloud_recording:read:list_user_recordings",
+          "hint": "Same list as your Zoom app"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Zoom in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/zoom"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-zoom-auth",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "We couldn't check how Zoom treats scopes Composio sends that your app lacks. Matching both lists avoids it.",
+      "problems": [
+        {
+          "q": "The link didn't open the Zoom toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Zoom, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { zoom: \"ac_your_zoom_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"zoom\": \"ac_your_zoom_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for zoom.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "instructions": [
+        "Start a connection for a test user and open the link. Sign in with a user in your own Zoom account.",
+        "Zoom checks the client ID only after sign-in, so a typo shows up here.",
+        "The consent screen should show your app name. Click Allow.",
+        "Development apps only work for members of your own Zoom account. Others need the beta or publish steps.",
+        "Access tokens last 1 hour; refresh tokens 90 days.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "sources": [
+        "zoom-create",
+        "zoom-oauth",
+        "composio-white-label"
+      ],
+      "checks": [
+        "authorize-signin-first",
+        "token-lifetimes"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Zoom sign-in.",
+      "problems": [
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        },
+        {
+          "q": "A user outside my Zoom account can't add the app",
+          "a": [
+            "Unpublished apps only work inside your account.",
+            "Request beta sharing for a few testers, or publish the app."
+          ],
+          "sources": [
+            "zoom-beta-share",
+            "zoom-before"
+          ]
+        },
+        {
+          "q": "A tool fails with Only available for paid users or Webinar plan is missing",
+          "a": [
+            "The user's Zoom plan lacks that feature. Scopes can't fix it.",
+            "Use a paid or webinar-enabled test account for those tools."
+          ],
+          "sources": [
+            "composio-zoom-toolkit"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "zoom-devforum"
+      ]
+    },
+    {
+      "id": "beta-share",
+      "title": "Request beta sharing",
+      "who": "you",
+      "minutes": {
+        "min": 60,
+        "max": 240
+      },
+      "optional": true,
+      "when": "Only to let a few users outside your Zoom account test before you publish.",
+      "instructions": [
+        "Open Manage → your app → Production tab → Beta Test.",
+        "Complete the Technical Design section first.",
+        "Upload SSDLC docs, SAST and DAST results (scanner output or screenshots) and your privacy policy.",
+        "Add any 3 of: pentest summary, security policy, incident response, vuln management, dependency policy.",
+        "Under Share App, select Request to Share. Your app must support TLS 1.2+.",
+        "While shared, don't publicise the app or use Zoom's brand for it."
+      ],
+      "warnings": [
+        {
+          "text": "Approved URLs last 4 weeks, plus up to two 4-week extensions. Additions cap at 10 (account-level) or 100 (user-level).",
+          "sources": [
+            "zoom-beta-share",
+            "zoom-beta-test"
+          ]
+        },
+        {
+          "text": "Beta testers use production credentials. Point a separate Composio auth config at the Production Client ID and secret.",
+          "sources": [
+            "zoom-create",
+            "zoom-beta-share"
+          ],
+          "unconfirmed": "Zoom says beta URLs live on the Production tab. We infer they use production credentials; not tested."
+        }
+      ],
+      "sources": [
+        "zoom-beta-share",
+        "zoom-beta-test",
+        "zoom-before"
+      ],
+      "checks": [
+        "beta-sharing-rules"
+      ],
+      "problems": [
+        {
+          "q": "The Share App section shows no authorization URL",
+          "a": [
+            "Zoom only generates it once every requirement is complete. Finish Technical Design and the security uploads."
+          ],
+          "sources": [
+            "zoom-beta-share"
+          ]
+        },
+        {
+          "q": "My beta URL stopped working",
+          "a": [
+            "It expired after 4 weeks, or you published the app. Users already added keep working.",
+            "Select Request Extension under Share App. After publishing, use the published app instead."
+          ],
+          "sources": [
+            "zoom-beta-share",
+            "zoom-beta-test"
+          ]
+        }
+      ],
+      "contacts": [
+        "zoom-integration-testers",
+        "zoom-devforum"
+      ]
+    },
+    {
+      "id": "beta-approval",
+      "title": "Wait for beta sharing approval",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "optional": true,
+      "when": "After you select Request to Share.",
+      "instructions": [
+        "Zoom's app review team answers the request. Approval is case by case.",
+        "On approval you get an email and an Approved label next to the URL.",
+        "Send the URL to testers yourself. Zoom has no way to send it."
+      ],
+      "wait": {
+        "min": 3,
+        "max": 4,
+        "unit": "business_days",
+        "openEnded": true,
+        "asStated": "A member of the Zoom app review team responds no longer than 3-4 business days; longer if more information is needed.",
+        "summary": "3–4 business days"
+      },
+      "sources": [
+        "zoom-beta-share"
+      ],
+      "checks": [
+        "beta-sharing-rules"
+      ],
+      "contacts": [
+        "zoom-integration-testers"
+      ]
+    },
+    {
+      "id": "callback-proxy",
+      "title": "Route the callback through your domain",
+      "who": "you",
+      "minutes": {
+        "min": 15,
+        "max": 30
+      },
+      "optional": true,
+      "when": "Before publishing. Zoom verifies the domain of your OAuth redirect URL, and you can't verify composio.dev.",
+      "instructions": [
+        "Add an endpoint on your domain that 302-redirects to the Composio callback, keeping the query string.",
+        "Set it as OAuth redirect URL and in OAuth allow lists, on Development and Production.",
+        "Set the same URI as Redirect URI in your Composio auth config.",
+        "Then verify your domain at submission: TXT record, HTML file, or meta tag."
+      ],
+      "fields": [
+        {
+          "label": "Your redirect URI",
+          "value": "https://your-product.com/api/composio-redirect",
+          "copy": false
+        }
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "// app/api/composio-redirect/route.ts (Next.js)\nexport function GET(req: Request) {\n  const { search } = new URL(req.url)\n  return Response.redirect(\n    `https://backend.composio.dev/api/v3/toolkits/auth/callback${search}`,\n    302,\n  )\n}"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Return a 302. Don't fetch Composio's callback server-side; the browser must follow the redirect.",
+          "sources": [
+            "composio-white-label"
+          ]
+        }
+      ],
+      "sources": [
+        "zoom-verify-domains",
+        "composio-white-label"
+      ],
+      "checks": [
+        "domain-verification"
+      ],
+      "unconfirmed": "Zoom offers manual domain approval via devForum (within 48 hours). We couldn't confirm it would approve composio.dev for you."
+    },
+    {
+      "id": "publish-prep",
+      "title": "Complete listing and technical design",
+      "who": "you",
+      "minutes": {
+        "min": 60,
+        "max": 180
+      },
+      "instructions": [
+        "Switch to the Production tab. Set OAuth redirect URL, allow lists and scopes there too.",
+        "Fill in App Listing: description, images, Privacy Policy URL, Terms of Use URL, support links.",
+        "Set a Deauthorization Notification Endpoint URL. Delete the user's data when Zoom calls it.",
+        "Complete Technical Design: architecture, security controls, and how you use each scope's data.",
+        "Expect testing against the OWASP Top 10 and a check that every scope is needed.",
+        "Unlisted is an option: still reviewed, but hidden from Marketplace search."
+      ],
+      "sources": [
+        "zoom-review",
+        "zoom-oauth",
+        "zoom-end-user-auth",
+        "zoom-before",
+        "zoom-submit",
+        "zoom-verify-domains"
+      ],
+      "checks": [
+        "review-process"
+      ],
+      "unconfirmed": "We couldn't see the Production tab, so we didn't confirm it has its own redirect URL fields. Check both tabs.",
+      "problems": [
+        {
+          "q": "Submission was rejected for incomplete information",
+          "a": [
+            "Submission completeness checks metadata, technical design docs and security info first.",
+            "Zoom sends a remediation report. Fix every item and resubmit."
+          ],
+          "sources": [
+            "zoom-review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "review-drafts",
+      "title": "Draft scope reasons and a test plan",
+      "who": "agent",
+      "minutes": {
+        "min": 5,
+        "max": 15
+      },
+      "instructions": [
+        "Draft one Scope Description per scope, naming the agent tool that uses it.",
+        "Draft Technical Design answers: data flow through Composio, storage, encryption, retention.",
+        "Draft a step-by-step test plan for the release notes field, including how to connect Zoom."
+      ],
+      "sources": [
+        "zoom-create",
+        "zoom-review",
+        "zoom-submit"
+      ]
+    },
+    {
+      "id": "submit-review",
+      "title": "Submit for review",
+      "who": "you",
+      "minutes": {
+        "min": 15,
+        "max": 30
+      },
+      "instructions": [
+        "Production tab → Publish your app → App Submission.",
+        "Audience: External Zoom users. Within my account skips the standard review but stays internal.",
+        "Verify Domains: verify each listed domain.",
+        "Paste your test plan into release notes. Give reviewers a test account with placeholder data.",
+        "First submission: reviewers must authorize with the Production Client ID. Point Composio at it.",
+        "Choose activation: immediately after approval, or manually. Agree to the developer agreement and submit."
+      ],
+      "sources": [
+        "zoom-submit",
+        "zoom-verify-domains"
+      ],
+      "checks": [
+        "submission-test-account",
+        "domain-verification"
+      ],
+      "problems": [
+        {
+          "q": "I can't verify my redirect URL's domain",
+          "a": [
+            "You can't add records to composio.dev. Use the callback proxy step, or request manual approval on devForum."
+          ],
+          "sources": [
+            "zoom-verify-domains",
+            "composio-white-label"
+          ]
+        }
+      ],
+      "contacts": [
+        "zoom-devforum"
+      ]
+    },
+    {
+      "id": "review-wait",
+      "title": "Wait for Zoom's review",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "instructions": [
+        "Stages: completeness and branding, functionality and compliance, then security review.",
+        "Zoom publishes no timeline. Clear scopes, a test plan and clear listing text shorten it.",
+        "Issues come back through the submission. Answer them there."
+      ],
+      "wait": {
+        "min": 3,
+        "max": 14,
+        "unit": "days",
+        "openEnded": true,
+        "asStated": "No official timeline. Zoom staff on devForum: 72-hour SLA, excluding weekends and US holidays; security review can take up to 2 weeks.",
+        "summary": "No official SLA"
+      },
+      "sources": [
+        "zoom-review",
+        "zoom-forum-timelines"
+      ],
+      "checks": [
+        "review-process"
+      ],
+      "problems": [
+        {
+          "q": "Review is taking longer than two weeks",
+          "a": [
+            "Staff say the security queue alone can take up to 2 weeks, and the SLA excludes weekends and US holidays.",
+            "Ask for status in the devForum Marketplace category."
+          ],
+          "sources": [
+            "zoom-forum-timelines"
+          ]
+        }
+      ],
+      "contacts": [
+        "zoom-devforum"
+      ]
+    },
+    {
+      "id": "go-live",
+      "title": "Activate and switch to production",
+      "who": "you",
+      "minutes": {
+        "min": 5,
+        "max": 10
+      },
+      "instructions": [
+        "If you chose manual activation, select Activate on Created Apps. Until then it's Active for internal only.",
+        "Put the Production Client ID and secret in your Composio auth config.",
+        "Have test users reconnect so they authorize the production app."
+      ],
+      "sources": [
+        "zoom-submit",
+        "zoom-create"
+      ],
+      "unconfirmed": "We couldn't test whether connections made with development credentials keep working after the switch. Assume users reconnect.",
+      "contacts": [
+        "composio-discord",
+        "zoom-devforum"
+      ]
+    },
+    {
+      "id": "admin-preapproval",
+      "title": "Marketplace admin pre-approves the app",
+      "who": "their-admin",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "optional": true,
+      "when": "When a user's Zoom account requires app pre-approval, or your app uses :admin scopes.",
+      "instructions": [
+        "The user requests pre-approval from their admin. Admins get an email from noreply@zoom.us.",
+        "The admin signs in to marketplace.zoom.us, opens your app, clicks the arrow next to Add → Manage approvals.",
+        "Or: Marketplace admin → App requests → Active requests → your app → Approve.",
+        "Admin-scope apps must be authorized by a user with matching admin role permissions.",
+        "The user then connects again from your product."
+      ],
+      "sources": [
+        "zoom-preapprove",
+        "zoom-end-user-auth"
+      ],
+      "unconfirmed": "We didn't run the pre-approval flow, so the exact screen a blocked user sees isn't verified."
+    }
+  ],
+  "sources": [
+    {
+      "id": "zoom-before",
+      "title": "Zoom · Before you start",
+      "url": "https://developers.zoom.us/docs/build-flow/before-you-build/"
+    },
+    {
+      "id": "zoom-create",
+      "title": "Zoom · Create an OAuth app",
+      "url": "https://developers.zoom.us/docs/integrations/create/"
+    },
+    {
+      "id": "zoom-oauth",
+      "title": "Zoom · OAuth tokens",
+      "url": "https://developers.zoom.us/docs/integrations/oauth/"
+    },
+    {
+      "id": "zoom-end-user-auth",
+      "title": "Zoom · End user authorization",
+      "url": "https://developers.zoom.us/docs/integrations/end-user-auth/"
+    },
+    {
+      "id": "zoom-granular",
+      "title": "Zoom · Granular scopes",
+      "url": "https://developers.zoom.us/docs/integrations/oauth-scopes-granular/"
+    },
+    {
+      "id": "zoom-classic",
+      "title": "Zoom · Classic scopes",
+      "url": "https://developers.zoom.us/docs/integrations/oauth-scopes/"
+    },
+    {
+      "id": "zoom-migrate",
+      "title": "Zoom · Migrate to granular scopes",
+      "url": "https://developers.zoom.us/docs/integrations/migrate/"
+    },
+    {
+      "id": "zoom-beta-share",
+      "title": "Zoom · Sharing private and beta apps",
+      "url": "https://developers.zoom.us/docs/distribute/sharing-private-and-beta-apps/"
+    },
+    {
+      "id": "zoom-beta-test",
+      "title": "Zoom · Beta Test",
+      "url": "https://developers.zoom.us/docs/build-flow/beta-test/"
+    },
+    {
+      "id": "zoom-review",
+      "title": "Zoom · App review process",
+      "url": "https://developers.zoom.us/docs/distribute/app-review-process/"
+    },
+    {
+      "id": "zoom-submit",
+      "title": "Zoom · Submit apps for review",
+      "url": "https://developers.zoom.us/docs/distribute/app-submission/submit-apps-review/"
+    },
+    {
+      "id": "zoom-verify-domains",
+      "title": "Zoom · Verify your domains",
+      "url": "https://developers.zoom.us/docs/distribute/app-submission/verify-domains/"
+    },
+    {
+      "id": "zoom-preapprove",
+      "title": "Zoom Support · Pre-approving apps",
+      "url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0062300"
+    },
+    {
+      "id": "zoom-forum-timelines",
+      "title": "Zoom devForum · Approval timelines",
+      "url": "https://devforum.zoom.us/t/marketplace-app-production-approval-timelines-post-updates/138920"
+    },
+    {
+      "id": "zoom-forum-4700",
+      "title": "Zoom devForum · Invalid redirect 4700",
+      "url": "https://devforum.zoom.us/t/invalid-redirect-url-4700-error/120032"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-zoom-auth",
+      "title": "Composio · Zoom OAuth setup",
+      "url": "https://composio.dev/auth/zoom"
+    },
+    {
+      "id": "composio-zoom-toolkit",
+      "title": "Composio · Zoom toolkit",
+      "url": "https://docs.composio.dev/toolkits/zoom"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "zoom-devforum",
+      "label": "Zoom devForum · Marketplace",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://devforum.zoom.us/c/marketplace/19",
+      "when": "Review status, redirect errors, or manual domain approval. Zoom staff answer here.",
+      "sources": [
+        "zoom-verify-domains",
+        "zoom-review"
+      ],
+      "checks": [
+        "zoom-devforum"
+      ]
+    },
+    {
+      "id": "zoom-integration-testers",
+      "label": "Zoom beta sharing team",
+      "org": "provider",
+      "kind": "email",
+      "target": "integration.testers@zoom.us",
+      "when": "Questions about beta authorization URL requests, approvals or extensions.",
+      "sources": [
+        "zoom-beta-share"
+      ],
+      "checks": [
+        "beta-sharing-rules"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}
