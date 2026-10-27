@@ -2,6 +2,8 @@
 
 Guides for setting up your own OAuth app with a provider and plugging it into Composio. Each guide gives the steps, hands-on time, approval wait, blockers, and who does what (you or an agent). It also tracks your progress in the browser.
 
+**Live:** https://composio-fawn.vercel.app · **GitHub guide:** https://composio-fawn.vercel.app/github
+
 This first slice covers **GitHub** end to end. Slack, Gmail, Microsoft Outlook and Meta are next.
 
 ## Run it
