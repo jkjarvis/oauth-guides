@@ -1,177 +1,175 @@
 # OAuth Guides
 
-Guides for setting up **your own OAuth app** with a provider and plugging it into Composio, instead of Composio's managed app. Each guide covers:
-- the steps, and who does each one;
-- hands-on time and approval wait;
-- the blockers;
-- where every claim comes from.
+Guides for setting up **your own OAuth app** with a provider and connecting it to Composio, instead of Composio's managed app. Each guide covers the steps and who does each one, hands-on time, approval waits, blockers, and where every claim comes from.
 
-It tracks your progress in the browser. For apps outside the library, an agent researches the provider live and writes a guide in the same format.
+**Live:** https://oauth-guides-xi.vercel.app · **Generate a guide:** https://oauth-guides-xi.vercel.app/new · **Agent skill:** [`skills/oauth-guides`](skills/oauth-guides)
 
-**Live:** https://oauth-guides-xi.vercel.app · **Generate a guide:** https://oauth-guides-xi.vercel.app/new
-
-**Use it in your coding agent:** click **Use in your agent** on the home page, or:
-
-```bash
-# Claude Code
-mkdir -p ~/.claude/skills && curl -fsSL https://oauth-guides-xi.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.claude/skills
-# Codex
-mkdir -p ~/.agents/skills && curl -fsSL https://oauth-guides-xi.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.agents/skills
+```mermaid
+flowchart LR
+  L["11 curated guides"] --> S{{"One guide schema<br/>cited checks must pass"}}
+  A["Research agent<br/>any other app"] --> S
+  S --> W["Web guide<br/>tracker in the browser"]
+  S --> K["Agent skill<br/>Claude Code, Codex"]
+  A -. "share link" .-> W
+  W -. "import link" .-> K
 ```
 
-Then ask "Set up my own Slack OAuth app for Composio".
+## Library
 
-**Library (11):** [GitHub](https://oauth-guides-xi.vercel.app/github) · [Slack](https://oauth-guides-xi.vercel.app/slack) · [Gmail](https://oauth-guides-xi.vercel.app/gmail) · [Microsoft Outlook](https://oauth-guides-xi.vercel.app/outlook) · [Meta](https://oauth-guides-xi.vercel.app/meta) · [Notion](https://oauth-guides-xi.vercel.app/notion) · [Linear](https://oauth-guides-xi.vercel.app/linear) · [Jira](https://oauth-guides-xi.vercel.app/jira) · [Dropbox](https://oauth-guides-xi.vercel.app/dropbox) · [HubSpot](https://oauth-guides-xi.vercel.app/hubspot) · [Zoom](https://oauth-guides-xi.vercel.app/zoom)
+| Setup shape | Guides |
+|---|---|
+| Instant, no review | [GitHub](https://oauth-guides-xi.vercel.app/github), [Linear](https://oauth-guides-xi.vercel.app/linear) |
+| Install or user caps until approval | [HubSpot](https://oauth-guides-xi.vercel.app/hubspot) (25 installs), [Dropbox](https://oauth-guides-xi.vercel.app/dropbox) (50 users, then 2 weeks) |
+| Optional marketplace review | [Slack](https://oauth-guides-xi.vercel.app/slack), [Notion](https://oauth-guides-xi.vercel.app/notion), [Jira](https://oauth-guides-xi.vercel.app/jira) |
+| Scope-driven verification plus a security audit | [Gmail](https://oauth-guides-xi.vercel.app/gmail) (CASA) |
+| Blocker in your user's organization | [Outlook](https://oauth-guides-xi.vercel.app/outlook) (admin consent), Jira (site admins) |
+| Business verification plus per-permission review | [Meta](https://oauth-guides-xi.vercel.app/meta) |
+| Two-stage publish review with security docs | [Zoom](https://oauth-guides-xi.vercel.app/zoom) |
 
-They were picked to cover different setup shapes:
-- **Instant:** GitHub, Linear.
-- **Install or user caps until approval:** HubSpot (25 installs), Dropbox (50 users, then a 2-week deadline).
-- **Optional marketplace review:** Slack, Notion, Jira.
-- **Scope-driven verification and a security audit:** Gmail (CASA).
-- **A blocker in your user's organization:** Outlook admin consent, Jira site admins.
-- **Business verification plus per-permission review:** Meta.
-- **A two-stage publish review with security docs:** Zoom.
+## Use it
 
-## Run it
+- **Web:** open a guide and work through it step by step. Progress is saved in your browser.
+- **Unknown app:** enter its name at `/new`. In about 3 minutes you get a guide in the same format, as a shareable link.
+- **In your coding agent:**
+  ```bash
+  # Claude Code
+  mkdir -p ~/.claude/skills && curl -fsSL https://oauth-guides-xi.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.claude/skills
+  # Codex
+  mkdir -p ~/.agents/skills && curl -fsSL https://oauth-guides-xi.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.agents/skills
+  ```
+  Then ask "Set up my own Slack OAuth app for Composio".
+
+## Run locally
 
 ```bash
 npm install
-npm run dev                       # http://localhost:3000
-npm run probe                     # re-run credential-free live checks (or: npm run probe -- slack)
-npm run validate                  # schema + every cited live check exists and passed
-npm run build                     # also fails on an invalid guide
-npm run research -- "Pipedrive"   # run the research agent from the terminal (needs ANTHROPIC_API_KEY in .env.local)
-npm run skill                     # bundle guides into skills/oauth-guides and public/skills/oauth-guides.tar.gz (runs before dev and build)
+npm run dev                       # http://localhost:3000 (also bundles the skill)
+npm run probe [-- slack]          # re-run the credential-free live checks
+npm run validate                  # schema + every cited check exists and passed
+npm run build                     # fails on an invalid guide
+npm run research -- "Pipedrive"   # research agent in the terminal (ANTHROPIC_API_KEY in .env.local)
 ```
 
-The library needs no credentials. The research agent needs `ANTHROPIC_API_KEY` (set in Vercel for production).
-
-## How it works
+The library needs no credentials. Only the research agent needs `ANTHROPIC_API_KEY`.
 
 ```
-src/lib/guide-schema.ts        zod schema: the contract every guide follows (library and generated)
-src/data/guides/<slug>.json    one guide per provider (data only, no layout)
-scripts/probes/<slug>.mjs      credential-free live checks → src/data/probes/<slug>.json
-scripts/validate.mts           schema + live-check validation
-src/components/guide/          step nav + step view, help panel, Client ID check (one template for every guide)
-src/lib/research/              research agent: prompt, tools, probes, validation loop
-src/app/api/research           streams research progress (NDJSON)
-src/app/new · src/app/g        generate a guide · open a shared generated guide
-skills/oauth-guides/           the agent skill: SKILL.md, scripts/oauth.mjs, research reference, bundled guide data
-scripts/build-skill.mts        syncs guides + JSON schema into the skill and builds the install tarball
+src/lib/guide-schema.ts      the contract every guide follows (curated and generated)
+src/data/guides, probes      guide data and live-check results
+src/components/guide/        one template: step nav, step view, help, agent prompt
+src/lib/research/            research agent: prompt, tools, probes, validation
+skills/oauth-guides/         the skill: SKILL.md, scripts/oauth.mjs, bundled guides
 ```
 
-**The guide experience**
-- **Same layout, different content.** Guides are data. The schema caps text length (titles 60 characters, instructions 160), so guides stay scannable.
-- **Everything lives in the steps.** Step titles sit in a left nav. The main view shows one step: numbered instructions, values to copy, console links and warnings. There are no sidebars or metric panels; prerequisites, blockers and gotchas go in the step where they matter.
-- **Step types.** Each step says who acts:
-  - **You:** hands-on work.
-  - **Agent:** this site or your coding agent can do it.
-  - **Wait:** the provider's clock, quoted in the provider's own words.
-  - **Their admin:** someone in your user's organization, e.g. Microsoft admin consent.
+## How a guide works
 
-  Optional steps say when they apply.
-- **Every step shows where it comes from.** Each step ends with "Checked live" (probes that passed), "Not confirmed" (what we couldn't verify) and "Sources". The build fails if a step or warning has none of these.
-- **Help, explained first.** "Stuck on this step?" starts with our explanation of the errors people actually hit, with the fix. Below that, "Still stuck? Ask …" routes you to the provider's support (email or help page) or Composio's Discord, with a ready-to-send message.
-- **Prompts for your coding agent.** 31 steps have a "Copy prompt" card:
-  - the agent steps (wiring the auth config into code, drafting review material);
-  - "their admin" steps, where the agent drafts a note your users forward to their admin;
-  - hands-on steps with a part an agent can do (`agentTask`), such as editing HubSpot's `app-hsmeta.json`, picking the narrowest scopes from your code, or adding a callback route.
+Every guide follows the same shape. What changes from provider to provider is the content and the steps that come after the test connection.
 
-  The prompt is built from the step's own instructions, values and code, plus fixed rules: adapt to the project, never handle the client secret, leave placeholders for product details. Steps that are only console clicks don't get one.
-- **Tracker without a server.** Step status (done, blocked, skipped) is saved in `localStorage`, keyed by step ID, so guide updates keep finished steps.
+```mermaid
+flowchart LR
+  A["Create the app"]:::you --> B["Redirect URI<br/>and scopes"]:::you --> C["Credentials"]:::you --> D["Composio<br/>auth config"]:::you --> E["Wire into<br/>your code"]:::agent --> F["Test<br/>connection"]:::you --> G["Review or<br/>verification"]:::wait --> H["Admin approval"]:::admin
+  classDef you fill:#f4f4f5,stroke:#71717a,color:#18181b
+  classDef agent fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
+  classDef wait fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef admin fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+```
 
-**The research agent** (`/new`)
-- **What it runs on:** the Claude API (`claude-opus-5-5`, adaptive thinking, high effort) with Anthropic's server-side `web_search` and `web_fetch` tools, plus three tools of ours:
-  - `composio_toolkit`: reads Composio's public toolkit page to see whether the toolkit exists and whether a managed app is available;
-  - `http_probe`: credential-free HTTP checks. Only public https hosts are allowed (private IPs are blocked), and **the server decides pass or fail**, not the model;
-  - `submit_guide`: the server validates the guide before accepting it.
-- **What validation rejects:** a guide that fails the schema, cites a check that failed or never ran, or cites a source that wasn't fetched in that run. The agent gets the errors back and fixes them. Fields the server owns (date, callback URL, Composio contact) are set by the server.
-- **The method is fixed in the prompt:**
-  1. Composio toolkit lookup (done before the model starts);
-  2. official docs only;
-  3. look for blockers (reviews, caps, admin consent, verification, costs, token lifetimes, recent changes, conflicting docs);
-  4. live probes;
-  5. submit.
+**Who acts:** grey is you, blue is an agent, amber is the provider's clock (quoted in its own words), purple is someone in your user's organization.
 
-  Waits must quote the provider's wording, and anything inferred goes in "Not confirmed".
-- **Budgets keep a run under Vercel's 300-second limit:** 6 searches and 12 page fetches per run, and a hard switch to submit-only after 150 seconds.
-- **Measured:** Xero 271s (before the budgets), Pipedrive 257s (before whole-run budgets), Dropbox 155s, Linear 183s, Zoho CRM 169s, Calendly 120s at about $0.96 (token usage is logged per run).
-- **Sharing needs no storage.** The finished guide is compressed into the link's `#fragment` (about 7 KB for a 9-step guide) and the address bar switches to it, so a refresh, bookmark or copied link keeps the guide. The schema allows only https links, because a shared link carries untrusted data.
-- **Limits:** a best-effort cap on concurrent runs and runs per IP, since each run costs money.
+Each step has:
+- short instructions, values to copy, code, and links to the right console page;
+- **Stuck on this step?**: our explanation of real errors with the fix, then the provider's support route with a ready-to-send message;
+- **Copy prompt** on the 31 steps an agent can do. The prompt is built from the step's own data;
+- **Checked live**, **Not confirmed** and **Sources** at the end. The build fails if a step has none of these.
 
-**The agent skill** (`skills/oauth-guides`)
-- **Same guides, in the terminal.** One skill holds every library guide. The agent shows the board and one step at a time, does the `agent` steps itself (adapting the snippet into the project), and waits for the developer to confirm their own steps.
-- **One bundled script, no CLI to install.** `scripts/oauth.mjs` (Node 18+, no dependencies) renders the board, steps and help, and records progress. The agent runs it and shows its output verbatim, so every agent shows the same UI.
-- **Progress is saved in the project.** It lives in `.oauth-guides/progress.json`, keyed by step ID. Statuses are done, skipped, blocked (with a reason) and waiting (a review clock started, shown against the provider's stated wait). The folder git-ignores itself.
-- **New providers.** The agent researches them with its own web tools, following `references/research.md` (the same method and rules as the web agent). The script runs the live checks and decides pass or fail. `validate` applies the site's schema (generated from zod) and its cross-checks, and the guide must only cite checks that passed. Guides generated on the web can be imported from their share link (`import <link>`).
-- **Installed with one command per agent:**
-  - Claude Code loads skills from `~/.claude/skills`; Codex from `~/.agents/skills`.
-  - The tarball is rebuilt from `src/data` on every deploy.
-  - The repo is public, and `skills/oauth-guides` is a complete skill folder, so it can also be copied straight from GitHub.
-- **Tested:**
-  - All 131 steps render through `step` and `help`, and all 11 guides pass the skill's validator, matching the site.
-  - Claude Code ran headless with the installed skill. It picked the skill from a plain request, showed the board and step verbatim, recorded progress across turns, and asked only for the public Client ID.
-  - A second headless run researched Calendly from scratch through the skill. The result was an 8-step guide with 11 sources and 11 passing checks, and it passed `validate`. Two checks that failed (OAuth metadata documents) were recorded and left uncited. The agent flagged where Composio's scope list and Calendly's disagree.
+## Research agent
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant S as /api/research
+  participant C as Claude Opus 5.5
+  B->>S: app name
+  S->>S: Composio toolkit lookup and base checks
+  S->>C: fixed method and budgets
+  loop until the guide is accepted
+    C->>C: web_search, web_fetch
+    C->>S: http_probe
+    S-->>C: pass or fail, decided by the server
+    C->>S: submit_guide
+    S-->>C: schema, check and citation errors
+  end
+  S-->>B: streamed progress, then the guide
+  B->>B: guide compressed into the link's #fragment
+```
+
+**What the server rejects:**
+- a guide that fails the schema;
+- a citation of a check that failed or never ran;
+- a citation of a page the agent didn't fetch in that run.
+
+**Method:** Composio toolkit lookup, then official docs only, then blockers (reviews, caps, admin consent, verification, cost, token lifetimes, conflicting docs), then live checks, then submit.
+
+**Budget:** 6 searches and 12 page fetches per run, and submit-only after 150 seconds, so a run fits Vercel's 300-second limit.
+
+**Measured runs:** Dropbox 155s, Linear 183s, Zoho CRM 169s, Calendly 120s (about $0.96).
+
+**Sharing needs no database:** the whole guide lives in the link.
+
+## Agent skill
+
+```mermaid
+flowchart LR
+  Q["Set up my Slack OAuth app"] --> B["status<br/>progress board"] --> S["step<br/>one step"] --> W{"Who acts?"}
+  W -- agent --> D["Agent edits code<br/>or runs the CLI"]
+  W -- you --> Y["You do it,<br/>agent waits"]
+  W -- wait --> T["Review clock<br/>starts"]
+  D & Y & T --> P[".oauth-guides/<br/>progress.json"] --> S
+```
+
+- **One script, no CLI to install.** `scripts/oauth.mjs` needs Node 18+ and no dependencies. It renders the board, steps and help as terminal UI, and the agent shows that output verbatim.
+- **Progress lives in the project** (git-ignored). Steps can be done, skipped, blocked with a reason, or waiting, which is shown against the provider's stated wait.
+- **New providers:** the agent researches with its own web tools; the script runs the live checks and `validate` enforces the same rules as the site. Guides generated on the web can be imported from their share link.
+- **Tested in Claude Code** (headless):
+  - It picked the skill from a plain request, recorded progress across turns, and asked only for the public Client ID.
+  - It researched Calendly from scratch into a valid 8-step guide.
 
 ## Key decisions
 
 | Decision | Why |
 |---|---|
-| Web first, not a CLI | The guide has to be shareable with people who won't install anything (PMs, security reviewers, DNS owners). |
-| Steps and pointers, not prose | Developers scan. Each step lists who does it, how long it takes, values to copy, and a link to the right console page. |
-| No sidebars, tiers or metric panels | Users don't filter by difficulty. Hands-on time, approval wait, review and cost answer "how hard is it?" directly. |
-| Generated guides use the library's schema and UI | One format to learn, and the same validation applies to agent output as to the library. |
-| Claude API directly, not an agent framework | Server-side search and fetch plus three small tools are enough; one route streams progress and fits in a Vercel function. |
-| Server decides probe results and checks citations | The model can't mark its own checks as passing or cite pages it didn't read. |
-| Share via URL fragment | Shareable links without a database, and the fragment never reaches a server. |
-| Skill + bundled script, not a CLI | Developers already work in Claude Code or Codex. A skill needs no install beyond extracting a folder, and the script keeps the output and progress the same across agents. |
-| Skill progress in the project folder | Codex's sandbox only writes inside the workspace, and the progress belongs to the project being set up. It's git-ignored by default. |
+| Web first, plus a skill | Links can be shared with people who won't install anything, and developers who live in an agent get the same guides there. |
+| Steps and pointers, not prose | Developers scan. Text is capped at 60 characters for titles and 160 per instruction. |
+| No tiers or metric panels | Hands-on time, approval wait, review and cost answer "how hard is it?" directly. |
+| One schema for curated and generated guides | One format to learn, and the same checks apply to the agent's output. |
+| Claude API directly, no framework | Server-side search and fetch plus three small tools fit in one streaming route. |
+| The server judges checks and citations | The model can't pass its own checks or cite pages it didn't read. |
 
-## How the guides were researched and checked
+## How it was checked
 
-1. **Writing.** GitHub was written by hand as the reference. Each of the other ten was written by a research agent working from the same brief: read official docs, write the guide against the schema, write probes, and iterate until `npm run validate` passed.
-2. **Live checks.** 162 probes across 11 guides, all passing on 2026-10-28. Steps show the checks that back them.
-3. **Independent fact-check.** Two fresh agents re-checked every guide's steps, URLs, waits, caps and error texts against current provider docs, and fixed what was wrong:
-   - **Gmail:** CASA's Tier 2 self-scan is deprecated; you now go through an authorized lab.
-   - **Outlook:** the cause given for a publisher-verification error was wrong.
-   - **Slack:** admin menu labels and the "resubmission resets the queue" claim were out of date.
-   - **Meta:** added a missing 60-day token / 90-day data-access warning.
-   - **Notion:** corrected the steps for sharing a page with a connection.
-   - **GitHub:** the check-runs wording is now precise.
-   - **HubSpot:** two small corrections.
-   - Linear, Jira, Dropbox and Zoom were confirmed as written.
-4. **My own spot-checks** against original sources all held:
-   - `gmail.compose` is restricted.
-   - Slack needs 10 active installs.
-   - Microsoft's default policy blocks user consent to `Mail.Read`.
-   - Meta Graph is at v26.0.
-5. **Agent vs curated (prompt eval).** The research agent generated Linear and Dropbox from scratch, and I compared the results with the curated guides:
-   - **Matched:** steps, step types, and key details (Linear's 24-hour tokens since April 2026; Dropbox's 50 / 2-week / 500 rule).
-   - **Curated guide was wrong:** the agent found Dropbox's "We respond to nearly all production requests within a few business days", which the curated guide had missed. That's now fixed.
-   - **Prompt changes:** check support and FAQ pages for timelines; the tagline length limit.
-6. **Live QA.**
-   - **Guides:** clicked through all 131 steps of all 11 guides at desktop and phone width. No errors and no sideways scrolling.
-   - **Links:** checked 262 links. The only non-200 responses came from sites that block scripts; Meta's pages load in a real browser.
-   - **Generator:** ran the full flow live (search → generate → share link → open the shared guide).
+1. **Written:** GitHub by hand as the reference; the other ten by research agents, each iterated until `npm run validate` passed.
+2. **Live checks:** 162 credential-free probes, all passing on 2026-10-28.
+3. **Fact-check:** two fresh agents re-checked every guide against current docs and fixed seven guides. For example:
+   - Gmail's CASA self-scan is gone;
+   - an Outlook error cause was wrong;
+   - Slack's menu labels were out of date;
+   - Meta was missing a token-lifetime warning.
+4. **Agent vs curated:** the agent regenerated Linear and Dropbox. The steps matched, and it found a Dropbox review timeline the curated guide had missed. That's now fixed, and the prompt is updated.
+5. **QA:**
+   - all 131 steps clicked through at desktop and phone width;
+   - 262 links checked;
+   - the generator run end to end on the live site.
 
-**Notable things the research surfaced:**
-- Several Composio setup pages still show the old `/api/v1/auth-apps/add` callback or outdated menus (Google, Linear, Jira, Dropbox, HubSpot). The guides say to set the v3 callback in both places.
-- Google, Zoom and others require a redirect domain you've verified, which `composio.dev` isn't. That's why there's an optional "route the callback through your domain" step.
-- Microsoft's default consent policy makes admin consent the normal case for work tenants.
-- HubSpot stopped new legacy public apps on 2026-06-23; projects (`hs project create`) are the only path.
-- Only GitHub reveals whether a Client ID is valid before sign-in, so only GitHub gets the live Client ID check.
+**Findings worth knowing:**
+- Several Composio setup pages still show the old v1 callback.
+- Google and Zoom need a redirect domain you've verified, which is why there's an optional "route the callback through your domain" step.
+- Microsoft's default policy makes admin consent the norm for work accounts.
+- HubSpot now only allows new apps created as projects.
 
-## What stays unconfirmed
+## Not confirmed, and limitations
 
-- A full end-to-end connection through a real Composio auth config. It needs real provider accounts and a Composio API key, and wasn't run for any guide. It's marked on each "Connect a test account" step.
-- What Composio's dashboard deep links open after login. The routes exist (they redirect to login and keep the path, while unknown paths return 404).
-- Response times of support contacts. We checked that they exist.
-- Generated guides are researched live and **not reviewed by a person**. The page says so, and each step carries its own sources and "Not confirmed" notes.
-
-## Limitations
-
-- Progress on the site is stored per browser, and skill progress per project folder. The two don't sync.
-- The skill was tested in Claude Code. Codex wasn't installed here, so the Codex path (`~/.agents/skills`, from OpenAI's docs) is untested.
-- The research agent must finish within Vercel's 300-second function limit. Very large providers may get a thinner guide with more "Not confirmed" notes.
-- Rate limiting is per instance and best-effort.
+- **No real end-to-end connection:** none was run through a Composio auth config, because that needs real provider accounts. Each "Connect a test account" step says so.
+- **Composio dashboard links:** they exist, but we couldn't see where they land after login.
+- **Generated guides** are not reviewed by a person, and the page says so.
+- **Progress doesn't sync:** it's stored per browser on the web and per project folder in the skill.
+- **Codex** is untested.
+- **The research agent's limits:** it must finish within 300 seconds, so large providers get thinner guides with more "Not confirmed" notes. Its rate limiting is best-effort.
