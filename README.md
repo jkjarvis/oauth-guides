@@ -106,6 +106,7 @@ scripts/build-skill.mts        syncs guides + JSON schema into the skill and bui
 - **Tested:**
   - All 142 steps render through `step` and `help`, and all 11 guides pass the skill's validator, matching the site.
   - Claude Code ran headless with the installed skill. It picked the skill from a plain request, showed the board and step verbatim, recorded progress across turns, and asked only for the public Client ID.
+  - A second headless run researched Calendly from scratch through the skill. The result was an 8-step guide with 11 sources and 11 passing checks, and it passed `validate`. Two checks that failed (OAuth metadata documents) were recorded and left uncited. The agent flagged where Composio's scope list and Calendly's disagree.
 
 ## Key decisions
 
