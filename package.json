@@ -9,7 +9,10 @@
     "lint": "eslint",
     "probe": "node scripts/probe.mjs",
     "validate": "tsx scripts/validate.mts",
-    "research": "tsx --env-file=.env.local scripts/research.mts"
+    "research": "tsx --env-file=.env.local scripts/research.mts",
+    "skill": "tsx scripts/build-skill.mts",
+    "prebuild": "npm run skill",
+    "predev": "npm run skill"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

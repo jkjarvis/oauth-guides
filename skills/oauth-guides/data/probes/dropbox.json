@@ -1,0 +1,159 @@
+{
+  "guide": "dropbox",
+  "ranAt": "2026-10-27T23:39:59.850Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio dropbox toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/dropbox (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-app-console",
+      "title": "App Console exists behind sign-in",
+      "request": "GET https://www.dropbox.com/developers/apps",
+      "expect": "Redirect to /login with cont= pointing back to the App Console",
+      "observed": "HTTP 302, cont= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-oidc-endpoints",
+      "title": "Dropbox authorize and token endpoints",
+      "request": "GET https://www.dropbox.com/.well-known/openid-configuration",
+      "expect": "authorize on www.dropbox.com, token on api.dropboxapi.com",
+      "observed": "HTTP 200; authorize https://www.dropbox.com/oauth2/authorize; token https://api.dropboxapi.com/oauth2/token",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-authorize-unknown-key",
+      "title": "Unknown App key fails before sign-in",
+      "request": "GET https://www.dropbox.com/oauth2/authorize?client_id=fakefakefake123&response_type=code&token_access_type=offline&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback",
+      "expect": "302 to /oauth2/authorize_error with error_name=unknown_client_id",
+      "observed": "HTTP 302; error_name=unknown_client_id",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-token-bad-client",
+      "title": "Wrong key or secret is rejected by name",
+      "request": "POST https://api.dropboxapi.com/oauth2/token (unknown key, wrong secret)",
+      "expect": "400 invalid_client: Invalid client_id or client_secret",
+      "observed": "HTTP 400; invalid_client: Invalid client_id or client_secret",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-doc-dev-status",
+      "title": "Developer guide: development status limits",
+      "request": "GET https://docs.dropboxapi.com/dropbox-api/docs/developer-resources/developer-guide",
+      "expect": "States 500-user cap and the 2-week deadline after 50 users",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-doc-production",
+      "title": "Developer guide: production review rules",
+      "request": "GET https://docs.dropboxapi.com/dropbox-api/docs/developer-resources/developer-guide",
+      "expect": "Review waits for 50 users; name locks in production",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-doc-dev-tools",
+      "title": "Developer guide: developer tools need own keys",
+      "request": "GET https://docs.dropboxapi.com/dropbox-api/docs/developer-resources/developer-guide",
+      "expect": "Wrapping platforms' developers must use their own app key",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-doc-offline",
+      "title": "token_access_type=offline returns a refresh token",
+      "request": "GET https://docs.dropboxapi.com/dropbox-api/docs/get-started/authorization",
+      "expect": "Documents offline access and the online default",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-doc-scope-changes",
+      "title": "Scope changes don't touch existing grants",
+      "request": "GET https://dropbox.tech/developers/customizing-scopes-in-oauth-flow",
+      "expect": "Blog says existing grants keep their old scopes",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-doc-free",
+      "title": "Dropbox API is free for developers",
+      "request": "GET https://www.dropbox.com/developers/support",
+      "expect": "Support FAQ says the API is free",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-contact",
+      "title": "API support contact form exists",
+      "request": "GET https://www.dropbox.com/developers/contact",
+      "expect": "Redirect to /login with cont= pointing back to the form",
+      "observed": "HTTP 302, cont= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    },
+    {
+      "id": "dbx-forum",
+      "title": "Dropbox API support forum is live",
+      "request": "GET https://community.dropbox.com/en/categories/dropbox-api-support-feedback",
+      "expect": "HTTP 200, \"Dropbox API Support and Feedback\"",
+      "observed": "HTTP 200; https://community.dropbox.com/en/categories/dropbox-api-support-feedback; \"Dropbox API Support and Feedback - Dropbox Community\"",
+      "pass": true,
+      "ranAt": "2026-10-27T23:39:59.850Z"
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "guide": "jira",
+  "ranAt": "2026-10-27T23:40:48.860Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio jira toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/jira (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-console",
+      "title": "Atlassian developer console exists",
+      "request": "GET https://developer.atlassian.com/console/myapps/",
+      "expect": "HTTP 200, page titled \"Developer console\"",
+      "observed": "HTTP 200; \"Developer console\"",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-oidc-endpoints",
+      "title": "Atlassian authorize and token endpoints",
+      "request": "GET https://auth.atlassian.com/.well-known/openid-configuration",
+      "expect": "authorize at auth.atlassian.com/authorize, token at /oauth/token",
+      "observed": "HTTP 200; authorize https://auth.atlassian.com/authorize; token https://auth.atlassian.com/oauth/token",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-authorize-signin-first",
+      "title": "Authorize asks for sign-in before checking the app",
+      "request": "GET https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=fakefakefakefakefakefakefakefake&scope=read%3Ajira-work%20offline_access&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&state=probe&response_type=code&prompt=consent",
+      "expect": "302 to id.atlassian.com/login even with an unknown client_id",
+      "observed": "HTTP 302; to id.atlassian.com/login",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-refresh-rejected",
+      "title": "Token endpoint rejects a bad refresh token",
+      "request": "POST https://auth.atlassian.com/oauth/token (grant_type=refresh_token, bogus values)",
+      "expect": "HTTP 403 with an error body",
+      "observed": "HTTP 403; unauthorized_client: refresh_token is invalid",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-accessible-resources",
+      "title": "accessible-resources needs a bearer token",
+      "request": "GET https://api.atlassian.com/oauth/token/accessible-resources (no token)",
+      "expect": "HTTP 401",
+      "observed": "HTTP 401",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-doc-refresh-rotation",
+      "title": "3LO doc: rotating refresh tokens, 90-day inactivity",
+      "request": "GET https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+      "expect": "States 90-day inactivity expiry and offline_access",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-doc-distribution",
+      "title": "3LO doc: private by default, unreviewed warning",
+      "request": "GET https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+      "expect": "Says apps start private and users see a not-reviewed warning",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-doc-no-customer-apps",
+      "title": "3LO doc: don't make customers create apps",
+      "request": "GET https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+      "expect": "Forbids asking customers to create their own 3LO apps",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-doc-grant-types",
+      "title": "3LO doc: account vs resource-level grants",
+      "request": "GET https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+      "expect": "Lists both grant types and per-site consent",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-site-admin-kb",
+      "title": "Site admin authorization KB article",
+      "request": "GET https://support.atlassian.com/atlassian-cloud/kb/your-site-admin-must-authorize-this-app-error-in-atlassian-cloud-apps/",
+      "expect": "Describes the site admin error and Connected apps fix",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-marketplace-approval-time",
+      "title": "Marketplace approval time is published",
+      "request": "GET https://developer.atlassian.com/platform/marketplace/app-approval-guidelines/",
+      "expect": "States 10-15 business days",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-dev-support",
+      "title": "Developer and Marketplace support page",
+      "request": "GET https://developer.atlassian.com/support",
+      "expect": "Support page with Ecosystem Support Request",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    },
+    {
+      "id": "atl-community",
+      "title": "Atlassian Developer Community is live",
+      "request": "GET https://community.developer.atlassian.com/",
+      "expect": "HTTP 200, \"The Atlassian Developer Community\"",
+      "observed": "HTTP 200; \"The Atlassian Developer Community\"",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:48.860Z"
+    }
+  ]
+}

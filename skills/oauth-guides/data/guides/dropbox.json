@@ -1,0 +1,778 @@
+{
+  "slug": "dropbox",
+  "name": "Dropbox",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Create a scoped Dropbox app and plug it into Composio. Works for you at once; past 50 linked users you need production approval.",
+  "appType": "Scoped access app",
+  "composio": {
+    "toolkit": "dropbox",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 12,
+      "max": 25
+    },
+    "approvalWait": {
+      "min": 0,
+      "max": 0,
+      "unit": "business_days",
+      "openEnded": true,
+      "asStated": "\"We respond to nearly all production requests within a few business days.\" Review starts only once the app has linked 50 users.",
+      "summary": "A few business days"
+    },
+    "review": "required",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Is use of the Dropbox API free? Yes! There's no cost to you as the developer.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create a Dropbox app",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the App Console and click Create app.",
+        "Choose an API: Scoped access.",
+        "Choose the access type. App folder: only /Apps/<your app>. Full Dropbox: every file. Pick the least your tools need.",
+        "Name the app, then click Create app. Users see the name when they connect.",
+        "Don't use \"Dropbox\", start with \"drop\", or use DBX or DB in the name. Production review rejects it."
+      ],
+      "fields": [
+        {
+          "label": "Choose an API",
+          "value": "Scoped access",
+          "copy": false
+        },
+        {
+          "label": "Access type",
+          "value": "Full Dropbox or App folder",
+          "hint": "Can't be changed later",
+          "copy": false
+        },
+        {
+          "label": "Name",
+          "value": "Your product name",
+          "hint": "No \"Dropbox\", \"drop…\", DBX or DB",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "The access type is permanent. Switching from App folder to Full Dropbox means deleting the app and creating a new one.",
+          "sources": [
+            "dbx-app-console"
+          ]
+        },
+        {
+          "text": "Dropbox requires developers on platforms like Composio to use their own app key. That's what this guide sets up.",
+          "sources": [
+            "dbx-dev-guide"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open App Console",
+          "url": "https://www.dropbox.com/developers/apps/create"
+        }
+      ],
+      "sources": [
+        "dbx-app-console",
+        "dbx-dev-guide",
+        "dbx-branding",
+        "composio-dropbox-auth"
+      ],
+      "checks": [
+        "dbx-app-console",
+        "dbx-doc-dev-tools"
+      ],
+      "problems": [
+        {
+          "q": "I picked App folder but my tools need other folders",
+          "a": [
+            "The access type can't be changed. Delete the app under Settings and create a new one with Full Dropbox.",
+            "You'll get a new App key and secret. Update your Composio auth config."
+          ],
+          "sources": [
+            "dbx-app-console"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "redirect-uri",
+      "title": "Add the redirect URI",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "On the Settings tab, scroll to OAuth 2 → Redirect URIs.",
+        "Paste the URI below and click Add.",
+        "Turn off Allow implicit grant. Composio uses the code flow."
+      ],
+      "fields": [
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the Redirect URI in your Composio auth config exactly"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Composio's Dropbox auth config may prefill an older /api/v1/auth-apps/add URI. Set the v3 callback in both places.",
+          "sources": [
+            "composio-custom-auth",
+            "composio-dropbox-toolkit"
+          ]
+        }
+      ],
+      "sources": [
+        "dbx-app-console",
+        "dbx-authorization",
+        "dbx-oauth",
+        "composio-dropbox-auth"
+      ],
+      "checks": [
+        "composio-callback"
+      ],
+      "unconfirmed": "We couldn't sign in to check the implicit grant control's exact labels.",
+      "problems": [
+        {
+          "q": "Dropbox rejects the redirect URI when a user connects",
+          "a": [
+            "Dropbox only redirects to URIs listed under Redirect URIs, matched exactly.",
+            "Paste the same v3 callback in Dropbox and in your Composio auth config."
+          ],
+          "sources": [
+            "dbx-authorization",
+            "composio-custom-auth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "permissions",
+      "title": "Choose scopes",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Permissions tab.",
+        "Tick the scopes below. account_info.read is already on and required.",
+        "Add sharing.read or sharing.write only if your tools share files or folders.",
+        "Click Submit at the bottom of the page. Changes aren't saved until you do.",
+        "These scopes are the most Composio can ask for. Every scope in your auth config must be ticked here."
+      ],
+      "fields": [
+        {
+          "label": "Starter scopes",
+          "value": "account_info.read files.metadata.read files.metadata.write files.content.read files.content.write",
+          "hint": "Drop the .write scopes for read-only tools"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Changing scopes later doesn't update users who already connected. They must reconnect to get the new scopes.",
+          "sources": [
+            "dbx-scopes-blog"
+          ]
+        },
+        {
+          "text": "Production review checks you don't ask for broader access than your app uses.",
+          "sources": [
+            "dbx-dev-guide",
+            "dbx-oauth"
+          ]
+        }
+      ],
+      "sources": [
+        "dbx-oauth",
+        "dbx-scopes-blog",
+        "dbx-authorization",
+        "composio-dropbox-auth"
+      ],
+      "checks": [
+        "dbx-doc-scope-changes"
+      ],
+      "unconfirmed": "Dropbox's docs don't mention the Submit button. We took it from Dropbox forum reports and couldn't sign in to see it.",
+      "problems": [
+        {
+          "q": "My scope changes didn't stick",
+          "a": [
+            "Scroll to the bottom of the Permissions tab and click Submit."
+          ]
+        },
+        {
+          "q": "A tool fails with 401 after I added a scope",
+          "a": [
+            "The user's grant still has the old scopes. Dropbox never adds scopes to existing grants.",
+            "Have the user reconnect."
+          ],
+          "sources": [
+            "dbx-scopes-blog",
+            "dbx-errors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the App key and secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 1
+      },
+      "instructions": [
+        "On the Settings tab, copy the App key. That's your client ID.",
+        "Reveal the App secret and copy it. That's your client secret.",
+        "Store the secret in a secret manager, never in git."
+      ],
+      "fields": [
+        {
+          "label": "App key",
+          "value": "Client ID in Composio",
+          "copy": false
+        },
+        {
+          "label": "App secret",
+          "value": "Client secret in Composio",
+          "copy": false
+        }
+      ],
+      "sources": [
+        "dbx-app-console",
+        "composio-dropbox-auth"
+      ],
+      "checks": [
+        "dbx-token-bad-client"
+      ],
+      "unconfirmed": "We couldn't sign in to see how the App Console reveals the App secret.",
+      "problems": [
+        {
+          "q": "invalid_client: Invalid client_id or client_secret",
+          "a": [
+            "The App key or secret in Composio is wrong, or they come from different apps.",
+            "Copy both again from the same app's Settings tab."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Dropbox toolkit in Composio and create an auth config.",
+        "Choose OAuth2 and turn on your own developer credentials.",
+        "Paste the App key as Client ID and the App secret as Client secret.",
+        "Replace the default scopes with yours. The default list includes openid, contacts and file requests scopes.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Overwrite the prefilled v1 URL if one appears"
+        },
+        {
+          "label": "Scopes",
+          "value": "account_info.read,files.metadata.read,files.metadata.write,files.content.read,files.content.write",
+          "hint": "Comma separated. Same scopes as the Permissions tab"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Background access needs token_access_type=offline. Without it Dropbox gives no refresh token and short-lived tokens just expire.",
+          "sources": [
+            "dbx-authorization",
+            "dbx-oauth"
+          ],
+          "unconfirmed": "We couldn't see whether Composio sends token_access_type=offline. Check the connection still works a few hours later."
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Dropbox in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/dropbox"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-dropbox-auth",
+        "composio-dropbox-toolkit",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page",
+        "dbx-doc-offline"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "The link didn't open the Dropbox toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Dropbox, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { dropbox: \"ac_your_dropbox_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"dropbox\": \"ac_your_dropbox_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for dropbox.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Start a connection for a test user and open the link.",
+        "Sign in with your own Dropbox account. A new app only links to its owner.",
+        "The consent screen should show your app name and the scopes you picked.",
+        "Dropbox checks the App key before sign-in. A typo shows an error page straight away.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "sources": [
+        "dbx-app-console",
+        "dbx-oauth",
+        "composio-white-label"
+      ],
+      "checks": [
+        "dbx-authorize-unknown-key",
+        "dbx-oidc-endpoints"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Dropbox sign-in.",
+      "problems": [
+        {
+          "q": "Dropbox shows an error page instead of sign-in",
+          "a": [
+            "Dropbox doesn't recognise the App key (unknown_client_id).",
+            "Copy the App key again from the app's Settings tab into your Composio auth config."
+          ]
+        },
+        {
+          "q": "Tools fail with 401 Unauthorized",
+          "a": [
+            "The token is invalid, expired, or the user unlinked your app in Dropbox. Retrying won't help.",
+            "Have the user reconnect."
+          ],
+          "sources": [
+            "dbx-errors"
+          ]
+        },
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "dropbox-forum"
+      ]
+    },
+    {
+      "id": "enable-users",
+      "title": "Let other users connect",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 1
+      },
+      "instructions": [
+        "On the Settings tab, under Development users, click Enable additional users.",
+        "Your app can now link up to 500 Dropbox users while in development.",
+        "At 50 linked users a two-week clock starts. Apply for production before then."
+      ],
+      "warnings": [
+        {
+          "text": "Miss the two weeks after 50 users and new links freeze until you're approved. Unlinking users doesn't unfreeze it.",
+          "sources": [
+            "dbx-dev-guide"
+          ]
+        }
+      ],
+      "sources": [
+        "dbx-dev-guide",
+        "dbx-app-console"
+      ],
+      "checks": [
+        "dbx-doc-dev-status"
+      ],
+      "problems": [
+        {
+          "q": "Other people can't connect, but I can",
+          "a": [
+            "New apps only link to their owner. Click Enable additional users under Development users."
+          ],
+          "sources": [
+            "dbx-app-console"
+          ]
+        },
+        {
+          "q": "New users can't link any more",
+          "a": [
+            "Your app passed 50 users and two weeks without production approval, so Dropbox froze new links.",
+            "The only fix is to apply for and get production status."
+          ],
+          "sources": [
+            "dbx-dev-guide"
+          ]
+        }
+      ],
+      "contacts": [
+        "dropbox-api-support"
+      ]
+    },
+    {
+      "id": "apply-production",
+      "title": "Apply for production",
+      "who": "you",
+      "minutes": {
+        "min": 15,
+        "max": 30
+      },
+      "when": "Before your app passes 50 linked users. Internal tools and demos can stay in development.",
+      "instructions": [
+        "Fill in the Branding tab: publisher, description, app website and icons. Users see these on the consent screen.",
+        "Have a privacy policy specific to your app.",
+        "Fix the name first. Once in production only Dropbox support can rename it.",
+        "On the Settings tab, under Status, click Apply for Production.",
+        "Describe how you use the API and upload your icon. More detail can speed approval.",
+        "Need review before 50 users? Explain why under Request early review."
+      ],
+      "warnings": [
+        {
+          "text": "Your logo can't include or resemble a Dropbox logo or the word Dropbox.",
+          "sources": [
+            "dbx-branding"
+          ]
+        }
+      ],
+      "sources": [
+        "dbx-dev-guide",
+        "dbx-app-console",
+        "dbx-branding",
+        "dbx-support"
+      ],
+      "checks": [
+        "dbx-doc-production"
+      ],
+      "problems": [
+        {
+          "q": "My production request was denied",
+          "a": [
+            "Dropbox sends feedback. Fix the issues and resubmit from the Settings tab.",
+            "Common causes: a name or logo against the branding guide, or broader access than your app uses."
+          ],
+          "sources": [
+            "dbx-app-console",
+            "dbx-dev-guide",
+            "dbx-branding"
+          ]
+        },
+        {
+          "q": "I need to rename my app after approval",
+          "a": [
+            "You can't rename it yourself. Open an API support ticket and Dropbox can do it."
+          ],
+          "sources": [
+            "dbx-support",
+            "dbx-app-console"
+          ]
+        }
+      ],
+      "contacts": [
+        "dropbox-api-support"
+      ]
+    },
+    {
+      "id": "production-review",
+      "title": "Wait for production approval",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "instructions": [
+        "Dropbox reviews your request only once your app has linked 50 users, unless you asked for early review.",
+        "After approval any number of users can link."
+      ],
+      "wait": {
+        "min": 0,
+        "max": 0,
+        "unit": "business_days",
+        "openEnded": true,
+        "asStated": "\"We respond to nearly all production requests within a few business days.\" Review starts only once the app has linked 50 users.",
+        "summary": "A few business days"
+      },
+      "sources": [
+        "dbx-dev-guide",
+        "dbx-support"
+      ],
+      "checks": [
+        "dbx-doc-production"
+      ],
+      "contacts": [
+        "dropbox-api-support",
+        "dropbox-forum"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dbx-dev-guide",
+      "title": "Dropbox · DBX Platform developer guide",
+      "url": "https://docs.dropboxapi.com/dropbox-api/docs/developer-resources/developer-guide"
+    },
+    {
+      "id": "dbx-app-console",
+      "title": "Dropbox · App Console tutorial",
+      "url": "https://docs.dropboxapi.com/dropbox-api/docs/get-started/tutorial/app-console"
+    },
+    {
+      "id": "dbx-oauth",
+      "title": "Dropbox · OAuth guide",
+      "url": "https://docs.dropboxapi.com/dropbox-api/docs/oauth"
+    },
+    {
+      "id": "dbx-authorization",
+      "title": "Dropbox · Authorization reference",
+      "url": "https://docs.dropboxapi.com/dropbox-api/docs/get-started/authorization"
+    },
+    {
+      "id": "dbx-branding",
+      "title": "Dropbox · Developer branding guide",
+      "url": "https://docs.dropboxapi.com/dropbox-api/docs/developer-resources/branding-guide"
+    },
+    {
+      "id": "dbx-scopes-blog",
+      "title": "Dropbox · Customizing scopes in OAuth flow",
+      "url": "https://dropbox.tech/developers/customizing-scopes-in-oauth-flow"
+    },
+    {
+      "id": "dbx-errors",
+      "title": "Dropbox · Error handling",
+      "url": "https://docs.dropboxapi.com/dropbox-api/docs/error-handling"
+    },
+    {
+      "id": "dbx-support",
+      "title": "Dropbox · Developer community & support",
+      "url": "https://www.dropbox.com/developers/support"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-dropbox-auth",
+      "title": "Composio · Dropbox OAuth setup",
+      "url": "https://composio.dev/auth/dropbox"
+    },
+    {
+      "id": "composio-dropbox-toolkit",
+      "title": "Composio · Dropbox toolkit",
+      "url": "https://docs.composio.dev/toolkits/dropbox"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "dropbox-api-support",
+      "label": "Dropbox API support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://www.dropbox.com/developers/contact",
+      "when": "Production review, frozen apps, renaming a production app, or API faults. Needs a Dropbox sign-in.",
+      "sources": [
+        "dbx-support",
+        "dbx-app-console"
+      ],
+      "checks": [
+        "dbx-contact"
+      ]
+    },
+    {
+      "id": "dropbox-forum",
+      "label": "Dropbox API Support forum",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://community.dropbox.com/en/categories/dropbox-api-support-feedback",
+      "when": "How-to questions on scopes, OAuth, and the App Console. Answered by Dropbox staff and the community.",
+      "sources": [
+        "dbx-support"
+      ],
+      "checks": [
+        "dbx-forum"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

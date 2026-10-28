@@ -1,0 +1,965 @@
+{
+  "slug": "outlook",
+  "name": "Microsoft Outlook",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Register a Microsoft Entra app for Outlook and plug it into Composio. No review, but work tenants often need their admin's consent.",
+  "appType": "Entra ID app registration",
+  "composio": {
+    "toolkit": "outlook",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 12,
+      "max": 25
+    },
+    "approvalWait": null,
+    "review": "none",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Free. Publisher verification and its prerequisites have no charge.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "choose-tenant",
+      "title": "Choose the tenant that owns the app",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 1
+      },
+      "instructions": [
+        "Use a work account in your company's Microsoft Entra tenant with at least the Application Developer role.",
+        "Avoid a personal Microsoft account. Apps registered with one can't be publisher verified.",
+        "The app can't move to another tenant later. Pick the tenant your company will keep."
+      ],
+      "warnings": [
+        {
+          "text": "Publisher verification also rejects *.onmicrosoft.com publisher domains. Your tenant needs a DNS-verified custom domain.",
+          "sources": [
+            "ms-pv-overview"
+          ]
+        }
+      ],
+      "sources": [
+        "ms-register",
+        "ms-pv-overview"
+      ]
+    },
+    {
+      "id": "register-app",
+      "title": "Register a new app",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "Open the Microsoft Entra admin center → Entra ID → App registrations → New registration.",
+        "Enter a Name. Users see it on the consent screen. You can change it later.",
+        "Supported account types: pick Any Entra ID Tenant + Personal Microsoft accounts. Covers work and outlook.com users.",
+        "Business users only? Pick Multiple Entra ID tenants. Single tenant blocks everyone outside your org.",
+        "Under Redirect URI, choose platform Web and paste the Composio callback below.",
+        "Click Register. Copy the Application (client) ID from Overview.",
+        "No Redirect URI field, or skipped it? Open Authentication → Add Redirect URI → Web."
+      ],
+      "fields": [
+        {
+          "label": "Name",
+          "value": "Your product name",
+          "hint": "Shown to users on the consent screen",
+          "copy": false
+        },
+        {
+          "label": "Supported account types",
+          "value": "Any Entra ID Tenant + Personal Microsoft accounts",
+          "hint": "Older UI: Accounts in any organizational directory and personal Microsoft accounts",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI platform",
+          "value": "Web",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Case-sensitive. Must match your Composio auth config exactly"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Redirect URIs are case-sensitive. Paste the callback exactly as shown.",
+          "sources": [
+            "ms-reply-url"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Entra admin center",
+          "url": "https://entra.microsoft.com/"
+        }
+      ],
+      "sources": [
+        "ms-register",
+        "ms-redirect",
+        "ms-accounts-validation",
+        "composio-outlook-auth"
+      ],
+      "checks": [
+        "entra-admin-center",
+        "oidc-common",
+        "composio-callback"
+      ],
+      "problems": [
+        {
+          "q": "AADSTS50011: the redirect URI doesn't match",
+          "a": [
+            "The app has no Web redirect URI equal to the one Composio sent.",
+            "Open Authentication and add the Composio callback under the Web platform, exactly as shown above."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "ms-redirect"
+          ]
+        },
+        {
+          "q": "AADSTS50194: app isn't configured as a multitenant application",
+          "a": [
+            "You registered the app as single tenant, so the shared /common sign-in endpoint refuses it.",
+            "Change Supported account types to a multi-tenant option."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "composio-outlook-auth"
+          ]
+        },
+        {
+          "q": "Personal outlook.com accounts can't sign in",
+          "a": [
+            "The app only allows organizational accounts.",
+            "Switch Supported account types to Any Entra ID Tenant + Personal Microsoft accounts."
+          ],
+          "sources": [
+            "ms-register",
+            "ms-accounts-validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "client-secret",
+      "title": "Create a client secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "In your app, open Certificates & secrets → Client secrets → New client secret.",
+        "Add a description and pick an expiry. Maximum is 24 months. Microsoft recommends under 12.",
+        "Click Add, then copy the Value column, not the Secret ID.",
+        "The Value is shown once. Store it in a secret manager, never in git.",
+        "Set a reminder before it expires. Microsoft then rejects it with AADSTS7000222."
+      ],
+      "fields": [
+        {
+          "label": "Expires",
+          "value": "12 months",
+          "hint": "Custom lifetimes are capped at 24 months",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Microsoft recommends certificates over secrets in production. Composio's Outlook OAuth config takes a client secret.",
+          "sources": [
+            "ms-credentials",
+            "composio-outlook-auth"
+          ]
+        }
+      ],
+      "sources": [
+        "ms-credentials",
+        "composio-outlook-auth"
+      ],
+      "checks": [
+        "token-wrong-secret"
+      ],
+      "problems": [
+        {
+          "q": "AADSTS7000215: Invalid client secret provided",
+          "a": [
+            "Usually the Secret ID was pasted instead of the Value. Microsoft's own error says so.",
+            "Paste the Value into your Composio auth config. If you no longer have it, create a new secret."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "ms-credentials"
+          ]
+        },
+        {
+          "q": "AADSTS7000222: the client secret keys are expired",
+          "a": [
+            "Your secret passed its expiry date.",
+            "Create a new secret, update your Composio auth config, then delete the old secret."
+          ],
+          "sources": [
+            "ms-error-codes"
+          ]
+        },
+        {
+          "q": "I closed the page before copying the Value",
+          "a": [
+            "You can't view it again. Create a new client secret on the same page.",
+            "Delete the unused one so it doesn't linger."
+          ],
+          "sources": [
+            "ms-credentials"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "api-permissions",
+      "title": "Add delegated Graph permissions",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "In your app, open API permissions → Add a permission → Microsoft Graph → Delegated permissions.",
+        "Add offline_access, Mail.Read and Mail.Send. User.Read is already there.",
+        "Add more only for tools you use, e.g. Mail.ReadWrite, Calendars.ReadWrite, Contacts.ReadWrite.",
+        "Click Add permissions.",
+        "Don't pick Application permissions. They cover every mailbox in a tenant and always need admin consent.",
+        "Grant admin consent for <your tenant> only covers your own tenant, not your users' tenants."
+      ],
+      "fields": [
+        {
+          "label": "Starter permissions",
+          "value": "offline_access User.Read Mail.Read Mail.Send",
+          "hint": "Delegated. Trim or extend to match your Outlook tools"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Without offline_access there is no refresh token, so connections stop when the access token expires.",
+          "sources": [
+            "ms-scopes"
+          ]
+        },
+        {
+          "text": "Microsoft's default consent policy blocks user consent for Mail.Read, Mail.ReadWrite and Calendars. Expect admin consent in work tenants.",
+          "sources": [
+            "ms-consent-policies"
+          ]
+        }
+      ],
+      "sources": [
+        "ms-graph-access",
+        "ms-graph-perms",
+        "ms-scopes",
+        "composio-outlook-auth",
+        "composio-outlook-toolkit"
+      ],
+      "checks": [
+        "managed-consent-policy"
+      ],
+      "unconfirmed": "We couldn't see which scopes Composio's managed Outlook app requests. The starter set follows Composio's Outlook OAuth guide.",
+      "problems": [
+        {
+          "q": "A tool fails with a permissions error",
+          "a": [
+            "The token lacks the Graph permission that tool needs, e.g. Calendars.ReadWrite for calendar tools.",
+            "Add it here and in your Composio auth config scopes, then have the user reconnect."
+          ],
+          "sources": [
+            "composio-outlook-auth",
+            "ms-graph-perms"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Outlook toolkit in Composio and create an auth config.",
+        "Use the values below, then paste your Application (client) ID and the secret Value.",
+        "Make the scopes match the delegated permissions you added in Entra.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the Web redirect URI in Entra exactly"
+        },
+        {
+          "label": "Scopes",
+          "value": "offline_access User.Read Mail.Read Mail.Send",
+          "hint": "Same list as API permissions in Entra"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Outlook in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/outlook"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-outlook-auth",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "The link didn't open the Outlook toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Outlook, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { outlook: \"ac_your_outlook_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"outlook\": \"ac_your_outlook_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for outlook.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "instructions": [
+        "Start a connection for a test user and open the link.",
+        "Sign in with a work account from your own tenant first. The consent screen should show your app name.",
+        "Then try a personal outlook.com account and an account from another company.",
+        "Microsoft only checks the client ID after sign-in, so a typo shows up here, not earlier.",
+        "Until you're publisher verified, the consent screen says Unverified. That's expected.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "sources": [
+        "composio-white-label",
+        "ms-consent-experience",
+        "ms-publisher-domain"
+      ],
+      "checks": [
+        "authorize-signin-first",
+        "token-unknown-client"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Microsoft sign-in.",
+      "problems": [
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        },
+        {
+          "q": "AADSTS700016: application wasn't found in the directory",
+          "a": [
+            "The client ID in Composio doesn't match a registered app.",
+            "Copy the Application (client) ID from the app's Overview page again."
+          ],
+          "sources": [
+            "ms-error-codes"
+          ]
+        },
+        {
+          "q": "A work user sees Need admin approval or AADSTS90094",
+          "a": [
+            "Their tenant won't let users consent to what you request. Mail.Read is blocked by Microsoft's default policy.",
+            "Their admin has to grant consent. See the admin consent step below."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "ms-consent-policies"
+          ]
+        },
+        {
+          "q": "AADSTS70008: the refresh token expired",
+          "a": [
+            "Refresh tokens last 90 days by default and die after long inactivity or revocation.",
+            "Have the user reconnect."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "ms-refresh"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "ms-qa-entra"
+      ]
+    },
+    {
+      "id": "partner-enrollment",
+      "title": "Join the AI Cloud Partner Program",
+      "who": "wait",
+      "minutes": {
+        "min": 10,
+        "max": 20
+      },
+      "optional": true,
+      "when": "Only for publisher verification, and only if your company has no Partner One ID yet.",
+      "instructions": [
+        "Enroll your company in the Microsoft AI Cloud Partner Program in Partner Center, signed in with a work account.",
+        "Use an employee business email for verification, not a personal or free email account.",
+        "Microsoft checks your email, identity, employment and business registration. Upload documents if asked.",
+        "Note the Partner One ID of the partner global account (PGA). A location ID won't work."
+      ],
+      "wait": {
+        "min": 3,
+        "max": 5,
+        "unit": "business_days",
+        "openEnded": true,
+        "asStated": "In most cases three to five business days. Some checks take longer.",
+        "summary": "3–5 business days"
+      },
+      "actions": [
+        {
+          "label": "Enroll in Partner Center",
+          "url": "https://partner.microsoft.com/dashboard/account/v3/enrollment/joinnow/basicpartnernetwork/new"
+        }
+      ],
+      "sources": [
+        "pc-verification",
+        "ms-pv-overview",
+        "ms-pv-troubleshoot"
+      ],
+      "problems": [
+        {
+          "q": "The verification email never arrived",
+          "a": [
+            "Add microsoft.com as a safe sender and check junk mail.",
+            "Resend the code from Verification Summary → Contact Info in Partner Center."
+          ],
+          "sources": [
+            "pc-verification"
+          ]
+        }
+      ],
+      "contacts": [
+        "partner-center-support"
+      ]
+    },
+    {
+      "id": "publisher-verification",
+      "title": "Verify your publisher",
+      "who": "you",
+      "minutes": {
+        "min": 5,
+        "max": 10
+      },
+      "optional": true,
+      "when": "Recommended before users outside your own tenant connect.",
+      "instructions": [
+        "Sign in with MFA as Application Administrator or Cloud Application Administrator.",
+        "In your app, open Branding & properties and set the Publisher domain to a DNS-verified domain.",
+        "It, or another DNS-verified domain in your tenant, must match your Partner Center verification email domain.",
+        "Select Add Partner ID to verify publisher, enter your Partner One ID, then Verify and save.",
+        "In Partner Center you also need Partner Admin or Accounts Admin.",
+        "A blue verified badge appears next to the publisher name, usually within minutes."
+      ],
+      "warnings": [
+        {
+          "text": "Verification doesn't remove admin consent for Mail.Read in tenants on Microsoft's default consent policy.",
+          "sources": [
+            "ms-consent-policies",
+            "composio-outlook-toolkit"
+          ]
+        }
+      ],
+      "sources": [
+        "ms-pv-overview",
+        "ms-pv-mark",
+        "ms-publisher-domain"
+      ],
+      "problems": [
+        {
+          "q": "NoPublisherDomainOnApplication or PublisherDomainMismatch",
+          "a": [
+            "Set a Publisher domain under Branding & properties. *.onmicrosoft.com doesn't qualify.",
+            "It must match the domain of your Partner Center primary contact's email, or be a verified domain in your tenant."
+          ],
+          "sources": [
+            "ms-pv-troubleshoot"
+          ]
+        },
+        {
+          "q": "MPNAccountNotFoundOrNoAccess or MPNGlobalAccountNotFound",
+          "a": [
+            "NotFoundOrNoAccess: usually your user lacks an admin role on that Partner Center account, or the app's tenant isn't linked to it.",
+            "GlobalAccountNotFound: you entered a partner location ID. Use the partner global account's Partner One ID."
+          ],
+          "sources": [
+            "ms-pv-troubleshoot"
+          ]
+        }
+      ],
+      "contacts": [
+        "partner-center-support",
+        "azure-support"
+      ]
+    },
+    {
+      "id": "admin-consent",
+      "title": "Get admin consent in your user's tenant",
+      "who": "their-admin",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "optional": true,
+      "when": "When a work user sees Need admin approval. Common: Microsoft's default policy blocks user consent for Mail.Read.",
+      "instructions": [
+        "Send their admin the URL below with their tenant and your client ID. They sign in and approve.",
+        "{tenant} is their tenant ID or a verified domain. organizations uses the admin's own tenant.",
+        "The admin needs Cloud Application Administrator, Application Administrator or Privileged Role Administrator.",
+        "Or in their Entra: Enterprise apps → All applications → your app → Permissions → Grant admin consent.",
+        "If their tenant has the admin consent workflow on, users can request approval from the consent screen.",
+        "After approval, the user starts a fresh connection with their own account. The admin doesn't connect for them."
+      ],
+      "fields": [
+        {
+          "label": "Admin consent URL",
+          "value": "https://login.microsoftonline.com/{tenant}/adminconsent?client_id={client-id}",
+          "hint": "Replace {tenant} and {client-id} before sending"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Microsoft's managed default policy blocks user consent for Mail.Read, Mail.ReadWrite, Calendars.* and more. New tenants use it.",
+          "sources": [
+            "ms-consent-policies"
+          ]
+        },
+        {
+          "text": "A June–July 2026 rollout added Contacts.ReadWrite, Tasks.* and People.Read to that blocked list.",
+          "sources": [
+            "mc1304287"
+          ]
+        },
+        {
+          "text": "Unverified multi-tenant apps asking beyond basic sign-in get stepped up to admin consent in other tenants.",
+          "sources": [
+            "ms-pv-overview",
+            "ms-risk-step-up"
+          ]
+        },
+        {
+          "text": "Personal Microsoft accounts (outlook.com) consent to Mail.Read themselves. No admin involved.",
+          "sources": [
+            "ms-graph-perms"
+          ]
+        }
+      ],
+      "sources": [
+        "ms-admin-consent",
+        "ms-v2-admin-consent",
+        "ms-admin-workflow",
+        "ms-consent-experience",
+        "composio-outlook-toolkit"
+      ],
+      "checks": [
+        "adminconsent-endpoint",
+        "managed-consent-policy"
+      ],
+      "unconfirmed": "We didn't approve an app in a real tenant. Where the admin lands after approving isn't verified.",
+      "problems": [
+        {
+          "q": "Users get AADSTS90094 or Need admin approval",
+          "a": [
+            "Their tenant blocks user consent for a permission you request, or flagged your unverified app as risky.",
+            "An admin grants consent with the URL above. Publisher verification avoids the risky-app step-up."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "ms-risk-step-up",
+            "ms-consent-policies"
+          ]
+        },
+        {
+          "q": "AADSTS65001 after the admin approved",
+          "a": [
+            "No consent exists for this user and app. The admin may have approved in a different tenant.",
+            "Check {tenant} in the URL was the user's tenant, then approve again."
+          ],
+          "sources": [
+            "ms-error-codes",
+            "ms-admin-consent"
+          ]
+        },
+        {
+          "q": "The admin doesn't see Grant admin consent",
+          "a": [
+            "Their role is too low. They need Cloud Application Administrator, Application Administrator or Privileged Role Administrator."
+          ],
+          "sources": [
+            "ms-admin-consent"
+          ]
+        },
+        {
+          "q": "The admin's mailbox got connected instead of the user's",
+          "a": [
+            "The admin signed in during the user's connection attempt.",
+            "Delete that connection. After tenant-wide consent, the user reconnects with their own account."
+          ],
+          "sources": [
+            "composio-outlook-toolkit"
+          ]
+        }
+      ],
+      "contacts": [
+        "ms-qa-entra"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "ms-register",
+      "title": "Microsoft · Register an app in Entra ID",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app"
+    },
+    {
+      "id": "ms-accounts-validation",
+      "title": "Microsoft · Supported account types",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/supported-accounts-validation"
+    },
+    {
+      "id": "ms-redirect",
+      "title": "Microsoft · Add a redirect URI",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/how-to-add-redirect-uri"
+    },
+    {
+      "id": "ms-reply-url",
+      "title": "Microsoft · Redirect URI restrictions",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/reply-url"
+    },
+    {
+      "id": "ms-credentials",
+      "title": "Microsoft · Add app credentials",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/how-to-add-credentials"
+    },
+    {
+      "id": "ms-graph-access",
+      "title": "Microsoft · Configure access to web APIs",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-configure-app-access-web-apis"
+    },
+    {
+      "id": "ms-graph-perms",
+      "title": "Microsoft Graph · Permissions reference",
+      "url": "https://learn.microsoft.com/en-us/graph/permissions-reference"
+    },
+    {
+      "id": "ms-scopes",
+      "title": "Microsoft · Scopes and offline_access",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/scopes-oidc"
+    },
+    {
+      "id": "ms-refresh",
+      "title": "Microsoft · Refresh tokens",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens"
+    },
+    {
+      "id": "ms-error-codes",
+      "title": "Microsoft · AADSTS error codes",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes"
+    },
+    {
+      "id": "ms-consent-experience",
+      "title": "Microsoft · App consent experience",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/application-consent-experience"
+    },
+    {
+      "id": "ms-publisher-domain",
+      "title": "Microsoft · Configure a publisher domain",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/howto-configure-publisher-domain"
+    },
+    {
+      "id": "ms-pv-overview",
+      "title": "Microsoft · Publisher verification",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/publisher-verification-overview"
+    },
+    {
+      "id": "ms-pv-mark",
+      "title": "Microsoft · Mark app as publisher verified",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/mark-app-as-publisher-verified"
+    },
+    {
+      "id": "ms-pv-troubleshoot",
+      "title": "Microsoft · Troubleshoot publisher verification",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/troubleshoot-publisher-verification"
+    },
+    {
+      "id": "pc-verification",
+      "title": "Partner Center · Account verification",
+      "url": "https://learn.microsoft.com/en-us/partner-center/enroll/understand-the-verification-process"
+    },
+    {
+      "id": "pc-support",
+      "title": "Partner Center · Get help and contact support",
+      "url": "https://learn.microsoft.com/en-us/partner-center/support/report-problems-with-partner-center"
+    },
+    {
+      "id": "ms-admin-consent",
+      "title": "Microsoft · Grant tenant-wide admin consent",
+      "url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent"
+    },
+    {
+      "id": "ms-v2-admin-consent",
+      "title": "Microsoft · Admin consent endpoint",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-admin-consent"
+    },
+    {
+      "id": "ms-admin-workflow",
+      "title": "Microsoft · Admin consent workflow",
+      "url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-admin-consent-workflow"
+    },
+    {
+      "id": "ms-consent-policies",
+      "title": "Microsoft · Manage app consent policies",
+      "url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-app-consent-policies"
+    },
+    {
+      "id": "ms-risk-step-up",
+      "title": "Microsoft · Risk-based step-up consent",
+      "url": "https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-risk-based-step-up-consent"
+    },
+    {
+      "id": "mc1304287",
+      "title": "MC1304287 · Exchange API consent change",
+      "url": "https://mc.merill.net/message/MC1304287"
+    },
+    {
+      "id": "ms-dev-support",
+      "title": "Microsoft · Developer support options",
+      "url": "https://learn.microsoft.com/en-us/entra/identity-platform/developer-support-help-options"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-outlook-auth",
+      "title": "Composio · Outlook OAuth setup",
+      "url": "https://composio.dev/auth/outlook"
+    },
+    {
+      "id": "composio-outlook-toolkit",
+      "title": "Composio · Outlook toolkit",
+      "url": "https://docs.composio.dev/toolkits/outlook"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "ms-qa-entra",
+      "label": "Microsoft Q&A · Entra ID",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://learn.microsoft.com/en-us/answers/tags/455/microsoft-security-entra-entra-id",
+      "when": "App registration, consent, or AADSTS errors the docs don't explain. Free; answered by Microsoft staff and community.",
+      "sources": [
+        "ms-dev-support"
+      ],
+      "checks": [
+        "qa-entra-tag"
+      ]
+    },
+    {
+      "id": "azure-support",
+      "label": "Azure support request",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://entra.microsoft.com/#view/Microsoft_Azure_Support/NewSupportRequestV3Blade/callerName/ActiveDirectory/issueType/technical",
+      "when": "Needs an Azure support plan. For Entra faults Microsoft Q&A can't solve.",
+      "sources": [
+        "ms-dev-support"
+      ],
+      "checks": [
+        "entra-admin-center"
+      ]
+    },
+    {
+      "id": "partner-center-support",
+      "label": "Partner Center support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://learn.microsoft.com/en-us/partner-center/support/report-problems-with-partner-center",
+      "when": "Partner Program enrollment, business verification, or Partner One ID problems.",
+      "sources": [
+        "pc-support"
+      ],
+      "checks": [
+        "partner-center-support"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "guide": "outlook",
+  "ranAt": "2026-10-27T23:41:29.200Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio outlook toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/outlook (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "oidc-common",
+      "title": "Multi-tenant sign-in endpoints exist",
+      "request": "GET https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
+      "expect": "common authorize + token endpoints; issuer has a {tenantid} slot",
+      "observed": "HTTP 200; issuer https://login.microsoftonline.com/{tenantid}/v2.0",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "authorize-signin-first",
+      "title": "Authorize page asks for sign-in first",
+      "request": "GET https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=3f1c2a9e-7b4d-4e8a-9c21-5d6e7f8a9b0c&response_type=code&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&scope=offline_access%20User.Read%20Mail.Read",
+      "expect": "Sign-in page, no AADSTS error before a user signs in",
+      "observed": "HTTP 200; \"Sign in to your account\"; no AADSTS code",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "token-wrong-secret",
+      "title": "Wrong secret is rejected by code",
+      "request": "POST https://login.microsoftonline.com/organizations/oauth2/v2.0/token (real app ID, wrong secret)",
+      "expect": "AADSTS7000215, hinting at the secret Value vs Secret ID",
+      "observed": "invalid_client: AADSTS7000215, says use the Value not the Secret ID",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Unknown client ID is rejected by code",
+      "request": "POST https://login.microsoftonline.com/consumers/oauth2/v2.0/token (random client_id)",
+      "expect": "AADSTS700016: application not found",
+      "observed": "unauthorized_client: AADSTS700016",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "adminconsent-endpoint",
+      "title": "Admin consent URL opens a sign-in page",
+      "request": "GET https://login.microsoftonline.com/organizations/adminconsent?client_id=3f1c2a9e-7b4d-4e8a-9c21-5d6e7f8a9b0c",
+      "expect": "200 sign-in page (the admin signs in first)",
+      "observed": "HTTP 200; \"Sign in to your account\"",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "entra-admin-center",
+      "title": "Microsoft Entra admin center is reachable",
+      "request": "GET https://entra.microsoft.com/ (browser user agent)",
+      "expect": "HTTP 200",
+      "observed": "HTTP 200",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "managed-consent-policy",
+      "title": "Managed consent policy blocks Mail.Read",
+      "request": "GET https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-app-consent-policies",
+      "expect": "Microsoft-managed policy's EXCEPT list includes Mail.Read and Calendars.Read",
+      "observed": "HTTP 200; Mail.Read listed; Calendars.Read listed",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "qa-entra-tag",
+      "title": "Microsoft Q&A Entra ID tag is live",
+      "request": "GET https://learn.microsoft.com/en-us/answers/tags/455/microsoft-security-entra-entra-id",
+      "expect": "200, tag page titled Microsoft Entra ID",
+      "observed": "HTTP 200; \"Microsoft Security Microsoft Entra Microsoft Entra ID - Microsoft Q&amp;A\"",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    },
+    {
+      "id": "partner-center-support",
+      "title": "Partner Center support page resolves",
+      "request": "GET https://learn.microsoft.com/en-us/partner-center/support/report-problems-with-partner-center",
+      "expect": "200, describes Contact Support in Partner Center",
+      "observed": "HTTP 200",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:29.200Z"
+    }
+  ]
+}

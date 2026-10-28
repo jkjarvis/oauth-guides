@@ -1,3 +1,4 @@
+import { InstallSkills } from "@/components/library/install-skills"
 import { LibraryGrid } from "@/components/library/library-grid"
 import { formatMinutes, formatWait, listGuides } from "@/lib/guides"
 
@@ -14,11 +15,14 @@ export default function LibraryPage() {
   }))
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight">Get your own OAuth app ready</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Per-provider guides for registering an OAuth app, getting it approved, and plugging it into Composio.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-3">
+          <h1 className="text-3xl font-semibold tracking-tight">Get your own OAuth app ready</h1>
+          <p className="max-w-2xl text-muted-foreground">
+            Per-provider guides for registering an OAuth app, getting it approved, and plugging it into Composio.
+          </p>
+        </div>
+        <InstallSkills />
       </div>
       <LibraryGrid guides={guides} />
     </div>

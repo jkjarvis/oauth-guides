@@ -1,0 +1,871 @@
+{
+  "slug": "hubspot",
+  "name": "HubSpot",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Build a HubSpot app with the CLI and plug it into Composio. No review up to 25 installs; past that, list it on the Marketplace.",
+  "appType": "Developer platform app (project)",
+  "composio": {
+    "toolkit": "hubspot",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 20,
+      "max": 40
+    },
+    "approvalWait": {
+      "min": 1,
+      "max": 10,
+      "unit": "business_days",
+      "openEnded": true,
+      "asStated": "Marketplace listing: initial review within 10 business days; whole review no more than 60 days from first feedback.",
+      "summary": "≤10 business days"
+    },
+    "review": "optional",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Free developer account; no paid subscription needed to build apps. No listing fee in the docs we read.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "hubspot-cli",
+      "title": "Get a HubSpot account and the CLI",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 6
+      },
+      "instructions": [
+        "No HubSpot account yet? Create a free one with the sign-up link below.",
+        "Install the latest HubSpot CLI. Docs recommend 8.16.0 or later.",
+        "Run hs account auth. Generate a Personal Access Key (Development → Keys) when prompted and paste it in.",
+        "Your HubSpot user needs Developer tools access to upload projects."
+      ],
+      "snippets": [
+        {
+          "lang": "bash",
+          "code": "npm install -g @hubspot/cli@latest\nhs --version\nhs account auth"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Apps are now built as CLI projects. New legacy public apps (Development → Legacy Apps) can't be created since June 23, 2026.",
+          "sources": [
+            "hs-legacy"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Create HubSpot account",
+          "url": "https://app.hubspot.com/signup-hubspot/crm?intent=developer"
+        }
+      ],
+      "sources": [
+        "hs-quickstart",
+        "hs-create-app",
+        "hs-pak",
+        "hs-platform-basics",
+        "hs-legacy"
+      ],
+      "checks": [
+        "cli-on-npm",
+        "legacy-apps-closed"
+      ],
+      "problems": [
+        {
+          "q": "Composio's HubSpot page says Apps → Create App",
+          "a": [
+            "That describes legacy public apps, which HubSpot no longer lets you create.",
+            "Use the CLI project flow in this guide instead."
+          ],
+          "sources": [
+            "hs-legacy",
+            "composio-hubspot-auth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create the app project",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 6
+      },
+      "instructions": [
+        "Run hs project create and pick App as the base contents.",
+        "Distribution: pick Marketplace unless every customer's HubSpot account is one your own HubSpot user can access.",
+        "Auth: pick OAuth. A static token installs in one account only.",
+        "Features: pick only what you'll build. Composio needs none of them.",
+        "In app-hsmeta.json, set uid to a unique name before the first upload. Changing it later creates a new component."
+      ],
+      "fields": [
+        {
+          "label": "Base contents",
+          "value": "App",
+          "copy": false
+        },
+        {
+          "label": "Distribution",
+          "value": "Marketplace",
+          "hint": "Up to 25 installs before listing. Private: 10 allowlisted accounts (100 for Solutions Partners)",
+          "copy": false
+        },
+        {
+          "label": "Auth",
+          "value": "OAuth",
+          "copy": false
+        }
+      ],
+      "snippets": [
+        {
+          "lang": "bash",
+          "code": "hs project create"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Private apps only allowlist accounts your HubSpot user already has access to. Most SaaS customers' accounts won't be on that list.",
+          "sources": [
+            "hs-manage-apps"
+          ]
+        },
+        {
+          "text": "You can switch a private app to marketplace distribution later without interrupting existing installs.",
+          "sources": [
+            "hs-install-limits"
+          ]
+        }
+      ],
+      "sources": [
+        "hs-create-app",
+        "hs-app-config",
+        "hs-manage-apps",
+        "hs-install-limits"
+      ],
+      "checks": [
+        "create-app-doc",
+        "install-limits",
+        "solutions-partner-cap"
+      ],
+      "unconfirmed": "We didn't run hs project create, so we couldn't see whether it accepts zero features. If not, pick one you can leave unused.",
+      "problems": [
+        {
+          "q": "hs project create fails or offers no App option",
+          "a": [
+            "Your CLI is probably old. Run npm install -g @hubspot/cli@latest and try again."
+          ],
+          "sources": [
+            "hs-create-app"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "redirect-scopes",
+      "title": "Set the redirect URL and scopes",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "In app-hsmeta.json, under config.auth, replace redirectUrls with the Composio callback below.",
+        "Set requiredScopes to oauth only. Put tool scopes in optionalScopes.",
+        "Add only scopes your tools use. Listed apps must use every scope they request.",
+        "Run hs project upload to build and deploy the change."
+      ],
+      "fields": [
+        {
+          "label": "redirectUrls",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "HTTPS required; only http://localhost is exempt"
+        },
+        {
+          "label": "requiredScopes",
+          "value": "oauth",
+          "hint": "Same list goes in Composio's scopes field"
+        },
+        {
+          "label": "optionalScopes (starter)",
+          "value": "crm.objects.contacts.read crm.objects.contacts.write crm.objects.companies.read crm.objects.companies.write crm.objects.deals.read crm.objects.deals.write crm.objects.owners.read",
+          "hint": "Same list goes in Composio's optional_scopes field. Trim to your tools"
+        }
+      ],
+      "snippets": [
+        {
+          "lang": "bash",
+          "code": "hs project upload"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Tokens carry the app's scopes, not the connecting user's HubSpot permissions. Your agent can see more than that user can.",
+          "sources": [
+            "hs-oauth"
+          ]
+        },
+        {
+          "text": "Optional scopes are silently dropped when the account lacks that tool. Tools needing them then fail.",
+          "sources": [
+            "hs-oauth",
+            "composio-hubspot-toolkit"
+          ]
+        }
+      ],
+      "sources": [
+        "hs-app-config",
+        "hs-oauth",
+        "hs-scopes",
+        "composio-hubspot-toolkit"
+      ],
+      "checks": [
+        "redirect-https-rule",
+        "composio-callback"
+      ],
+      "problems": [
+        {
+          "q": "Authorization failed because the provided scopes are insufficient",
+          "a": [
+            "A scope in requiredScopes wasn't in the request's scope list.",
+            "Put every requiredScopes entry in Composio's scopes field, not optional_scopes."
+          ],
+          "sources": [
+            "hs-kb-connect-errors",
+            "composio-hubspot-toolkit"
+          ]
+        },
+        {
+          "q": "Mismatch between the scopes in the install URL and the app's scopes",
+          "a": [
+            "Composio asked for a scope your app doesn't list, or in the wrong category.",
+            "Required in HubSpot → Composio scopes. Optional in HubSpot → Composio optional_scopes. Then upload and reconnect."
+          ],
+          "sources": [
+            "hs-kb-connect-errors",
+            "composio-hubspot-toolkit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the client ID and secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Run hs project open, or go to Development → Projects and click your project.",
+        "Under Project Components, click your app, then open the Auth tab.",
+        "Under Client credentials, copy the Client ID and Client secret.",
+        "Store the secret in a secret manager, never in git."
+      ],
+      "snippets": [
+        {
+          "lang": "bash",
+          "code": "hs project open"
+        }
+      ],
+      "sources": [
+        "hs-create-app",
+        "hs-manage-apps"
+      ],
+      "checks": [
+        "create-app-doc",
+        "token-endpoint-v3"
+      ],
+      "problems": [
+        {
+          "q": "The secret leaked or I need a new one",
+          "a": [
+            "On the Auth tab, click Rotate next to the client secret, type your app's name, then Rotate secret.",
+            "The old secret stops working. Paste the new one into your Composio auth config and reconnect affected accounts."
+          ],
+          "sources": [
+            "hs-manage-apps",
+            "composio-hubspot-toolkit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the HubSpot toolkit in Composio and create an auth config.",
+        "Choose OAuth2, not API key, and turn on your own developer credentials.",
+        "Paste your Client ID and Client secret.",
+        "Copy requiredScopes into scopes and optionalScopes into optional_scopes, exactly.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match redirectUrls in app-hsmeta.json"
+        },
+        {
+          "label": "scopes",
+          "value": "oauth"
+        },
+        {
+          "label": "Base URL",
+          "value": "https://api.hubapi.com",
+          "hint": "Per Composio's HubSpot setup page, if the field is shown"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open HubSpot in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/hubspot"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-hubspot-toolkit",
+        "composio-hubspot-auth",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "The link didn't open the HubSpot toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick HubSpot, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { hubspot: \"ac_your_hubspot_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"hubspot\": \"ac_your_hubspot_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for hubspot.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "instructions": [
+        "Marketplace app: on the app's Distribution tab click Begin publishing and sign the Acceptable Use Policy.",
+        "Private app: on the Distribution tab, Add approved account(s) and tick the account you'll test with.",
+        "Start a connection for a test user, open the link and pick the HubSpot account.",
+        "HubSpot warns the app is unverified. Type I accept the risk, then Connect. Expected until listed.",
+        "Developer test accounts don't count toward install limits. Use one to save installs.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "sources": [
+        "hs-manage-apps",
+        "hs-create-app",
+        "composio-white-label"
+      ],
+      "checks": [
+        "authorize-signin-first",
+        "install-limits"
+      ],
+      "unconfirmed": "We didn't run a full connection. Unverified: whether your own account can connect before Begin publishing or allowlisting.",
+      "problems": [
+        {
+          "q": "You don't have permission to connect this integration",
+          "a": [
+            "The HubSpot user lacks App Marketplace access or a permission your scopes need, often Edit property settings.",
+            "A Super Admin grants it, or connects as Super Admin."
+          ],
+          "sources": [
+            "hs-kb-connect-errors"
+          ]
+        },
+        {
+          "q": "This account doesn't have access to some HubSpot features",
+          "a": [
+            "The account's subscription lacks a tool behind one of your required scopes.",
+            "Move that scope to optionalScopes and optional_scopes, upload, and reconnect."
+          ],
+          "sources": [
+            "hs-kb-connect-errors",
+            "hs-app-config"
+          ]
+        },
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        },
+        {
+          "q": "A tool fails with a missing scope",
+          "a": [
+            "The scope was optional and the account didn't grant it, or it's not in your app.",
+            "Add it in app-hsmeta.json and the auth config, upload, then have the user reconnect."
+          ],
+          "sources": [
+            "composio-hubspot-toolkit",
+            "hs-oauth"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "hubspot-dev-forum"
+      ]
+    },
+    {
+      "id": "install-customers",
+      "title": "Let customers install it",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "instructions": [
+        "Marketplace app: any HubSpot account can connect, up to 25 installs. Developer test accounts don't count.",
+        "Private app: add each customer account under Distribution → Add approved account(s). Cap is 10.",
+        "Solutions Partners get 100 private installs, OAuth apps only.",
+        "Track installs on the Distribution tab. Past 25 marketplace installs you must be listed."
+      ],
+      "sources": [
+        "hs-manage-apps",
+        "hs-install-limits"
+      ],
+      "checks": [
+        "install-limits",
+        "solutions-partner-cap"
+      ],
+      "problems": [
+        {
+          "q": "A customer's account isn't in the allowlist picker",
+          "a": [
+            "The picker only lists accounts your HubSpot user can access.",
+            "Get user access to their account, or switch the app to marketplace distribution."
+          ],
+          "sources": [
+            "hs-manage-apps",
+            "hs-install-limits"
+          ]
+        },
+        {
+          "q": "Can HubSpot raise the 25-install cap before listing?",
+          "a": [
+            "HubSpot's changelog says listing approval removes the cap. It names no other way."
+          ],
+          "sources": [
+            "hs-install-limits"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "super-admin-approval",
+      "title": "Super Admin approves the app",
+      "who": "their-admin",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "optional": true,
+      "when": "When a non-admin user in a customer's HubSpot account hits Request approval.",
+      "instructions": [
+        "Non-admin users must request access to apps their account hasn't approved.",
+        "A Super Admin opens Settings → Integrations → Connected Apps → Approved apps → Approve apps.",
+        "They pick your app, choose who can install it, review data permissions, then Approve app.",
+        "The user then connects again from your product."
+      ],
+      "sources": [
+        "hs-kb-manage-access"
+      ],
+      "problems": [
+        {
+          "q": "The admin can't find the Approve apps button",
+          "a": [
+            "Only Super Admins can approve apps. Ask a Super Admin in that account."
+          ],
+          "sources": [
+            "hs-kb-manage-access"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "listing-prep",
+      "title": "Meet the listing requirements",
+      "who": "you",
+      "minutes": {
+        "min": 30,
+        "max": 90
+      },
+      "optional": true,
+      "when": "Only for more than 25 installs or a Marketplace listing. Marketplace distribution only.",
+      "instructions": [
+        "Get at least 3 active installs: unaffiliated production accounts with API activity in the last 30 days.",
+        "Use OAuth as the only auth method and use every scope you request.",
+        "Publish setup docs specific to this integration, plus live Terms of Service and Privacy Policy URLs.",
+        "Add at least one support contact, an install button URL, and pricing that matches your website.",
+        "Agree to the Technology Partner Program Agreement. Submit one app at a time."
+      ],
+      "warnings": [
+        {
+          "text": "Apps where an AI picks CRM actions must enforce user-level permissions. Standard OAuth tokens aren't enough.",
+          "sources": [
+            "hs-marketplace-restrictions",
+            "hs-listing-reqs"
+          ]
+        },
+        {
+          "text": "User-level access (isUserLevel: true) needs a new app on platform 2026.09. Existing account-level apps can't be migrated.",
+          "sources": [
+            "hs-user-level"
+          ]
+        }
+      ],
+      "sources": [
+        "hs-listing-reqs",
+        "hs-marketplace-restrictions",
+        "hs-user-level"
+      ],
+      "checks": [
+        "listing-requirements",
+        "ai-connector-rule"
+      ],
+      "unconfirmed": "We couldn't confirm Composio connections work with an isUserLevel app, or how HubSpot classifies a Composio-backed agent.",
+      "problems": [
+        {
+          "q": "My second app submission was rejected immediately",
+          "a": [
+            "HubSpot reviews one app at a time and auto-rejects apps submitted while another is in review."
+          ],
+          "sources": [
+            "hs-listing-reqs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "listing-drafts",
+      "title": "Draft setup docs and listing copy",
+      "who": "agent",
+      "minutes": {
+        "min": 5,
+        "max": 15
+      },
+      "optional": true,
+      "when": "Before you submit a Marketplace listing.",
+      "instructions": [
+        "Draft a public setup guide for this integration: install, connect, disconnect.",
+        "List the data you read and write so it matches your requested scopes.",
+        "Check every listing URL is live and public. HubSpot crawls them."
+      ],
+      "sources": [
+        "hs-listing-reqs"
+      ]
+    },
+    {
+      "id": "listing-review",
+      "title": "Wait for listing review",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "optional": true,
+      "when": "After you submit your Marketplace listing.",
+      "instructions": [
+        "HubSpot's Ecosystem Quality team reviews the listing by hand.",
+        "Answer feedback quickly. The whole process should end within 60 days of first feedback.",
+        "Once approved, HubSpot removes the 25-install cap automatically."
+      ],
+      "wait": {
+        "min": 1,
+        "max": 10,
+        "unit": "business_days",
+        "openEnded": true,
+        "asStated": "Initial review within 10 business days; whole review no more than 60 days from the time feedback is shared.",
+        "summary": "≤10 business days"
+      },
+      "sources": [
+        "hs-listing-reqs",
+        "hs-install-limits",
+        "hs-manage-apps"
+      ],
+      "checks": [
+        "listing-requirements"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "hs-quickstart",
+      "title": "HubSpot · Developer quickstart",
+      "url": "https://developers.hubspot.com/docs/getting-started/quickstart"
+    },
+    {
+      "id": "hs-pak",
+      "title": "HubSpot · CLI personal access keys",
+      "url": "https://developers.hubspot.com/docs/developer-tooling/local-development/hubspot-cli/personal-access-key"
+    },
+    {
+      "id": "hs-platform-basics",
+      "title": "HubSpot · Developer platform basics",
+      "url": "https://developers.hubspot.com/developer-platform-basics"
+    },
+    {
+      "id": "hs-legacy",
+      "title": "HubSpot · Legacy public apps",
+      "url": "https://developers.hubspot.com/docs/apps/legacy-apps/public-apps/overview"
+    },
+    {
+      "id": "hs-create-app",
+      "title": "HubSpot · Create an app",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/create-an-app"
+    },
+    {
+      "id": "hs-app-config",
+      "title": "HubSpot · App configuration",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/app-configuration"
+    },
+    {
+      "id": "hs-manage-apps",
+      "title": "HubSpot · Manage apps in HubSpot",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/manage-apps-in-hubspot"
+    },
+    {
+      "id": "hs-oauth",
+      "title": "HubSpot · Working with OAuth",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/oauth/working-with-oauth"
+    },
+    {
+      "id": "hs-scopes",
+      "title": "HubSpot · Scopes",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/scopes"
+    },
+    {
+      "id": "hs-user-level",
+      "title": "HubSpot · User-level apps",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/user-level-apps"
+    },
+    {
+      "id": "hs-install-limits",
+      "title": "HubSpot changelog · Install limits",
+      "url": "https://developers.hubspot.com/changelog/new-marketplace-distribution-app-install-limits"
+    },
+    {
+      "id": "hs-listing-reqs",
+      "title": "HubSpot · Marketplace listing requirements",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/list-apps/listing-your-app/app-marketplace-listing-requirements"
+    },
+    {
+      "id": "hs-marketplace-restrictions",
+      "title": "HubSpot · Marketplace restrictions",
+      "url": "https://developers.hubspot.com/docs/apps/developer-platform/list-apps/listing-your-app/marketplace-restrictions"
+    },
+    {
+      "id": "hs-kb-connect-errors",
+      "title": "HubSpot KB · Integration permission errors",
+      "url": "https://knowledge.hubspot.com/integrations/resolve-a-request-for-integration-permissions-error"
+    },
+    {
+      "id": "hs-kb-manage-access",
+      "title": "HubSpot KB · Manage access to apps",
+      "url": "https://knowledge.hubspot.com/integrations/manage-access-to-apps"
+    },
+    {
+      "id": "hs-community",
+      "title": "HubSpot · Developer community",
+      "url": "https://developers.hubspot.com/community"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-hubspot-auth",
+      "title": "Composio · HubSpot OAuth setup",
+      "url": "https://composio.dev/auth/hubspot"
+    },
+    {
+      "id": "composio-hubspot-toolkit",
+      "title": "Composio · HubSpot toolkit",
+      "url": "https://docs.composio.dev/toolkits/hubspot"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "hubspot-dev-forum",
+      "label": "HubSpot developer forum",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://community.hubspot.com/c/develop-build-integrate/58",
+      "when": "App, OAuth, or install errors the docs don't explain. Community managers can escalate to HubSpot engineers.",
+      "sources": [
+        "hs-community"
+      ],
+      "checks": [
+        "hubspot-dev-forum"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

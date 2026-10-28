@@ -1,0 +1,222 @@
+{
+  "guide": "gmail",
+  "ranAt": "2026-10-27T23:40:21.968Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio gmail toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/gmail (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "oidc-discovery",
+      "title": "Google OIDC discovery lists the OAuth endpoints",
+      "request": "GET https://accounts.google.com/.well-known/openid-configuration",
+      "expect": "issuer accounts.google.com, /o/oauth2/v2/auth, oauth2.googleapis.com/token",
+      "observed": "HTTP 200; issuer https://accounts.google.com; token https://oauth2.googleapis.com/token",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "gmail-api-scopes",
+      "title": "Gmail API exists and lists its scopes",
+      "request": "GET https://gmail.googleapis.com/$discovery/rest?version=v1",
+      "expect": "Discovery doc for gmail v1 with gmail.send, gmail.readonly, gmail.modify",
+      "observed": "HTTP 200; gmail v1; 14 scopes",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "scope-tiers",
+      "title": "Gmail scope tiers match the guide",
+      "request": "GET https://developers.google.com/workspace/gmail/api/auth/scopes",
+      "expect": "labels non-sensitive; send sensitive; readonly, modify, compose restricted",
+      "observed": "all six tiers as expected",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "authorize-unknown-client",
+      "title": "Unknown client ID fails with invalid_client",
+      "request": "GET https://accounts.google.com/o/oauth2/v2/auth?client_id=000000000000-fakefakefake.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.send",
+      "expect": "Redirect to /signin/oauth/error carrying invalid_client",
+      "observed": "authError: invalid_client",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "authorize-redirect-mismatch",
+      "title": "Unregistered redirect URI fails by name",
+      "request": "GET https://accounts.google.com/o/oauth2/v2/auth?client_id=32555940559.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&response_type=code&scope=openid",
+      "expect": "Redirect to /signin/oauth/error carrying redirect_uri_mismatch",
+      "observed": "authError: redirect_uri_mismatch",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Token endpoint rejects unknown clients by name",
+      "request": "POST https://oauth2.googleapis.com/token (fake client_id and secret)",
+      "expect": "error: invalid_client",
+      "observed": "HTTP 401; error: invalid_client",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "cloud-console",
+      "title": "Google Cloud console is reachable",
+      "request": "GET https://console.cloud.google.com/apis/credentials",
+      "expect": "Redirects to Google sign-in, keeping the console path",
+      "observed": "HTTP 302, sign-in with continue= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "verification-center",
+      "title": "Verification Center link from Google's docs resolves",
+      "request": "GET https://console.developers.google.com/auth/verification",
+      "expect": "Redirects to console.cloud.google.com/auth/verification",
+      "observed": "HTTP 302 → https://console.cloud.google.com/auth/verification",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "testing-refresh-7-days",
+      "title": "Testing-mode refresh tokens expire in 7 days",
+      "request": "GET https://developers.google.com/identity/protocols/oauth2",
+      "expect": "\"publishing status of \"Testing\" is issued a refresh token expiring in 7 days\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "test-user-cap",
+      "title": "Testing mode allows up to 100 test users",
+      "request": "GET https://support.google.com/cloud/answer/15549945?hl=en",
+      "expect": "\"limited to up to 100 test users\" + \"expire seven days from the time of consent\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "unverified-user-cap",
+      "title": "Unverified apps are capped at 100 new users",
+      "request": "GET https://support.google.com/cloud/answer/7454865?hl=en",
+      "expect": "\"100 new users in total\" + \"unverified app\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "client-secret-once",
+      "title": "Client secret is shown only at creation",
+      "request": "GET https://support.google.com/cloud/answer/15549257?hl=en",
+      "expect": "\"client secret will only be shown after you create the client\" + \"Add Secret\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "brand-review-time",
+      "title": "Brand verification timing as stated",
+      "request": "GET https://developers.google.com/identity/protocols/oauth2/production-readiness/brand-verification",
+      "expect": "\"typically takes a few minutes\" + \"usually takes 2-3 business days\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "sensitive-review-time",
+      "title": "Sensitive scope review timing as stated",
+      "request": "GET https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+      "expect": "\"typically takes 3-5 business days\" + \"Unlisted\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "restricted-review-time",
+      "title": "Restricted scope review timing as stated",
+      "request": "GET https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification",
+      "expect": "\"can potentially take several weeks\" + \"annual security assessment\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "faq-estimates",
+      "title": "Verification FAQ estimates and fee statement",
+      "request": "GET https://support.google.com/cloud/answer/13463817?hl=en",
+      "expect": "\"10 Business days\" + \"6 weeks\" + \"Google does not charge the developer any fees for security assessment\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "casa-page",
+      "title": "CASA framework page resolves",
+      "request": "GET https://appdefensealliance.dev/casa",
+      "expect": "\"Cloud Application Security Assessment\"",
+      "observed": "HTTP 200; all phrases present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "oauth-help-center",
+      "title": "OAuth App Verification Help Center resolves",
+      "request": "GET https://support.google.com/cloud/answer/13463073?hl=en",
+      "expect": "HTTP 200 with the help center title",
+      "observed": "HTTP 200, title present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    },
+    {
+      "id": "cloud-support-page",
+      "title": "Google Cloud support page resolves",
+      "request": "GET https://cloud.google.com/support",
+      "expect": "HTTP 200",
+      "observed": "HTTP 200",
+      "pass": true,
+      "ranAt": "2026-10-27T23:40:21.968Z"
+    }
+  ]
+}

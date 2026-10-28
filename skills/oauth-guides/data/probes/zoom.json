@@ -1,0 +1,159 @@
+{
+  "guide": "zoom",
+  "ranAt": "2026-10-27T23:41:44.523Z",
+  "results": [
+    {
+      "id": "composio-callback",
+      "title": "Composio callback URL is live",
+      "request": "GET https://backend.composio.dev/api/v3/toolkits/auth/callback",
+      "expect": "Responds (redirect), not 404",
+      "observed": "HTTP 302",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "composio-dashboard-login",
+      "title": "Composio sign-up is on the login page",
+      "request": "GET https://dashboard.composio.dev/login",
+      "expect": "Sign-in page with a sign-up link",
+      "observed": "sign-up link present",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "composio-api-keys-page",
+      "title": "API keys deep link exists",
+      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
+      "expect": "Login redirect that keeps the path",
+      "observed": "HTTP 307, next= kept",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "composio-toolkit-page",
+      "title": "Composio zoom toolkit deep link exists",
+      "request": "GET https://dashboard.composio.dev/toolkits/zoom (control: /toolkits)",
+      "expect": "Login redirect that keeps the path; control 404s",
+      "observed": "HTTP 307, next= kept; control HTTP 404",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "composio-discord",
+      "title": "Composio Discord invite resolves",
+      "request": "GET https://discord.gg/composio",
+      "expect": "Redirects to a Discord invite",
+      "observed": "HTTP 301",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "marketplace-up",
+      "title": "Zoom App Marketplace is reachable",
+      "request": "GET https://marketplace.zoom.us/",
+      "expect": "HTTP 200",
+      "observed": "HTTP 200",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "create-app-doc",
+      "title": "Build flow labels match the docs",
+      "request": "GET https://developers.zoom.us/docs/integrations/create.md",
+      "expect": "Build an app, General app, OAuth allow lists, Local Test, Add App Now",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "authorize-signin-first",
+      "title": "Authorize URL sends users to sign in first",
+      "request": "GET https://zoom.us/oauth/authorize?response_type=code&client_id=fakefakefake0000&redirect_uri=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback",
+      "expect": "302 to zoom.us/oauth/signin, even for an unknown client ID",
+      "observed": "HTTP 302 → https://zoom.us/oauth/signin",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "token-unknown-client",
+      "title": "Wrong client ID or secret is rejected",
+      "request": "POST https://zoom.us/oauth/token (Basic auth with fake client, fake code)",
+      "expect": "invalid_client: \"Invalid client_id or client_secret\"",
+      "observed": "HTTP 400; invalid_client: Invalid client_id or client_secret",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "token-lifetimes",
+      "title": "Access 1 hour, refresh 90 days",
+      "request": "GET https://developers.zoom.us/docs/integrations/oauth.md",
+      "expect": "Says access tokens expire after one hour and refresh tokens after 90 days",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "granular-scopes",
+      "title": "Starter granular scopes exist",
+      "request": "GET https://developers.zoom.us/docs/integrations/oauth-scopes-granular.md",
+      "expect": "Lists 7 starter scopes",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "classic-scopes-legacy",
+      "title": "Classic scopes are for existing apps",
+      "request": "GET https://developers.zoom.us/docs/integrations/oauth-scopes.md",
+      "expect": "Says existing apps keep the macro scopes, now called classic",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "beta-sharing-rules",
+      "title": "Beta sharing: approval, 4 weeks, caps",
+      "request": "GET https://developers.zoom.us/docs/distribute/sharing-private-and-beta-apps.md",
+      "expect": "Request to Share, 3-4 business days, 4 weeks, caps of 10 and 100",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "review-process",
+      "title": "Review includes OWASP security testing",
+      "request": "GET https://developers.zoom.us/docs/distribute/app-review-process.md",
+      "expect": "Technical Design, OWASP Top 10, private and beta apps skip review",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "submission-test-account",
+      "title": "Submission asks for reviewer test credentials",
+      "request": "GET https://developers.zoom.us/docs/distribute/app-submission/submit-apps-review.md",
+      "expect": "Test account section; first submissions use the Production Client ID",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "domain-verification",
+      "title": "OAuth redirect domain must be verified",
+      "request": "GET https://developers.zoom.us/docs/distribute/app-submission/verify-domains.md",
+      "expect": "Redirect URL for OAuth is checked; manual approval via devForum within 48 hours",
+      "observed": "HTTP 200; all phrases found",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    },
+    {
+      "id": "zoom-devforum",
+      "title": "Zoom devForum Marketplace category exists",
+      "request": "GET https://devforum.zoom.us/categories.json",
+      "expect": "Category marketplace with id 19",
+      "observed": "HTTP 200; marketplace id 19",
+      "pass": true,
+      "ranAt": "2026-10-27T23:41:44.523Z"
+    }
+  ]
+}

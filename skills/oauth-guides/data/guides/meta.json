@@ -1,0 +1,1249 @@
+{
+  "slug": "meta",
+  "name": "Meta",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Create a Meta app for Facebook Pages (and Instagram), pass App Review, and plug it into Composio.",
+  "appType": "Meta app (Pages use case)",
+  "composio": {
+    "toolkit": "facebook",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 110,
+      "max": 260
+    },
+    "approvalWait": {
+      "min": 0,
+      "max": 1,
+      "unit": "weeks",
+      "openEnded": true,
+      "asStated": "App Review: \"you should receive a decision within a week\". Meta's developer docs give no Business Verification timeline.",
+      "summary": "About a week, no SLA"
+    },
+    "review": "required",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "No fee for the app, App Review, or Business Verification in any Meta doc we read.",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create the Meta app",
+      "who": "you",
+      "minutes": {
+        "min": 5,
+        "max": 10
+      },
+      "instructions": [
+        "Register as a Meta developer if you haven't, then open the app creation page.",
+        "App details: enter the app name and a contact email. Click Next.",
+        "Use cases: select Manage everything on your Page. Click Next.",
+        "Business: pick your business portfolio, or Create a business portfolio.",
+        "Click Next through Requirements, then Go to dashboard on Overview."
+      ],
+      "fields": [
+        {
+          "label": "Use case",
+          "value": "Manage everything on your Page",
+          "hint": "Covers Pages via Facebook Login for Business",
+          "copy": false
+        },
+        {
+          "label": "App name",
+          "value": "Your product name",
+          "hint": "No \"Facebook\", \"FB\", \"Instagram\" or other Meta brands",
+          "copy": false
+        },
+        {
+          "label": "Business portfolio",
+          "value": "Your company's portfolio",
+          "hint": "Needed to access Pages you don't own. Can be added later.",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Use cases can't be removed once added. Incompatible use cases are greyed out.",
+          "sources": [
+            "meta-create-app"
+          ]
+        },
+        {
+          "text": "Don't add Authenticate and request data from users with Facebook Login. It's incompatible with the Pages use case.",
+          "sources": [
+            "meta-create-app"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Create App",
+          "url": "https://developers.facebook.com/apps/creation/"
+        }
+      ],
+      "sources": [
+        "meta-create-app",
+        "meta-pages-create-app",
+        "composio-facebook-auth"
+      ],
+      "unconfirmed": "Logged out, the app creation page returns Page Not Found, so we couldn't walk the signed-in flow ourselves.",
+      "problems": [
+        {
+          "q": "Meta won't let me create another app",
+          "a": [
+            "You can hold a developer or admin role on at most 15 apps not tied to a verified business.",
+            "Connect a verified business portfolio, delete unused apps (archived ones count), or leave old apps."
+          ],
+          "sources": [
+            "meta-create-app"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "permissions",
+      "title": "Pick the Page permissions",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "In Dashboard, open Customize the Manage everything on your Page use case.",
+        "business_management, pages_show_list and public_profile are required and can't be removed.",
+        "Click Add next to each extra permission your Composio tools need. Skip the rest.",
+        "pages_manage_engagement is added by default. Remove it if you won't moderate comments."
+      ],
+      "fields": [
+        {
+          "label": "Required (pre-added)",
+          "value": "business_management, pages_show_list, public_profile",
+          "copy": false
+        },
+        {
+          "label": "Common additions",
+          "value": "pages_read_engagement, pages_manage_posts",
+          "hint": "Read posts/comments and publish as the Page. Trim to your tools."
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Every permission needs its own review. Unneeded permissions are a common reason for rejection.",
+          "sources": [
+            "meta-permissions"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-pages-create-app",
+        "meta-create-app",
+        "meta-permissions",
+        "composio-facebook-toolkit"
+      ]
+    },
+    {
+      "id": "redirect-uri",
+      "title": "Add Composio's redirect URI",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "instructions": [
+        "In the left menu, open Facebook Login for Business → Settings.",
+        "Paste the URI below as a Redirect URI and click Check URI.",
+        "Under Client OAuth settings, keep Client OAuth login and Web OAuth login on.",
+        "Click Save changes.",
+        "Strict mode needs an exact match: no trailing slash, no extra query string."
+      ],
+      "fields": [
+        {
+          "label": "Valid OAuth Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match your Composio auth config exactly"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "App settings → Advanced has a Share Redirect allow list. That's for link shares, not OAuth. Use Facebook Login for Business → Settings.",
+          "sources": [
+            "meta-advanced-settings",
+            "meta-pages-create-app"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-pages-create-app",
+        "meta-login-security",
+        "meta-manual-flow"
+      ],
+      "checks": [
+        "composio-callback",
+        "token-unregistered-redirect",
+        "pages-usecase-doc"
+      ],
+      "problems": [
+        {
+          "q": "\"URL Blocked: This redirect failed because the redirect URI is not whitelisted\"",
+          "a": [
+            "The login dialog got a redirect URI that isn't in your Valid OAuth Redirect URIs list.",
+            "Paste Composio's URI exactly, keep Client and Web OAuth login on, and save."
+          ],
+          "sources": []
+        },
+        {
+          "q": "\"Can't load URL: The domain of this URL isn't included in the app's domains\"",
+          "a": [
+            "Meta returns this (error 191) when the redirect URI isn't registered on the app. We reproduced it live.",
+            "Add the URI in Facebook Login for Business → Settings. If it persists, add backend.composio.dev to App settings → Basic → App Domains."
+          ],
+          "sources": [
+            "meta-basic-settings",
+            "meta-login-security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the App ID and App Secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Open App settings → Basic.",
+        "Copy the App ID. Composio calls it Client ID.",
+        "Reveal the App Secret (Meta asks for your password) and copy it. Composio calls it Client Secret.",
+        "Store the secret in a secret manager, never in git or client code."
+      ],
+      "warnings": [
+        {
+          "text": "If Meta finds your secret leaked and you don't reset it, Meta resets it and revokes user grants.",
+          "sources": [
+            "meta-basic-settings"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-basic-settings",
+        "composio-facebook-auth"
+      ],
+      "checks": [
+        "token-wrong-secret",
+        "token-unknown-client"
+      ],
+      "problems": [
+        {
+          "q": "Meta says \"Error validating client secret\"",
+          "a": [
+            "The App Secret in Composio doesn't match the app. Copy it again from App settings → Basic.",
+            "If you reset the secret in Meta, update your Composio auth config too."
+          ],
+          "sources": [
+            "meta-basic-settings"
+          ]
+        },
+        {
+          "q": "Meta says \"Missing or invalid client id\"",
+          "a": [
+            "Composio sent an App ID Meta doesn't know. Copy the App ID from the dashboard toolbar or Basic settings.",
+            "Don't paste the Instagram App ID here. It belongs to the instagram toolkit."
+          ],
+          "sources": [
+            "meta-basic-settings",
+            "meta-ig-business-login"
+          ]
+        }
+      ],
+      "unconfirmed": "We couldn't see the signed-in Basic page. The reveal button and password prompt are from past dashboards."
+    },
+    {
+      "id": "basic-settings",
+      "title": "Fill in the settings Meta needs to go live",
+      "who": "you",
+      "minutes": {
+        "min": 10,
+        "max": 20
+      },
+      "instructions": [
+        "Open App settings → Basic and fill in every field below.",
+        "Upload an app icon: JPEG, GIF or PNG, 512–1024 px square, under 5 MB, no Meta logos.",
+        "Set App Purpose to Clients if people without a role on your app will connect.",
+        "Add Data Protection Officer contact details if you do business in the EU.",
+        "Click Save changes."
+      ],
+      "fields": [
+        {
+          "label": "Display Name",
+          "value": "Your product name",
+          "copy": false
+        },
+        {
+          "label": "Contact Email",
+          "value": "An inbox you watch",
+          "hint": "App Review results and alerts go here",
+          "copy": false
+        },
+        {
+          "label": "Privacy Policy URL",
+          "value": "https://your-product.com/privacy",
+          "hint": "Shown to users on the login dialog",
+          "copy": false
+        },
+        {
+          "label": "Terms of Service URL",
+          "value": "https://your-product.com/terms",
+          "copy": false
+        },
+        {
+          "label": "User Data Deletion",
+          "value": "https://your-product.com/privacy#delete-data",
+          "hint": "Instructions URL or a deletion callback",
+          "copy": false
+        },
+        {
+          "label": "Category",
+          "value": "Pick the closest match",
+          "copy": false
+        },
+        {
+          "label": "App Purpose",
+          "value": "Clients",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Changing Basic or Advanced settings after you submit for review may trigger a re-review.",
+          "sources": [
+            "meta-app-review-guide"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-basic-settings",
+        "meta-pages-create-app",
+        "meta-app-review-guide"
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Facebook toolkit in Composio and create an auth config.",
+        "Choose OAuth2 and turn on your own developer credentials.",
+        "Paste the App ID as Client ID and the App Secret as Client Secret.",
+        "Set scopes to exactly the permissions you added in the use case.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match Facebook Login for Business → Settings exactly"
+        },
+        {
+          "label": "Base URL",
+          "value": "https://graph.facebook.com",
+          "hint": "Usually pre-filled"
+        },
+        {
+          "label": "Starter scopes",
+          "value": "public_profile,pages_show_list,business_management,pages_read_engagement,pages_manage_posts",
+          "hint": "Trim to your use case's permissions"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Scopes not approved in App Review only work for people with a role on your app.",
+          "sources": [
+            "meta-app-review",
+            "meta-access-levels"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Facebook in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/facebook"
+        }
+      ],
+      "sources": [
+        "composio-facebook-auth",
+        "composio-custom-auth",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page",
+        "oidc-id-token-only"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "The link didn't open the Facebook toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Facebook, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { facebook: \"ac_your_facebook_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"facebook\": \"ac_your_facebook_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for facebook.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-dev-mode",
+      "title": "Test with people who have an app role",
+      "who": "you",
+      "minutes": {
+        "min": 10,
+        "max": 20
+      },
+      "instructions": [
+        "Until review, only people with a role on the app can grant permissions (Standard Access).",
+        "Add teammates under App roles → Roles as Developers or Testers.",
+        "If the app has a business portfolio, manage roles in Business Manager instead.",
+        "Connect a Page you admin through Composio. The login should show your app's name.",
+        "Call each permission you'll request at least once (Graph API v26.0). Review needs a logged call from the last 30 days."
+      ],
+      "warnings": [
+        {
+          "text": "Testers must be your employees or contracted to test for you. Most apps can have up to 50.",
+          "sources": [
+            "meta-app-roles"
+          ]
+        },
+        {
+          "text": "The facebook toolkit works with Pages only, not personal profiles.",
+          "sources": [
+            "composio-facebook-toolkit"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-access-levels",
+        "meta-app-roles",
+        "meta-app-review-guide",
+        "composio-white-label",
+        "meta-graph-changelog"
+      ],
+      "checks": [
+        "dialog-defers-check",
+        "dialog-malformed-app",
+        "graph-latest-version"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a signed-in Facebook account with an app role.",
+      "problems": [
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        },
+        {
+          "q": "Facebook shows an invalid App ID error page",
+          "a": [
+            "The App ID in Composio is malformed. Copy it again from App settings → Basic.",
+            "Logged out, Facebook only checks well-formed IDs after sign-in, so test while signed in."
+          ],
+          "sources": [
+            "meta-basic-settings"
+          ]
+        },
+        {
+          "q": "My list of Pages comes back empty",
+          "a": [
+            "The person must be able to perform a task on the Page, and grant pages_show_list.",
+            "Reconnect and select the Page in the Facebook dialog."
+          ],
+          "sources": [
+            "meta-pages-overview",
+            "composio-facebook-toolkit"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "meta-community"
+      ]
+    },
+    {
+      "id": "instagram",
+      "title": "Set up Instagram business login",
+      "who": "you",
+      "minutes": {
+        "min": 10,
+        "max": 20
+      },
+      "optional": true,
+      "when": "Only if you'll also use the instagram toolkit with your own Meta app.",
+      "instructions": [
+        "Composio's instagram toolkit uses Instagram Login (graph.instagram.com), not Facebook Login.",
+        "Create an app with use case Other, app type Business, then add the Instagram product.",
+        "Go to Instagram → API setup with Instagram login → 3. Set up Instagram business login.",
+        "Open Business login settings and add the URI below under OAuth Redirect URIs. Save.",
+        "Copy the Instagram App ID and Instagram App Secret shown there, not the Meta App ID.",
+        "Create an instagram auth config in Composio and add it to authConfigs.",
+        "Request the instagram_business_* permissions in the same review steps below."
+      ],
+      "fields": [
+        {
+          "label": "OAuth Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+        },
+        {
+          "label": "Starter scopes",
+          "value": "instagram_business_basic,instagram_business_content_publish,instagram_business_manage_comments",
+          "hint": "Trim to your tools"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "The dashboard may add a trailing slash to your URI. Check the saved list matches exactly.",
+          "sources": [
+            "meta-ig-business-login"
+          ]
+        },
+        {
+          "text": "Only Instagram Business or Creator accounts can connect. Personal accounts are rejected.",
+          "sources": [
+            "composio-instagram-toolkit"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Instagram in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/instagram"
+        }
+      ],
+      "sources": [
+        "meta-ig-create-app",
+        "meta-ig-business-login",
+        "composio-instagram-toolkit"
+      ],
+      "checks": [
+        "ig-token-unknown-client",
+        "composio-instagram-toolkit-page"
+      ],
+      "unconfirmed": "We didn't confirm whether the Instagram product can be added to the Pages use-case app, so we use a second app.",
+      "problems": [
+        {
+          "q": "Instagram says \"Invalid platform app\"",
+          "a": [
+            "The client ID isn't an Instagram App ID. We reproduced this with an unknown ID.",
+            "Use the Instagram App ID from Business login settings, not the Meta App ID."
+          ],
+          "sources": [
+            "meta-ig-business-login"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "meta-community"
+      ]
+    },
+    {
+      "id": "business-verification",
+      "title": "Become a Tech Provider and verify your business",
+      "who": "you",
+      "minutes": {
+        "min": 20,
+        "max": 45
+      },
+      "instructions": [
+        "In the dashboard, click Become a Tech Provider → Yes, I'm a Tech Provider.",
+        "Click Business verification, or open App settings → Basic → Verification → Start Verification.",
+        "Connect your business portfolio. If it's already verified, you're done.",
+        "Otherwise click Start Business Verification. It opens Business Manager.",
+        "Submit your legal business details and documents there.",
+        "Only an Admin of the business portfolio can complete verification."
+      ],
+      "warnings": [
+        {
+          "text": "Without a verified business, users outside your app's roles can't grant Advanced Access permissions.",
+          "sources": [
+            "meta-business-verification",
+            "meta-access-levels"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-pages-create-app",
+        "meta-business-verification",
+        "meta-release"
+      ],
+      "unconfirmed": "Meta's list of accepted documents is in a Business Help Center page we couldn't load.",
+      "problems": [
+        {
+          "q": "Business Verification is stuck or I can't start it",
+          "a": [
+            "Only a business portfolio Admin can complete it. Ask one to finish it in Business Manager.",
+            "For document or status questions, use Meta Business support below."
+          ],
+          "sources": [
+            "meta-business-verification",
+            "meta-support-doc"
+          ]
+        }
+      ],
+      "contacts": [
+        "meta-business-support",
+        "meta-developer-support"
+      ]
+    },
+    {
+      "id": "verification-wait",
+      "title": "Wait for Business Verification",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "instructions": [
+        "Status shows Pending, then Verified, under App settings → Basic → Verification.",
+        "Keep building and testing with role users meanwhile."
+      ],
+      "wait": {
+        "min": 0,
+        "max": 0,
+        "unit": "days",
+        "openEnded": true,
+        "asStated": "Meta's developer docs give no timeline. Status moves from Pending to Verified.",
+        "summary": "No published timeline"
+      },
+      "sources": [
+        "meta-basic-settings"
+      ],
+      "contacts": [
+        "meta-business-support"
+      ],
+      "unconfirmed": "Search snippets cite \"up to 14 business days\" from Meta's Business Help Center; we couldn't load that page to confirm."
+    },
+    {
+      "id": "review-drafts",
+      "title": "Draft the review text and screencast script",
+      "who": "agent",
+      "minutes": {
+        "min": 10,
+        "max": 20
+      },
+      "instructions": [
+        "For each permission, draft a usage description: how it helps users and how you use the data.",
+        "Write a separate description per permission. Meta rejects copy-paste.",
+        "Script one screencast per permission: Facebook login granting it, then the feature using it.",
+        "Follow each permission's Screencast Requirements in Meta's permissions reference.",
+        "Write reviewer instructions to reach your product, with test login for your product only."
+      ],
+      "warnings": [
+        {
+          "text": "Never give reviewers your personal Facebook credentials. Meta tests with its own accounts.",
+          "sources": [
+            "meta-app-review-guide"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-app-review-guide",
+        "meta-permissions"
+      ]
+    },
+    {
+      "id": "submit-review",
+      "title": "Record screencasts and submit App Review",
+      "who": "you",
+      "minutes": {
+        "min": 45,
+        "max": 120
+      },
+      "instructions": [
+        "Record in English UI at 1080p or better. Show the cursor. Audio isn't reviewed.",
+        "Go to Review → App Review and click Edit to start your submission.",
+        "Complete App Settings, then Provide reviewer instructions for each platform.",
+        "Answer the data handling questions if prompted.",
+        "Open each permission: paste its description, upload its screencast, tick allowed usage.",
+        "Click Submit for Review and accept the Platform Onboarding Terms."
+      ],
+      "warnings": [
+        {
+          "text": "Request advanced access stays grey until a successful call with that permission is logged (up to 2 days).",
+          "sources": [
+            "meta-app-review-guide"
+          ]
+        },
+        {
+          "text": "If reviewers can't reach your app, the whole submission is rejected.",
+          "sources": [
+            "meta-app-review"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-pages-create-app",
+        "meta-app-review-guide",
+        "meta-app-review-content"
+      ],
+      "problems": [
+        {
+          "q": "App Review rejected one or more permissions",
+          "a": [
+            "Read the reason in the dashboard Alerts or your contact email.",
+            "Usually the screencast didn't show the permission in use, or the description was generic.",
+            "Fix that permission's description or screencast, then resubmit."
+          ],
+          "sources": [
+            "meta-app-review",
+            "meta-app-review-guide"
+          ]
+        },
+        {
+          "q": "The Request advanced access button is greyed out",
+          "a": [
+            "Make one successful API call with that permission, from your app or Graph API Explorer.",
+            "Wait up to 2 days for it to be logged. It must be within 30 days of submitting."
+          ],
+          "sources": [
+            "meta-app-review-guide"
+          ]
+        }
+      ],
+      "contacts": [
+        "meta-developer-support",
+        "meta-community"
+      ]
+    },
+    {
+      "id": "review-wait",
+      "title": "Wait for App Review",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "instructions": [
+        "Meta queues your submission and tests your app with its own accounts.",
+        "The decision arrives by email and in the dashboard Alerts."
+      ],
+      "wait": {
+        "min": 0,
+        "max": 1,
+        "unit": "weeks",
+        "openEnded": true,
+        "asStated": "\"You should receive a decision within a week.\" Not a guarantee; resubmissions restart the clock.",
+        "summary": "About a week"
+      },
+      "sources": [
+        "meta-app-review-guide"
+      ],
+      "checks": [
+        "app-review-decision-wording"
+      ],
+      "unconfirmed": "\"Resubmissions restart the clock\" is our reading. Meta doesn't state resubmission timing.",
+      "contacts": [
+        "meta-developer-support"
+      ]
+    },
+    {
+      "id": "go-live",
+      "title": "Publish the app",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "instructions": [
+        "Only publish after App Review approves every permission you need.",
+        "Select Publish in the left menu, review your use cases and requirements, then click Publish.",
+        "Reconnect your test Page through Composio with an account that has no app role."
+      ],
+      "warnings": [
+        {
+          "text": "Test posts made in Development mode become visible to everyone once you publish.",
+          "sources": [
+            "meta-app-modes"
+          ]
+        },
+        {
+          "text": "Facebook Login for Business apps need Advanced Access to public_profile before going live.",
+          "sources": [
+            "meta-flfb"
+          ]
+        },
+        {
+          "text": "User tokens last about 60 days at most, and data access expires after 90 days of inactivity. Users must then reconnect.",
+          "sources": [
+            "meta-long-lived-tokens",
+            "meta-auth-vs-data"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-pages-create-app",
+        "meta-release",
+        "meta-app-modes",
+        "meta-long-lived-tokens",
+        "meta-auth-vs-data"
+      ],
+      "problems": [
+        {
+          "q": "\"Feature Unavailable: Facebook Login is currently unavailable for this app\"",
+          "a": [
+            "Usually a permission the login asks for lacks Advanced Access. Facebook Login for Business needs it for public_profile.",
+            "Check App Review → Permissions and Features and request or restore Advanced Access.",
+            "If it persists, ask Meta Developer Support or file a bug report."
+          ],
+          "sources": [
+            "meta-flfb",
+            "meta-forum-feature-unavailable",
+            "meta-access-levels"
+          ]
+        },
+        {
+          "q": "Users without an app role can't connect after publishing",
+          "a": [
+            "They can only grant permissions approved for Advanced Access, from a verified business.",
+            "Remove unapproved scopes from your Composio auth config, or get them approved."
+          ],
+          "sources": [
+            "meta-access-levels",
+            "meta-business-verification"
+          ]
+        }
+      ],
+      "contacts": [
+        "meta-developer-support",
+        "meta-bug-report"
+      ]
+    },
+    {
+      "id": "page-access",
+      "title": "Get Page access for your user",
+      "who": "their-admin",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "optional": true,
+      "when": "Only if the person connecting can't perform tasks on the Page they want to use.",
+      "instructions": [
+        "Your user can only grant Pages they own or can perform a task on.",
+        "A Page or business portfolio admin gives them a task, such as Create content or Moderate.",
+        "Your user then reconnects and selects that Page."
+      ],
+      "sources": [
+        "meta-pages-overview"
+      ],
+      "unconfirmed": "We didn't verify the current Meta Business Suite menu path for assigning Page tasks."
+    },
+    {
+      "id": "data-use-checkup",
+      "title": "Complete the annual Data Use Checkup",
+      "who": "you",
+      "minutes": {
+        "min": 15,
+        "max": 30
+      },
+      "optional": true,
+      "when": "Once a year after going live. Meta sends the deadline by email and Alerts.",
+      "instructions": [
+        "An app admin opens the checkup from the dashboard banner or Alerts.",
+        "Review your approved permissions, features and products.",
+        "Certify allowed usage and policy compliance, and answer the data handling questions.",
+        "Add testing instructions for your app, then submit."
+      ],
+      "warnings": [
+        {
+          "text": "Miss the deadline and Meta deactivates the app until you finish. No extensions.",
+          "sources": [
+            "meta-duc-faq"
+          ]
+        }
+      ],
+      "sources": [
+        "meta-data-use-checkup",
+        "meta-duc-faq"
+      ],
+      "problems": [
+        {
+          "q": "Meta asked me to change my data handling answers",
+          "a": [
+            "You have 20 calendar days to resubmit. The app stays live meanwhile.",
+            "After every third submission you must wait three days before resubmitting."
+          ],
+          "sources": [
+            "meta-duc-faq"
+          ]
+        }
+      ],
+      "contacts": [
+        "meta-developer-support"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "meta-create-app",
+      "title": "Meta · Create an app",
+      "url": "https://developers.facebook.com/documentation/development/create-an-app"
+    },
+    {
+      "id": "meta-pages-create-app",
+      "title": "Meta · Create an app for the Pages API",
+      "url": "https://developers.facebook.com/documentation/pages-api/create-an-app"
+    },
+    {
+      "id": "meta-pages-overview",
+      "title": "Meta · Pages API overview",
+      "url": "https://developers.facebook.com/documentation/pages-api/overview"
+    },
+    {
+      "id": "meta-basic-settings",
+      "title": "Meta · Basic settings",
+      "url": "https://developers.facebook.com/documentation/development/create-an-app/app-dashboard/basic-settings"
+    },
+    {
+      "id": "meta-advanced-settings",
+      "title": "Meta · Advanced settings",
+      "url": "https://developers.facebook.com/documentation/development/create-an-app/app-dashboard/advanced-settings"
+    },
+    {
+      "id": "meta-login-security",
+      "title": "Meta · Login security",
+      "url": "https://developers.facebook.com/documentation/facebook-login/security"
+    },
+    {
+      "id": "meta-manual-flow",
+      "title": "Meta · Manually build a login flow",
+      "url": "https://developers.facebook.com/documentation/facebook-login/guides/advanced/manual-flow"
+    },
+    {
+      "id": "meta-long-lived-tokens",
+      "title": "Meta · Long-lived access tokens",
+      "url": "https://developers.facebook.com/documentation/facebook-login/guides/access-tokens/get-long-lived"
+    },
+    {
+      "id": "meta-auth-vs-data",
+      "title": "Meta · Data access expiration",
+      "url": "https://developers.facebook.com/documentation/facebook-login/auth-vs-data"
+    },
+    {
+      "id": "meta-flfb",
+      "title": "Meta · Facebook Login for Business",
+      "url": "https://developers.facebook.com/documentation/facebook-login/facebook-login-for-business"
+    },
+    {
+      "id": "meta-access-levels",
+      "title": "Meta · Access levels",
+      "url": "https://developers.facebook.com/docs/graph-api/overview/access-levels"
+    },
+    {
+      "id": "meta-app-modes",
+      "title": "Meta · App modes",
+      "url": "https://developers.facebook.com/documentation/development/build-and-test/app-modes"
+    },
+    {
+      "id": "meta-app-roles",
+      "title": "Meta · App roles",
+      "url": "https://developers.facebook.com/documentation/development/build-and-test/app-roles"
+    },
+    {
+      "id": "meta-business-verification",
+      "title": "Meta · Business Verification",
+      "url": "https://developers.facebook.com/documentation/development/release/business-verification"
+    },
+    {
+      "id": "meta-release",
+      "title": "Meta · Publish your app",
+      "url": "https://developers.facebook.com/documentation/development/release"
+    },
+    {
+      "id": "meta-app-review",
+      "title": "Meta · App Review",
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/individual-processes/app-review"
+    },
+    {
+      "id": "meta-app-review-content",
+      "title": "Meta · Complete your App Review submission",
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/individual-processes/app-review/content"
+    },
+    {
+      "id": "meta-app-review-guide",
+      "title": "Meta · App Review submission walkthrough",
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/individual-processes/app-review/submission-guide"
+    },
+    {
+      "id": "meta-permissions",
+      "title": "Meta · Permissions reference",
+      "url": "https://developers.facebook.com/documentation/development/permissions"
+    },
+    {
+      "id": "meta-data-use-checkup",
+      "title": "Meta · Data Use Checkup",
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/individual-processes/data-use-checkup"
+    },
+    {
+      "id": "meta-duc-faq",
+      "title": "Meta · Data Use Checkup FAQ",
+      "url": "https://developers.facebook.com/documentation/resp-plat-initiatives/individual-processes/data-use-checkup/faq"
+    },
+    {
+      "id": "meta-support-doc",
+      "title": "Meta · App development support",
+      "url": "https://developers.facebook.com/documentation/development/support"
+    },
+    {
+      "id": "meta-graph-changelog",
+      "title": "Meta · Graph API changelog",
+      "url": "https://developers.facebook.com/docs/graph-api/changelog"
+    },
+    {
+      "id": "meta-ig-create-app",
+      "title": "Meta · Create an Instagram app",
+      "url": "https://developers.facebook.com/documentation/instagram-platform/create-an-instagram-app"
+    },
+    {
+      "id": "meta-ig-business-login",
+      "title": "Meta · Business Login for Instagram",
+      "url": "https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/business-login"
+    },
+    {
+      "id": "meta-forum-feature-unavailable",
+      "title": "Meta forum · Login fails with Feature Unavailable",
+      "url": "https://developers.facebook.com/community/threads/439628268489919/"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-facebook-auth",
+      "title": "Composio · Meta (Facebook) OAuth setup",
+      "url": "https://composio.dev/auth/facebook"
+    },
+    {
+      "id": "composio-facebook-toolkit",
+      "title": "Composio · Facebook toolkit",
+      "url": "https://docs.composio.dev/toolkits/facebook"
+    },
+    {
+      "id": "composio-instagram-toolkit",
+      "title": "Composio · Instagram toolkit",
+      "url": "https://docs.composio.dev/toolkits/instagram"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "meta-developer-support",
+      "label": "Meta Developer Support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://developers.facebook.com/support/",
+      "when": "App Review, data handling, or Data Use Checkup questions. Use Get Help → Ask a question. Replies within 2 business days.",
+      "sources": [
+        "meta-support-doc"
+      ],
+      "checks": [
+        "meta-support-page"
+      ]
+    },
+    {
+      "id": "meta-bug-report",
+      "label": "Meta bug reporting tool",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://developers.facebook.com/support/bugs/",
+      "when": "Login or API behaviour that contradicts Meta's docs even with correct settings.",
+      "sources": [
+        "meta-support-doc"
+      ],
+      "checks": [
+        "meta-bug-tool"
+      ]
+    },
+    {
+      "id": "meta-business-support",
+      "label": "Meta Business support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://business.facebook.com/direct-support/",
+      "when": "Business Verification, business portfolio, or payment issues. Needs a Business login.",
+      "sources": [
+        "meta-support-doc"
+      ],
+      "checks": [
+        "meta-business-direct-support"
+      ]
+    },
+    {
+      "id": "meta-community",
+      "label": "Meta Developer Community Forum",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://developers.facebook.com/community/",
+      "when": "Ask other developers about dashboard changes, review rejections, or odd login errors.",
+      "checks": [
+        "meta-community-forum"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,690 @@
+{
+  "slug": "linear",
+  "name": "Linear",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Create a public Linear OAuth app and plug it into Composio. No review, live in minutes.",
+  "appType": "OAuth2 application",
+  "composio": {
+    "toolkit": "linear",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 10,
+      "max": 20
+    },
+    "approvalWait": null,
+    "review": "optional",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Free. Linear: \"It does not cost anything to develop agents in Linear.\"",
+      "summary": "Free"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "choose-workspace",
+      "title": "Choose the workspace that owns the app",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 3
+      },
+      "instructions": [
+        "Linear recommends a separate workspace just for the app. Every admin there can manage it.",
+        "You must be a workspace admin. On the Free plan every member is an admin.",
+        "Not an admin? Find one with Cmd/Ctrl K → View workspace admins, or create a new workspace."
+      ],
+      "sources": [
+        "linear-oauth",
+        "linear-api-webhooks",
+        "linear-roles"
+      ],
+      "checks": [
+        "admin-page-doc"
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create a public OAuth app",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 5
+      },
+      "instructions": [
+        "Open the pre-filled link below. Or: Settings → Administration → API → create a new OAuth application.",
+        "Fill in the values below. Your app name and icon are what users see on the consent screen.",
+        "Turn Public on. Apps are private by default and only install in your own workspace.",
+        "Leave client credentials off. Composio uses the normal user sign-in flow.",
+        "Save the app."
+      ],
+      "fields": [
+        {
+          "label": "Application name",
+          "value": "Your product name",
+          "hint": "2–80 characters. Can't contain \"Linear\" or a URL",
+          "copy": false
+        },
+        {
+          "label": "Developer name",
+          "value": "Your company name",
+          "copy": false
+        },
+        {
+          "label": "Developer URL",
+          "value": "https://your-product.com",
+          "copy": false
+        },
+        {
+          "label": "Callback URL",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match your Composio auth config exactly"
+        },
+        {
+          "label": "Public",
+          "value": "On",
+          "hint": "Lets other workspaces install the app",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Linear's agent docs say to submit to the directory to reach other workspaces. For a user-actor app, Public is enough.",
+          "sources": [
+            "linear-agents",
+            "linear-manifests"
+          ],
+          "unconfirmed": "We didn't install a public app from a second workspace to prove no directory listing is needed."
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open pre-filled form",
+          "url": "https://linear.app/settings/api/applications/new?distribution=public&oauth.redirect_uris=https%3A%2F%2Fbackend.composio.dev%2Fapi%2Fv3%2Ftoolkits%2Fauth%2Fcallback&oauth.grant_types=authorization_code"
+        }
+      ],
+      "sources": [
+        "linear-oauth",
+        "linear-manifests",
+        "linear-api-webhooks"
+      ],
+      "checks": [
+        "public-distribution-doc",
+        "composio-callback"
+      ],
+      "unconfirmed": "Field labels come from Linear's manifest docs. We couldn't open the form or check the pre-fill without signing in.",
+      "problems": [
+        {
+          "q": "I can't see the API page in Settings",
+          "a": [
+            "Settings → Administration → API needs workspace admin permissions.",
+            "Ask an admin to make you one, or create the app in a workspace you own."
+          ],
+          "sources": [
+            "linear-api-webhooks"
+          ]
+        },
+        {
+          "q": "Users in other workspaces can't install the app",
+          "a": [
+            "The app is still private, Linear's default.",
+            "Open the app's settings and turn Public on."
+          ],
+          "sources": [
+            "linear-manifests"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the client ID and secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 1
+      },
+      "instructions": [
+        "On the app's page, copy the Client ID and Client secret.",
+        "Store the secret in a secret manager, never in git.",
+        "Leaked? Use Rotate secret next to the client secret. Existing user tokens keep working."
+      ],
+      "sources": [
+        "linear-oauth"
+      ],
+      "checks": [
+        "token-unknown-client"
+      ],
+      "problems": [
+        {
+          "q": "Connecting fails with invalid_client",
+          "a": [
+            "Linear didn't accept the Client ID and secret Composio sent.",
+            "Copy both again from the app page, or rotate the secret, then update your Composio auth config."
+          ],
+          "sources": [
+            "linear-oauth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "choose-scopes",
+      "title": "Choose scopes",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Linear scopes aren't set on the app. You list them in the Composio auth config next.",
+        "read is always included. Add write to update issues, projects and more.",
+        "Only create things? Use issues:create and comments:create instead of write.",
+        "Skip admin unless a tool truly needs it. Linear says never to ask for it otherwise."
+      ],
+      "fields": [
+        {
+          "label": "Starter scopes",
+          "value": "read,write,issues:create,comments:create",
+          "hint": "Linear's list is comma-separated"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Composio's Linear setup adds admin by default. Remove it unless you need admin endpoints.",
+          "sources": [
+            "composio-linear-auth",
+            "linear-oauth"
+          ]
+        },
+        {
+          "text": "Linear also offers actor=app, which acts as the app instead of the user. It needs an admin to install and bars the admin scope.",
+          "sources": [
+            "linear-actor",
+            "linear-agents"
+          ],
+          "unconfirmed": "We couldn't confirm a Composio setting for actor=app. Connections act as the signed-in user by default."
+        }
+      ],
+      "sources": [
+        "linear-oauth",
+        "composio-linear-auth"
+      ],
+      "checks": [
+        "oauth-metadata"
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Linear toolkit in Composio and create an auth config.",
+        "Use the values below, then paste your Client ID and Client secret.",
+        "Set the Redirect URI explicitly. Some toolkit defaults still use an older callback.",
+        "Replace the default scopes with your list. Remove admin unless you need it.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the Callback URL in Linear exactly"
+        },
+        {
+          "label": "Scopes",
+          "value": "read,write,issues:create,comments:create",
+          "hint": "Same list as the previous step"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Composio's Linear guide still shows the old callback /api/v1/auth-apps/add. Use the v3 URL in both places.",
+          "sources": [
+            "composio-linear-auth",
+            "composio-custom-auth"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Linear in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/linear"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-linear-auth",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "Connecting fails with a redirect URI mismatch",
+          "a": [
+            "The auth config's Redirect URI doesn't match the Callback URL on your Linear app.",
+            "Set both to the v3 Composio callback exactly. The old v1 default won't match."
+          ],
+          "sources": [
+            "composio-custom-auth"
+          ]
+        },
+        {
+          "q": "The link didn't open the Linear toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Linear, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { linear: \"ac_your_linear_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"linear\": \"ac_your_linear_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for linear.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "instructions": [
+        "Start a connection for a test user and open the link.",
+        "The consent screen should show your app name, not Composio.",
+        "Try a user from a second workspace too. That proves Public is on.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "warnings": [
+        {
+          "text": "Since April 1, 2026 every Linear app gets 24-hour access tokens plus a refresh token. Each refresh returns a new refresh token.",
+          "sources": [
+            "linear-oauth"
+          ],
+          "unconfirmed": "Composio says it refreshes OAuth tokens. We didn't test a Linear refresh end to end."
+        }
+      ],
+      "sources": [
+        "composio-white-label",
+        "linear-oauth",
+        "linear-security-access"
+      ],
+      "checks": [
+        "token-lifetime-doc",
+        "refresh-unknown-client"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Linear sign-in.",
+      "problems": [
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        },
+        {
+          "q": "A tool fails with a permissions error",
+          "a": [
+            "The token lacks a scope that tool needs, e.g. write to update issues.",
+            "Add the scope in your Composio auth config, then have the user reconnect."
+          ],
+          "sources": [
+            "linear-oauth"
+          ]
+        },
+        {
+          "q": "A connection stopped working after the user revoked it",
+          "a": [
+            "Users can remove apps under Settings → Account → Security & Access → Authorized applications.",
+            "Have them connect again."
+          ],
+          "sources": [
+            "linear-security-access"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "linear-support"
+      ]
+    },
+    {
+      "id": "app-approval",
+      "title": "Get approved in your user's workspace",
+      "who": "their-admin",
+      "minutes": {
+        "min": 1,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Only if a user's paid Linear workspace requires approval for third-party apps.",
+      "instructions": [
+        "The user tries to connect. Linear shows a screen to request approval, with an optional reason.",
+        "Their workspace admin (owner on Enterprise) gets an email and in-app notification.",
+        "The admin approves it from the link, or in Settings → Applications.",
+        "The user gets notified, then connects again."
+      ],
+      "sources": [
+        "linear-app-approvals",
+        "linear-roles"
+      ],
+      "unconfirmed": "We had no paid workspace with approvals on, so we didn't see the request screen during a Composio connection.",
+      "problems": [
+        {
+          "q": "The user was told the app was denied",
+          "a": [
+            "An admin denied it earlier. Linear shows the reason they gave.",
+            "Address the reason with their admin, who can approve it in Settings → Applications."
+          ],
+          "sources": [
+            "linear-app-approvals"
+          ]
+        }
+      ],
+      "contacts": [
+        "linear-support"
+      ]
+    },
+    {
+      "id": "directory-listing",
+      "title": "List in the Integration Directory",
+      "who": "you",
+      "minutes": {
+        "min": 20,
+        "max": 45
+      },
+      "optional": true,
+      "when": "Only if you want Linear users to find you in the directory. Not needed for OAuth to work.",
+      "instructions": [
+        "Fill out Linear's submission form. It includes a sample page for copy style and length.",
+        "Send assets to integrations@linear.app or link them in the form.",
+        "Color and white icons 320×320, plus 1–3 showcase images 1600×1000.",
+        "Linear accepts integrations from formal companies. Hobby or low-effort apps are usually declined.",
+        "Linear states no review timeline."
+      ],
+      "fields": [
+        {
+          "label": "Directory email",
+          "value": "integrations@linear.app"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open submission guide",
+          "url": "https://linear.app/developers/integration-directory"
+        }
+      ],
+      "sources": [
+        "linear-directory"
+      ],
+      "checks": [
+        "directory-contact-doc"
+      ],
+      "contacts": [
+        "linear-integrations"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "linear-oauth",
+      "title": "Linear · OAuth 2.0 authentication",
+      "url": "https://linear.app/developers/oauth-2-0-authentication"
+    },
+    {
+      "id": "linear-actor",
+      "title": "Linear · OAuth actor authorization",
+      "url": "https://linear.app/developers/oauth-actor-authorization"
+    },
+    {
+      "id": "linear-manifests",
+      "title": "Linear · OAuth application manifests",
+      "url": "https://linear.app/developers/oauth-app-manifests"
+    },
+    {
+      "id": "linear-agents",
+      "title": "Linear · Agents getting started",
+      "url": "https://linear.app/developers/agents"
+    },
+    {
+      "id": "linear-directory",
+      "title": "Linear · Integration Directory",
+      "url": "https://linear.app/developers/integration-directory"
+    },
+    {
+      "id": "linear-api-webhooks",
+      "title": "Linear Docs · API and Webhooks",
+      "url": "https://linear.app/docs/api-and-webhooks"
+    },
+    {
+      "id": "linear-roles",
+      "title": "Linear Docs · Members and roles",
+      "url": "https://linear.app/docs/members-roles"
+    },
+    {
+      "id": "linear-app-approvals",
+      "title": "Linear Docs · Third-party app approvals",
+      "url": "https://linear.app/docs/third-party-application-approvals"
+    },
+    {
+      "id": "linear-security-access",
+      "title": "Linear Docs · Security & Access",
+      "url": "https://linear.app/docs/security-and-access"
+    },
+    {
+      "id": "linear-get-app",
+      "title": "Linear Docs · Download Linear",
+      "url": "https://linear.app/docs/get-the-app"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-linear-auth",
+      "title": "Composio · Linear OAuth setup",
+      "url": "https://composio.dev/auth/linear"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "linear-support",
+      "label": "Linear support",
+      "org": "provider",
+      "kind": "email",
+      "target": "support@linear.app",
+      "when": "Account, workspace, or OAuth app problems the docs don't explain.",
+      "sources": [
+        "linear-get-app"
+      ],
+      "checks": [
+        "linear-support-page"
+      ]
+    },
+    {
+      "id": "linear-slack-api",
+      "label": "Linear Slack · #api",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://linear.app/join-slack",
+      "when": "API and OAuth questions the docs don't answer. Post in the #api channel.",
+      "sources": [
+        "linear-api-webhooks",
+        "linear-directory"
+      ],
+      "checks": [
+        "linear-slack"
+      ]
+    },
+    {
+      "id": "linear-integrations",
+      "label": "Linear integrations team",
+      "org": "provider",
+      "kind": "email",
+      "target": "integrations@linear.app",
+      "when": "Integration Directory submissions, listing changes, or delisting.",
+      "sources": [
+        "linear-directory"
+      ],
+      "checks": [
+        "directory-contact-doc"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}

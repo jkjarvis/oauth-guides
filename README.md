@@ -10,6 +10,17 @@ It tracks your progress in the browser. For apps outside the library, an agent r
 
 **Live:** https://composio-fawn.vercel.app · **Generate a guide:** https://composio-fawn.vercel.app/new
 
+**Use it in your coding agent:** click **Use in your agent** on the home page, or:
+
+```bash
+# Claude Code
+mkdir -p ~/.claude/skills && curl -fsSL https://composio-fawn.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.claude/skills
+# Codex
+mkdir -p ~/.agents/skills && curl -fsSL https://composio-fawn.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.agents/skills
+```
+
+Then ask "Set up my own Slack OAuth app for Composio".
+
 **Library (11):** [GitHub](https://composio-fawn.vercel.app/github) · [Slack](https://composio-fawn.vercel.app/slack) · [Gmail](https://composio-fawn.vercel.app/gmail) · [Microsoft Outlook](https://composio-fawn.vercel.app/outlook) · [Meta](https://composio-fawn.vercel.app/meta) · [Notion](https://composio-fawn.vercel.app/notion) · [Linear](https://composio-fawn.vercel.app/linear) · [Jira](https://composio-fawn.vercel.app/jira) · [Dropbox](https://composio-fawn.vercel.app/dropbox) · [HubSpot](https://composio-fawn.vercel.app/hubspot) · [Zoom](https://composio-fawn.vercel.app/zoom)
 
 They were picked to cover different setup shapes:
@@ -30,6 +41,7 @@ npm run probe                     # re-run credential-free live checks (or: npm 
 npm run validate                  # schema + every cited live check exists and passed
 npm run build                     # also fails on an invalid guide
 npm run research -- "Pipedrive"   # run the research agent from the terminal (needs ANTHROPIC_API_KEY in .env.local)
+npm run skill                     # bundle guides into skills/oauth-guides and public/skills/oauth-guides.tar.gz (runs before dev and build)
 ```
 
 The library needs no credentials. The research agent needs `ANTHROPIC_API_KEY` (set in Vercel for production).
@@ -45,6 +57,8 @@ src/components/guide/          step nav + step view, help panel, Client ID check
 src/lib/research/              research agent: prompt, tools, probes, validation loop
 src/app/api/research           streams research progress (NDJSON)
 src/app/new · src/app/g        generate a guide · open a shared generated guide
+skills/oauth-guides/           the agent skill: SKILL.md, scripts/oauth.mjs, research reference, bundled guide data
+scripts/build-skill.mts        syncs guides + JSON schema into the skill and builds the install tarball
 ```
 
 **The guide experience**
@@ -80,6 +94,19 @@ src/app/new · src/app/g        generate a guide · open a shared generated guid
 - **Sharing needs no storage.** The finished guide is compressed into the link's `#fragment` (about 7 KB for a 9-step guide) and the address bar switches to it, so a refresh, bookmark or copied link keeps the guide. The schema allows only https links, because a shared link carries untrusted data.
 - **Limits:** a best-effort cap on concurrent runs and runs per IP, since each run costs money.
 
+**The agent skill** (`skills/oauth-guides`)
+- **Same guides, in the terminal.** One skill holds every library guide. The agent shows the board and one step at a time, does the `agent` steps itself (adapting the snippet into the project), and waits for the developer to confirm their own steps.
+- **One bundled script, no CLI to install.** `scripts/oauth.mjs` (Node 18+, no dependencies) renders the board, steps and help, and records progress. The agent runs it and shows its output verbatim, so every agent shows the same UI.
+- **Progress is saved in the project.** It lives in `.oauth-guides/progress.json`, keyed by step ID. Statuses are done, skipped, blocked (with a reason) and waiting (a review clock started, shown against the provider's stated wait). The folder git-ignores itself.
+- **New providers.** The agent researches them with its own web tools, following `references/research.md` (the same method and rules as the web agent). The script runs the live checks and decides pass or fail. `validate` applies the site's schema (generated from zod) and its cross-checks, and the guide must only cite checks that passed. Guides generated on the web can be imported from their share link (`import <link>`).
+- **Installed with one command per agent:**
+  - Claude Code loads skills from `~/.claude/skills`; Codex from `~/.agents/skills`.
+  - The tarball is rebuilt from `src/data` on every deploy.
+  - Since the repo is private, there's no plugin or `npx skills` install.
+- **Tested:**
+  - All 142 steps render through `step` and `help`, and all 11 guides pass the skill's validator, matching the site.
+  - Claude Code ran headless with the installed skill. It picked the skill from a plain request, showed the board and step verbatim, recorded progress across turns, and asked only for the public Client ID.
+
 ## Key decisions
 
 | Decision | Why |
@@ -91,6 +118,8 @@ src/app/new · src/app/g        generate a guide · open a shared generated guid
 | Claude API directly, not an agent framework | Server-side search and fetch plus three small tools are enough; one route streams progress and fits in a Vercel function. |
 | Server decides probe results and checks citations | The model can't mark its own checks as passing or cite pages it didn't read. |
 | Share via URL fragment | Shareable links without a database, and the fragment never reaches a server. |
+| Skill + bundled script, not a CLI | Developers already work in Claude Code or Codex. A skill needs no install beyond extracting a folder, and the script keeps the output and progress the same across agents. |
+| Skill progress in the project folder | Codex's sandbox only writes inside the workspace, and the progress belongs to the project being set up. It's git-ignored by default. |
 
 ## How the guides were researched and checked
 
@@ -135,6 +164,7 @@ src/app/new · src/app/g        generate a guide · open a shared generated guid
 
 ## Limitations
 
-- Progress is stored per browser; it isn't shared across devices or teammates.
+- Progress on the site is stored per browser, and skill progress per project folder. The two don't sync.
+- The skill was tested in Claude Code. Codex wasn't installed here, so the Codex path (`~/.agents/skills`, from OpenAI's docs) is untested.
 - The research agent must finish within Vercel's 300-second function limit. Very large providers may get a thinner guide with more "Not confirmed" notes.
 - Rate limiting is per instance and best-effort.

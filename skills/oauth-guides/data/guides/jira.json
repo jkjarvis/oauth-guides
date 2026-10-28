@@ -1,0 +1,764 @@
+{
+  "slug": "jira",
+  "name": "Jira",
+  "version": 1,
+  "lastVerified": "2026-10-28",
+  "tagline": "Create an Atlassian OAuth 2.0 (3LO) app for Jira and plug it into Composio. No review needed to share it, but users see an unreviewed-app warning.",
+  "appType": "OAuth 2.0 (3LO) integration",
+  "composio": {
+    "toolkit": "jira",
+    "managedAvailable": true,
+    "authScheme": "OAuth2",
+    "callbackUrl": "https://backend.composio.dev/api/v3/toolkits/auth/callback"
+  },
+  "facts": {
+    "handsOnMinutes": {
+      "min": 15,
+      "max": 30
+    },
+    "approvalWait": {
+      "min": 10,
+      "max": 15,
+      "unit": "business_days",
+      "openEnded": true,
+      "asStated": "Approvals take 10-15 business days, but approval times vary depending on current volume and the Marketplace team's availability.",
+      "summary": "10–15 business days"
+    },
+    "review": "optional",
+    "cost": {
+      "usdPerYear": 0,
+      "asStated": "Atlassian's OAuth 2.0 (3LO) docs list no fee for creating, sharing, or listing an integration.",
+      "summary": "No fee listed"
+    }
+  },
+  "steps": [
+    {
+      "id": "composio-account",
+      "title": "Set up your Composio account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 3
+      },
+      "optional": true,
+      "when": "Skip if you already have a Composio project and API key.",
+      "instructions": [
+        "Sign up from the Composio login page.",
+        "Open Settings → API keys and copy a key.",
+        "Save it as COMPOSIO_API_KEY where your agent runs.",
+        "Stay in this project. Auth configs belong to one project."
+      ],
+      "fields": [
+        {
+          "label": "Env var",
+          "value": "COMPOSIO_API_KEY"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Sign up",
+          "url": "https://dashboard.composio.dev/login"
+        },
+        {
+          "label": "API keys",
+          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
+        }
+      ],
+      "sources": [
+        "composio-quickstart",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-dashboard-login",
+        "composio-api-keys-page"
+      ],
+      "problems": [
+        {
+          "q": "I can't find the API keys page",
+          "a": [
+            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
+            "If you have several projects, switch to the one you'll use for this agent first."
+          ],
+          "sources": [
+            "composio-quickstart"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "create-app",
+      "title": "Create an OAuth 2.0 integration",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Sign in at developer.atlassian.com, open your profile icon → Developer console.",
+        "Click Create → OAuth 2.0 integration.",
+        "Enter an app name. Users see it on the consent screen.",
+        "Pick a grant type. Account-level: one consent covers several sites. Resource-level: tokens only work on sites the user picks.",
+        "Create one app for your product. Never ask your customers to create their own 3LO apps."
+      ],
+      "fields": [
+        {
+          "label": "Name",
+          "value": "Your product name",
+          "hint": "Shown to users on the consent screen",
+          "copy": false
+        },
+        {
+          "label": "Grant type",
+          "value": "Account-level grant",
+          "hint": "The original 3LO behaviour. Resource-level limits tokens to the sites picked at consent",
+          "copy": false
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Atlassian says apps that make customers create individual 3LO apps break its security requirements and acceptable use policy.",
+          "sources": [
+            "atl-3lo",
+            "atl-blog-integrations"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Developer console",
+          "url": "https://developer.atlassian.com/console/myapps/"
+        }
+      ],
+      "sources": [
+        "atl-3lo",
+        "composio-jira-auth"
+      ],
+      "checks": [
+        "atl-console",
+        "atl-doc-grant-types",
+        "atl-doc-no-customer-apps"
+      ],
+      "unconfirmed": "We couldn't sign in to the console. Which grant type Composio expects isn't documented; account-level is our pick."
+    },
+    {
+      "id": "callback-url",
+      "title": "Add the callback URL",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "In your app, select Authorization in the left menu.",
+        "Next to OAuth 2.0 (3LO), select Configure.",
+        "Paste the Callback URL below, then click Save changes."
+      ],
+      "fields": [
+        {
+          "label": "Callback URL",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Must match the Redirect URI in your Composio auth config exactly"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Composio's Jira auth config may prefill an older /api/v1/auth-apps/add URI. Set the v3 callback in both places.",
+          "sources": [
+            "composio-custom-auth",
+            "composio-jira-toolkit"
+          ]
+        }
+      ],
+      "sources": [
+        "atl-3lo",
+        "composio-custom-auth"
+      ],
+      "checks": [
+        "composio-callback"
+      ],
+      "problems": [
+        {
+          "q": "The connection fails right after the Atlassian consent screen",
+          "a": [
+            "The redirect_uri Composio sends must match the Callback URL in the console.",
+            "Check both hold the same v3 callback, with no trailing slash."
+          ],
+          "sources": [
+            "atl-3lo",
+            "composio-custom-auth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "permissions",
+      "title": "Add the Jira API and scopes",
+      "who": "you",
+      "minutes": {
+        "min": 3,
+        "max": 6
+      },
+      "instructions": [
+        "Select Permissions in the left menu.",
+        "Next to Jira API, select Add, then Configure.",
+        "Add the classic scopes below. Atlassian recommends classic over granular scopes.",
+        "Add granular scopes only for tools that need them, e.g. read:sprint:jira-software for sprint tools.",
+        "Need Jira Service Management tools? Add that API and its scopes too.",
+        "Don't look for offline_access here. Composio adds it to the authorization URL to get refresh tokens."
+      ],
+      "fields": [
+        {
+          "label": "Starter classic scopes",
+          "value": "read:jira-work write:jira-work read:jira-user",
+          "hint": "Add manage:jira-project or manage:jira-configuration only if your tools need them"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Changing scopes later makes users who already consented re-consent.",
+          "sources": [
+            "atl-manage-apps"
+          ]
+        },
+        {
+          "text": "Scopes never override Jira permissions. A user without Browse projects can't read a project through your app.",
+          "sources": [
+            "atl-jira-scopes"
+          ]
+        }
+      ],
+      "sources": [
+        "atl-3lo",
+        "atl-jira-scopes",
+        "atl-manage-apps",
+        "composio-jira-auth"
+      ],
+      "problems": [
+        {
+          "q": "A tool fails with a scope or permission error",
+          "a": [
+            "The token lacks the scope that endpoint needs. Each Jira REST operation lists its OAuth scopes.",
+            "Add the scope here and in your Composio auth config, then have the user reconnect."
+          ],
+          "sources": [
+            "atl-3lo",
+            "atl-jira-scopes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "title": "Copy the Client ID and Secret",
+      "who": "you",
+      "minutes": {
+        "min": 1,
+        "max": 1
+      },
+      "instructions": [
+        "Select Settings in the left menu.",
+        "Under Authentication details, copy the Client ID and the Secret.",
+        "Store the Secret in a secret manager, never in git."
+      ],
+      "sources": [
+        "atl-3lo",
+        "composio-jira-auth"
+      ],
+      "checks": [
+        "atl-oidc-endpoints"
+      ]
+    },
+    {
+      "id": "auth-config",
+      "title": "Create a Composio auth config",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Open the Jira toolkit in Composio and create an auth config.",
+        "Choose OAuth2, not API Key, and turn on your own developer credentials.",
+        "Paste your Client ID and Secret, and set the Redirect URI below.",
+        "Replace the default scopes with yours. Composio's default list is long and fails if your app lacks any of them.",
+        "Save, then copy the auth config ID (ac_…) for the next step."
+      ],
+      "fields": [
+        {
+          "label": "Auth scheme",
+          "value": "OAuth2",
+          "copy": false
+        },
+        {
+          "label": "Use your own developer credentials",
+          "value": "On",
+          "copy": false
+        },
+        {
+          "label": "Redirect URI",
+          "value": "https://backend.composio.dev/api/v3/toolkits/auth/callback",
+          "hint": "Overwrite the prefilled v1 URL if one appears"
+        },
+        {
+          "label": "Scopes",
+          "value": "read:jira-work,write:jira-work,read:jira-user,offline_access",
+          "hint": "Comma separated. Every scope except offline_access must be added in the console"
+        }
+      ],
+      "warnings": [
+        {
+          "text": "Leave out offline_access and there's no refresh token. Connections then stop when the access token expires.",
+          "sources": [
+            "atl-3lo"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Open Jira in Composio",
+          "url": "https://dashboard.composio.dev/toolkits/jira"
+        }
+      ],
+      "sources": [
+        "composio-custom-auth",
+        "composio-jira-auth",
+        "composio-jira-toolkit",
+        "composio-dashboard-nav"
+      ],
+      "checks": [
+        "composio-toolkit-page"
+      ],
+      "unconfirmed": "The link exists. We couldn't check, without logging in, whether it opens auth config creation directly. If not: Auth Configs → Create Auth Config.",
+      "problems": [
+        {
+          "q": "Connecting shows \"Something went wrong\"",
+          "a": [
+            "Composio asked for scopes your Atlassian app doesn't have. Its Jira guide names this error.",
+            "Trim the auth config scopes to the ones under Permissions in the console, plus offline_access."
+          ],
+          "sources": [
+            "composio-jira-auth",
+            "atl-3lo"
+          ]
+        },
+        {
+          "q": "The link didn't open the Jira toolkit",
+          "a": [
+            "Open Auth Configs in the Composio dashboard and click Create Auth Config.",
+            "Pick Jira, choose OAuth2, and turn on your own developer credentials."
+          ],
+          "sources": [
+            "composio-dashboard-nav"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "wire-session",
+      "title": "Use the auth config in your agent",
+      "who": "agent",
+      "minutes": {
+        "min": 1,
+        "max": 2
+      },
+      "instructions": [
+        "Pass the auth config ID when you create a session. Your coding agent can paste this in.",
+        "Toolkits you don't list keep using Composio's managed auth."
+      ],
+      "snippets": [
+        {
+          "lang": "ts",
+          "code": "const session = await composio.create(\"user_123\", {\n  authConfigs: { jira: \"ac_your_jira_config\" },\n})"
+        },
+        {
+          "lang": "python",
+          "code": "session = composio.create(\n    user_id=\"user_123\",\n    auth_configs={\"jira\": \"ac_your_jira_config\"},\n)"
+        }
+      ],
+      "sources": [
+        "composio-managed-vs-custom"
+      ],
+      "problems": [
+        {
+          "q": "Connections still use Composio's app",
+          "a": [
+            "The session must include authConfigs with your ac_… ID for jira.",
+            "Toolkits not listed in authConfigs fall back to managed auth."
+          ],
+          "sources": [
+            "composio-managed-vs-custom"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord"
+      ]
+    },
+    {
+      "id": "test-connection",
+      "title": "Connect a test account",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 4
+      },
+      "instructions": [
+        "Start a connection for a test user. Composio asks for the Jira subdomain, e.g. acme for acme.atlassian.net.",
+        "Sign in with your own Atlassian account first. A private app only works for you.",
+        "On the consent screen, pick the same site you entered as the subdomain, then Accept.",
+        "Each consent covers one site. To add another site, the user connects again.",
+        "Users already connected through managed auth must reconnect."
+      ],
+      "sources": [
+        "atl-3lo",
+        "composio-jira-toolkit",
+        "composio-white-label"
+      ],
+      "checks": [
+        "atl-authorize-signin-first",
+        "atl-accessible-resources",
+        "atl-doc-refresh-rotation"
+      ],
+      "unconfirmed": "We didn't run a full connection. It needs a Composio API key and a real Atlassian sign-in.",
+      "problems": [
+        {
+          "q": "403 invalid_grant: Unknown or invalid refresh token",
+          "a": [
+            "Refresh tokens rotate and expire after 90 days without use. A password change also kills them.",
+            "Have the user reconnect."
+          ],
+          "sources": [
+            "atl-3lo",
+            "atl-refresh"
+          ]
+        },
+        {
+          "q": "Tools fail for a site the user can open in Jira",
+          "a": [
+            "The grant doesn't cover that site. Consent only covers the sites picked on the consent screen.",
+            "Reconnect and pick that site, with its subdomain in Composio."
+          ],
+          "sources": [
+            "atl-3lo"
+          ]
+        },
+        {
+          "q": "The consent screen still says Composio",
+          "a": [
+            "The connection used the managed auth config. Pass your ac_… ID in the session.",
+            "Existing connections keep their old config. Delete and reconnect them."
+          ],
+          "sources": [
+            "composio-white-label"
+          ]
+        }
+      ],
+      "contacts": [
+        "composio-discord",
+        "atlassian-dev-community"
+      ]
+    },
+    {
+      "id": "enable-sharing",
+      "title": "Turn on sharing",
+      "who": "you",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "instructions": [
+        "New apps are private: only you can use them. Turn on sharing before any other user connects.",
+        "Select Distribution in the left menu and switch on the toggle in the Enable sharing section.",
+        "Fill in any vendor, privacy policy and personal data questions the form asks, then save.",
+        "No review is needed. Users will see that the app has not yet been reviewed by Atlassian."
+      ],
+      "warnings": [
+        {
+          "text": "Sharing doesn't list your app on the Atlassian Marketplace.",
+          "sources": [
+            "atl-manage-apps"
+          ]
+        }
+      ],
+      "sources": [
+        "atl-3lo",
+        "atl-manage-apps"
+      ],
+      "checks": [
+        "atl-doc-distribution"
+      ],
+      "unconfirmed": "Atlassian's docs only describe the toggle. The vendor, privacy and personal data fields come from community reports, not docs.",
+      "problems": [
+        {
+          "q": "Other users can't connect, but I can",
+          "a": [
+            "Your app is still private. Turn on sharing under Distribution."
+          ],
+          "sources": [
+            "atl-manage-apps"
+          ]
+        },
+        {
+          "q": "Users see that the app hasn't been reviewed by Atlassian",
+          "a": [
+            "That's expected for shared apps that aren't approved. It doesn't block them.",
+            "To remove it, get the integration approved through a Marketplace listing (below)."
+          ],
+          "sources": [
+            "atl-manage-apps"
+          ]
+        }
+      ],
+      "contacts": [
+        "atlassian-dev-support",
+        "atlassian-dev-community"
+      ]
+    },
+    {
+      "id": "site-admin-approval",
+      "title": "Get the site admin to authorize your app",
+      "who": "their-admin",
+      "minutes": {
+        "min": 2,
+        "max": 5
+      },
+      "optional": true,
+      "when": "When a user sees \"Your site admin must authorize this app\", or their org blocks user-installed apps.",
+      "instructions": [
+        "Your user can't self-approve. They send the error and your app name to their Jira site admin.",
+        "The admin opens Atlassian Administration → Apps → their site under Sites → Connected apps.",
+        "They review and authorize your app, then the user retries the connection.",
+        "If the org turned on Block user apps in Connected apps settings, only admins can install apps."
+      ],
+      "warnings": [
+        {
+          "text": "Admins can't revoke one user's 3LO grant. Uninstalling the app from Connected apps revokes every user on that site.",
+          "sources": [
+            "atl-3lo",
+            "atl-third-party-apps"
+          ]
+        }
+      ],
+      "sources": [
+        "atl-site-admin-kb",
+        "atl-third-party-apps"
+      ],
+      "checks": [
+        "atl-site-admin-kb"
+      ],
+      "problems": [
+        {
+          "q": "The admin can't find the app in Connected apps",
+          "a": [
+            "Check the user signed in with the right Atlassian account and picked the right site.",
+            "Then check your app requests only scopes you added under Permissions."
+          ],
+          "sources": [
+            "atl-site-admin-kb"
+          ]
+        }
+      ],
+      "contacts": [
+        "atlassian-dev-community"
+      ]
+    },
+    {
+      "id": "marketplace-listing",
+      "title": "List and submit for approval",
+      "who": "you",
+      "minutes": {
+        "min": 30,
+        "max": 60
+      },
+      "optional": true,
+      "when": "Only to remove the not-reviewed warning. Sharing works without it.",
+      "instructions": [
+        "Enroll as a Marketplace Partner first: agreement, due diligence and two-step verification.",
+        "On Publish a new app, select My app isn't directly installable.",
+        "Fill in App key (can't change later), version, build number and a URL with more about your integration.",
+        "Give reviewers a test instance of your product so they can run the setup.",
+        "3LO apps get an informational listing with limited Marketplace features."
+      ],
+      "sources": [
+        "atl-listing-3p",
+        "atl-register-partner",
+        "atl-manage-apps"
+      ],
+      "unconfirmed": "We couldn't open the partner portal without an account, so we haven't seen the submit form itself.",
+      "contacts": [
+        "atlassian-dev-support"
+      ]
+    },
+    {
+      "id": "marketplace-review",
+      "title": "Wait for Marketplace approval",
+      "who": "wait",
+      "minutes": {
+        "min": 0,
+        "max": 0
+      },
+      "optional": true,
+      "when": "Only if you submitted a listing.",
+      "instructions": [
+        "The Marketplace team reviews submissions in the order they arrive.",
+        "Expect a few rounds of review. Keep sharing on meanwhile; users can still connect."
+      ],
+      "wait": {
+        "min": 10,
+        "max": 15,
+        "unit": "business_days",
+        "openEnded": true,
+        "asStated": "Approvals take 10-15 business days, but approval times vary depending on current volume and the Marketplace team's availability.",
+        "summary": "10–15 business days"
+      },
+      "sources": [
+        "atl-approval"
+      ],
+      "checks": [
+        "atl-marketplace-approval-time"
+      ],
+      "contacts": [
+        "atlassian-dev-support"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "atl-3lo",
+      "title": "Atlassian · Jira OAuth 2.0 (3LO) apps",
+      "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/"
+    },
+    {
+      "id": "atl-manage-apps",
+      "title": "Atlassian · Managing OAuth 2.0 (3LO) apps",
+      "url": "https://developer.atlassian.com/cloud/oauth/getting-started/managing-oauth-apps/"
+    },
+    {
+      "id": "atl-refresh",
+      "title": "Atlassian · Refresh token flow",
+      "url": "https://developer.atlassian.com/cloud/oauth/getting-started/refresh-tokens/"
+    },
+    {
+      "id": "atl-jira-scopes",
+      "title": "Atlassian · Jira scopes for 3LO apps",
+      "url": "https://developer.atlassian.com/cloud/jira/platform/scopes-for-oauth-2-3LO-and-forge-apps/"
+    },
+    {
+      "id": "atl-blog-integrations",
+      "title": "Atlassian · Guidance for third-party apps",
+      "url": "https://www.atlassian.com/blog/developers/building-secure-and-scalable-integrations-our-guidance-for-third-party-apps"
+    },
+    {
+      "id": "atl-site-admin-kb",
+      "title": "Atlassian · Site admin must authorize app",
+      "url": "https://support.atlassian.com/atlassian-cloud/kb/your-site-admin-must-authorize-this-app-error-in-atlassian-cloud-apps/"
+    },
+    {
+      "id": "atl-third-party-apps",
+      "title": "Atlassian · Manage third-party apps",
+      "url": "https://support.atlassian.com/security-and-access-policies/docs/manage-your-users-third-party-apps/"
+    },
+    {
+      "id": "atl-listing-3p",
+      "title": "Atlassian · List a third-party integration",
+      "url": "https://developer.atlassian.com/platform/marketplace/knowledge-base/listing-a-third-party-integration-on-the-atlassian-marketplace/"
+    },
+    {
+      "id": "atl-register-partner",
+      "title": "Atlassian · Register as Marketplace Partner",
+      "url": "https://developer.atlassian.com/platform/marketplace/onboarding-hub/plan/register-as-an-atlassian-marketplace-partner/"
+    },
+    {
+      "id": "atl-approval",
+      "title": "Atlassian · App approval guidelines",
+      "url": "https://developer.atlassian.com/platform/marketplace/app-approval-guidelines/"
+    },
+    {
+      "id": "atl-help",
+      "title": "Atlassian · Get help and give feedback",
+      "url": "https://developer.atlassian.com/developer-guide/help-and-feedback/"
+    },
+    {
+      "id": "composio-quickstart",
+      "title": "Composio · Quickstart",
+      "url": "https://docs.composio.dev/docs/quickstart"
+    },
+    {
+      "id": "composio-dashboard-nav",
+      "title": "Composio · Dashboard auth configs",
+      "url": "https://docs.composio.dev/kb/guide/dashboard-auth-configs-navigation"
+    },
+    {
+      "id": "composio-managed-vs-custom",
+      "title": "Composio · Managed vs custom auth",
+      "url": "https://docs.composio.dev/docs/authentication/custom-app-vs-managed-app"
+    },
+    {
+      "id": "composio-custom-auth",
+      "title": "Composio · Custom auth configs",
+      "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+    },
+    {
+      "id": "composio-white-label",
+      "title": "Composio · White-labeling",
+      "url": "https://docs.composio.dev/docs/authentication/white-labeling-authentication"
+    },
+    {
+      "id": "composio-jira-auth",
+      "title": "Composio · Jira OAuth setup",
+      "url": "https://composio.dev/auth/jira"
+    },
+    {
+      "id": "composio-jira-toolkit",
+      "title": "Composio · Jira toolkit",
+      "url": "https://docs.composio.dev/toolkits/jira"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "atlassian-dev-support",
+      "label": "Developer and Marketplace support",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://developer.atlassian.com/support",
+      "when": "OAuth 2.0 and REST API faults, distribution, or Marketplace listing and approval questions.",
+      "sources": [
+        "atl-help"
+      ],
+      "checks": [
+        "atl-dev-support"
+      ]
+    },
+    {
+      "id": "atlassian-dev-community",
+      "label": "Atlassian Developer Community",
+      "org": "provider",
+      "kind": "page",
+      "target": "https://community.developer.atlassian.com/",
+      "when": "How-to questions on 3LO apps, scopes, and consent. Free; answered by developers and Atlassian staff.",
+      "sources": [
+        "atl-help"
+      ],
+      "checks": [
+        "atl-community"
+      ]
+    },
+    {
+      "id": "composio-discord",
+      "label": "Composio Discord",
+      "org": "composio",
+      "kind": "page",
+      "target": "https://discord.gg/composio",
+      "when": "Auth config, connection, or tool errors inside Composio.",
+      "checks": [
+        "composio-discord"
+      ]
+    }
+  ]
+}
