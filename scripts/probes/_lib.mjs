@@ -33,7 +33,7 @@ export async function dashboardRoute(path) {
   return { code: res.status, keepsPath: next === path }
 }
 
-// Probes every guide shares: Composio's callback, sign-up, API keys page, and the toolkit deep link.
+// Probes every guide shares: Composio's callback, the toolkit deep link, and the Discord invite.
 export function composioProbes(toolkit) {
   return [
     {
@@ -44,27 +44,6 @@ export function composioProbes(toolkit) {
       run: async () => {
         const code = await status(COMPOSIO_CALLBACK)
         return { observed: `HTTP ${code}`, pass: code !== 404 && code < 500 }
-      },
-    },
-    {
-      id: "composio-dashboard-login",
-      title: "Composio sign-up is on the login page",
-      request: "GET https://dashboard.composio.dev/login",
-      expect: "Sign-in page with a sign-up link",
-      run: async () => {
-        const { html } = await page("https://dashboard.composio.dev/login")
-        const hasSignUp = /href="\/sign-up/.test(html)
-        return { observed: hasSignUp ? "sign-up link present" : "no sign-up link", pass: hasSignUp }
-      },
-    },
-    {
-      id: "composio-api-keys-page",
-      title: "API keys deep link exists",
-      request: "GET https://dashboard.composio.dev/~/project/settings/api-keys",
-      expect: "Login redirect that keeps the path",
-      run: async () => {
-        const r = await dashboardRoute("/~/project/settings/api-keys")
-        return { observed: `HTTP ${r.code}${r.keepsPath ? ", next= kept" : ""}`, pass: r.keepsPath }
       },
     },
     {

@@ -1,7 +1,7 @@
 {
   "slug": "outlook",
   "name": "Microsoft Outlook",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Register a Microsoft Entra app for Outlook and plug it into Composio. No review, but work tenants often need their admin's consent.",
   "appType": "Entra ID app registration",
@@ -25,62 +25,6 @@
     }
   },
   "steps": [
-    {
-      "id": "composio-account",
-      "title": "Set up your Composio account",
-      "who": "you",
-      "minutes": {
-        "min": 2,
-        "max": 3
-      },
-      "optional": true,
-      "when": "Skip if you already have a Composio project and API key.",
-      "instructions": [
-        "Sign up from the Composio login page.",
-        "Open Settings → API keys and copy a key.",
-        "Save it as COMPOSIO_API_KEY where your agent runs.",
-        "Stay in this project. Auth configs belong to one project."
-      ],
-      "fields": [
-        {
-          "label": "Env var",
-          "value": "COMPOSIO_API_KEY"
-        }
-      ],
-      "actions": [
-        {
-          "label": "Sign up",
-          "url": "https://dashboard.composio.dev/login"
-        },
-        {
-          "label": "API keys",
-          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
-        }
-      ],
-      "sources": [
-        "composio-quickstart",
-        "composio-dashboard-nav"
-      ],
-      "checks": [
-        "composio-dashboard-login",
-        "composio-api-keys-page"
-      ],
-      "problems": [
-        {
-          "q": "I can't find the API keys page",
-          "a": [
-            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
-            "If you have several projects, switch to the one you'll use for this agent first."
-          ],
-          "sources": [
-            "composio-quickstart"
-          ]
-        }
-      ],
-      "contacts": [
-        "composio-discord"
-      ]
-    },
     {
       "id": "choose-tenant",
       "title": "Choose the tenant that owns the app",
@@ -870,11 +814,6 @@
       "id": "ms-dev-support",
       "title": "Microsoft · Developer support options",
       "url": "https://learn.microsoft.com/en-us/entra/identity-platform/developer-support-help-options"
-    },
-    {
-      "id": "composio-quickstart",
-      "title": "Composio · Quickstart",
-      "url": "https://docs.composio.dev/docs/quickstart"
     },
     {
       "id": "composio-dashboard-nav",

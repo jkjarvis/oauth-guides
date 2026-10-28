@@ -1,7 +1,7 @@
 {
   "slug": "dropbox",
   "name": "Dropbox",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Create a scoped Dropbox app and plug it into Composio. Works for you at once; past 50 linked users you need production approval.",
   "appType": "Scoped access app",
@@ -32,62 +32,6 @@
     }
   },
   "steps": [
-    {
-      "id": "composio-account",
-      "title": "Set up your Composio account",
-      "who": "you",
-      "minutes": {
-        "min": 2,
-        "max": 3
-      },
-      "optional": true,
-      "when": "Skip if you already have a Composio project and API key.",
-      "instructions": [
-        "Sign up from the Composio login page.",
-        "Open Settings → API keys and copy a key.",
-        "Save it as COMPOSIO_API_KEY where your agent runs.",
-        "Stay in this project. Auth configs belong to one project."
-      ],
-      "fields": [
-        {
-          "label": "Env var",
-          "value": "COMPOSIO_API_KEY"
-        }
-      ],
-      "actions": [
-        {
-          "label": "Sign up",
-          "url": "https://dashboard.composio.dev/login"
-        },
-        {
-          "label": "API keys",
-          "url": "https://dashboard.composio.dev/~/project/settings/api-keys"
-        }
-      ],
-      "sources": [
-        "composio-quickstart",
-        "composio-dashboard-nav"
-      ],
-      "checks": [
-        "composio-dashboard-login",
-        "composio-api-keys-page"
-      ],
-      "problems": [
-        {
-          "q": "I can't find the API keys page",
-          "a": [
-            "Open the API keys link above after signing in. It opens Settings → API keys for your current project.",
-            "If you have several projects, switch to the one you'll use for this agent first."
-          ],
-          "sources": [
-            "composio-quickstart"
-          ]
-        }
-      ],
-      "contacts": [
-        "composio-discord"
-      ]
-    },
     {
       "id": "create-app",
       "title": "Create a Dropbox app",
@@ -696,11 +640,6 @@
       "id": "dbx-support",
       "title": "Dropbox · Developer community & support",
       "url": "https://www.dropbox.com/developers/support"
-    },
-    {
-      "id": "composio-quickstart",
-      "title": "Composio · Quickstart",
-      "url": "https://docs.composio.dev/docs/quickstart"
     },
     {
       "id": "composio-dashboard-nav",

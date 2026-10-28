@@ -20,17 +20,17 @@ const AGENTS = [
 // A trimmed sample of what the skill prints, so people know what they're getting.
 const PREVIEW = `────────────────────────────────────────────────────────
  SLACK  ·  Slack app (OAuth v2)
- █████████████░░░░░░░░░░░░░░░░░  5/12 steps · 42%
+ ███████████░░░░░░░░░░░░░░░░░░░  4/11 steps · 36%
 ────────────────────────────────────────────────────────
-  ✓   4  Copy the Client ID and Client Secret     you
-  ✓   5  Activate public distribution (optional)  you
-  ▸   6  Create a Composio auth config            you
-  ○   7  Use the auth config in your agent        agent
-  ○   8  Connect a test workspace                 you
-  ✗   9  Get workspace admin approval (optional)  admin
+  ✓   3  Copy the Client ID and Client Secret     you
+  ✓   4  Activate public distribution (optional)  you
+  ▸   5  Create a Composio auth config            you
+  ○   6  Use the auth config in your agent        agent
+  ○   7  Connect a test workspace                 you
+  ✗   8  Get workspace admin approval (optional)  admin
          blocked: Need a workspace admin
 ────────────────────────────────────────────────────────
- Next → 6 · Create a Composio auth config`
+ Next → 5 · Create a Composio auth config`
 
 export function InstallSkills() {
   return (

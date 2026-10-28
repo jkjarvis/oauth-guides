@@ -12,24 +12,6 @@
       "ranAt": "2026-10-27T23:41:10.215Z"
     },
     {
-      "id": "composio-dashboard-login",
-      "title": "Composio sign-up is on the login page",
-      "request": "GET https://dashboard.composio.dev/login",
-      "expect": "Sign-in page with a sign-up link",
-      "observed": "sign-up link present",
-      "pass": true,
-      "ranAt": "2026-10-27T23:41:10.215Z"
-    },
-    {
-      "id": "composio-api-keys-page",
-      "title": "API keys deep link exists",
-      "request": "GET https://dashboard.composio.dev/~/project/settings/api-keys",
-      "expect": "Login redirect that keeps the path",
-      "observed": "HTTP 307, next= kept",
-      "pass": true,
-      "ranAt": "2026-10-27T23:41:10.215Z"
-    },
-    {
       "id": "composio-toolkit-page",
       "title": "Composio facebook toolkit deep link exists",
       "request": "GET https://dashboard.composio.dev/toolkits/facebook (control: /toolkits)",

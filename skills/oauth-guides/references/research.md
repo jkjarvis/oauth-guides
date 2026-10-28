@@ -76,14 +76,13 @@ Pre-verified Composio sources (cite by adding them to `sources`):
 The exact contract is [guide.schema.json](guide.schema.json). A complete, checked example is `data/guides/github.json`, and you can copy its Composio steps.
 
 **Steps,** in the order a developer does them:
-1. Set up your Composio account (copy the GitHub guide's step and adapt the toolkit).
-2. Create the app.
-3. Configure the redirect URI and scopes. The redirect URI is Composio's callback, `https://backend.composio.dev/api/v3/toolkits/auth/callback`.
-4. Get the credentials.
-5. Create the Composio auth config. Its action link is `https://dashboard.composio.dev/toolkits/<toolkit>`.
-6. Use the auth config in the agent (copy the GitHub snippets and adapt the toolkit key).
-7. Connect a test account.
-8. Any distribution, verification, review and approval steps, and any steps in the end user's organization.
+1. Create the app.
+2. Configure the redirect URI and scopes. The redirect URI is Composio's callback, `https://backend.composio.dev/api/v3/toolkits/auth/callback`.
+3. Get the credentials.
+4. Create the Composio auth config. Its action link is `https://dashboard.composio.dev/toolkits/<toolkit>`.
+5. Use the auth config in the agent (copy the GitHub snippets and adapt the toolkit key).
+6. Connect a test account.
+7. Any distribution, verification, review and approval steps, and any steps in the end user's organization.
 
 **`who`** says who acts in each step:
 - `you`: hands-on work.

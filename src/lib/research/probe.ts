@@ -140,21 +140,6 @@ export async function composioBaseProbes(): Promise<ProbeResult[]> {
     ),
     settle(
       async () => {
-        const html = await (await fetch("https://dashboard.composio.dev/login", { signal: AbortSignal.timeout(TIMEOUT_MS) })).text()
-        const ok = /href="\/sign-up/.test(html)
-        return result("composio-dashboard-login", "Composio sign-up is on the login page", "GET https://dashboard.composio.dev/login", "Sign-in page with a sign-up link", ok ? "sign-up link present" : "no sign-up link", ok)
-      },
-      "composio-dashboard-login", "Composio sign-up is on the login page", "GET https://dashboard.composio.dev/login", "Sign-in page with a sign-up link",
-    ),
-    settle(
-      async () => {
-        const r = await dashboardRoute("/~/project/settings/api-keys")
-        return result("composio-api-keys-page", "API keys deep link exists", "GET https://dashboard.composio.dev/~/project/settings/api-keys", "Login redirect that keeps the path", `HTTP ${r.code}${r.keepsPath ? ", next= kept" : ""}`, r.keepsPath)
-      },
-      "composio-api-keys-page", "API keys deep link exists", "GET https://dashboard.composio.dev/~/project/settings/api-keys", "Login redirect that keeps the path",
-    ),
-    settle(
-      async () => {
         const r = await fetch("https://discord.gg/composio", { redirect: "manual", signal: AbortSignal.timeout(TIMEOUT_MS) })
         return result("composio-discord", "Composio Discord invite resolves", "GET https://discord.gg/composio", "Redirects to a Discord invite", `HTTP ${r.status}`, r.status >= 300 && r.status < 400)
       },

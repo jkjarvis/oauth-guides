@@ -34,14 +34,13 @@ Budget: a run must finish in about three minutes. You have 6 searches and 12 pag
 
 # Guide shape (submit_guide validates this)
 - Steps in the order a developer does them:
-  1. "Set up your Composio account" (copy the example below, adapting the toolkit).
-  2. Create the app.
-  3. Configure the redirect URI (Composio's callback: ${COMPOSIO_CALLBACK}) and scopes.
-  4. Get the credentials.
-  5. Create the Composio auth config (action link https://dashboard.composio.dev/toolkits/<toolkit>).
-  6. Use the auth config in the agent (copy the example snippets, adapting the toolkit key).
-  7. Connect a test account.
-  8. Then any distribution, verification, review and approval steps, and any steps in the end user's organization.
+  1. Create the app.
+  2. Configure the redirect URI (Composio's callback: ${COMPOSIO_CALLBACK}) and scopes.
+  3. Get the credentials.
+  4. Create the Composio auth config (action link https://dashboard.composio.dev/toolkits/<toolkit>).
+  5. Use the auth config in the agent (copy the example snippets, adapting the toolkit key).
+  6. Connect a test account.
+  7. Then any distribution, verification, review and approval steps, and any steps in the end user's organization.
 - "who": "you" for hands-on work, "agent" for things this site or a coding agent can do (drafting text, pasting code), "wait" for the provider's review clock (needs a wait object with asStated and a summary of 24 characters or fewer), "their-admin" when someone in the END USER's organization must act. Use optional + when for conditional steps. agentTask (one sentence, max 160 characters): on a "you" step, the part a coding agent can do (edit a config file, run a CLI, write a redirect route). Leave it out when the step is console clicks only.
 - Write instructions as short imperatives (max 160 characters each, max 8 per step). Put copy-ready values in fields. Keep prose out.
 - Each step needs sources and/or checks (ids of passing probes), or an unconfirmed note. Each warning needs sources or an unconfirmed note.

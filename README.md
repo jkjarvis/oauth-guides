@@ -110,7 +110,7 @@ scripts/build-skill.mts        syncs guides + JSON schema into the skill and bui
   - The tarball is rebuilt from `src/data` on every deploy.
   - Since the repo is private, there's no plugin or `npx skills` install.
 - **Tested:**
-  - All 142 steps render through `step` and `help`, and all 11 guides pass the skill's validator, matching the site.
+  - All 131 steps render through `step` and `help`, and all 11 guides pass the skill's validator, matching the site.
   - Claude Code ran headless with the installed skill. It picked the skill from a plain request, showed the board and step verbatim, recorded progress across turns, and asked only for the public Client ID.
   - A second headless run researched Calendly from scratch through the skill. The result was an 8-step guide with 11 sources and 11 passing checks, and it passed `validate`. Two checks that failed (OAuth metadata documents) were recorded and left uncited. The agent flagged where Composio's scope list and Calendly's disagree.
 
@@ -131,7 +131,7 @@ scripts/build-skill.mts        syncs guides + JSON schema into the skill and bui
 ## How the guides were researched and checked
 
 1. **Writing.** GitHub was written by hand as the reference. Each of the other ten was written by a research agent working from the same brief: read official docs, write the guide against the schema, write probes, and iterate until `npm run validate` passed.
-2. **Live checks.** 184 probes across 11 guides, all passing on 2026-10-28. Steps show the checks that back them.
+2. **Live checks.** 162 probes across 11 guides, all passing on 2026-10-28. Steps show the checks that back them.
 3. **Independent fact-check.** Two fresh agents re-checked every guide's steps, URLs, waits, caps and error texts against current provider docs, and fixed what was wrong:
    - **Gmail:** CASA's Tier 2 self-scan is deprecated; you now go through an authorized lab.
    - **Outlook:** the cause given for a publisher-verification error was wrong.
@@ -151,7 +151,7 @@ scripts/build-skill.mts        syncs guides + JSON schema into the skill and bui
    - **Curated guide was wrong:** the agent found Dropbox's "We respond to nearly all production requests within a few business days", which the curated guide had missed. That's now fixed.
    - **Prompt changes:** check support and FAQ pages for timelines; the tagline length limit.
 6. **Live QA.**
-   - **Guides:** clicked through all 142 steps of all 11 guides at desktop and phone width. No errors and no sideways scrolling.
+   - **Guides:** clicked through all 131 steps of all 11 guides at desktop and phone width. No errors and no sideways scrolling.
    - **Links:** checked 262 links. The only non-200 responses came from sites that block scripts; Meta's pages load in a real browser.
    - **Generator:** ran the full flow live (search → generate → share link → open the shared guide).
 

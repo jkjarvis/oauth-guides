@@ -217,7 +217,8 @@ function StepView({
               <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-muted font-mono text-[11px] text-muted-foreground">
                 {i + 1}
               </span>
-              <span>{text}</span>
+              {/* Long URLs in instructions must wrap on phones. */}
+              <span className="min-w-0 [overflow-wrap:anywhere]">{text}</span>
             </li>
           ))}
         </ol>
@@ -285,7 +286,7 @@ function StepView({
             {step.warnings.map((w) => (
               <div key={w.text} className="flex gap-2.5 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm">
                 <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1 [overflow-wrap:anywhere]">
                   <p>{w.text}</p>
                   {w.unconfirmed && <p className="text-xs text-muted-foreground">Not confirmed: {w.unconfirmed}</p>}
                 </div>
