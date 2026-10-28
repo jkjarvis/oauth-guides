@@ -1,7 +1,7 @@
 {
   "slug": "linear",
   "name": "Linear",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Create a public Linear OAuth app and plug it into Composio. No review, live in minutes.",
   "appType": "OAuth2 application",
@@ -242,6 +242,7 @@
         "Only create things? Use issues:create and comments:create instead of write.",
         "Skip admin unless a tool truly needs it. Linear says never to ask for it otherwise."
       ],
+      "agentTask": "Find the Linear tools my code calls and suggest the narrowest scopes to paste into the auth config.",
       "fields": [
         {
           "label": "Starter scopes",

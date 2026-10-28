@@ -62,6 +62,8 @@ const daysSince = (iso) => Math.floor((Date.now() - new Date(iso).getTime()) / 8
 
 const WHO = { you: "you", agent: "agent", wait: "wait", "their-admin": "admin" }
 const WHO_LONG = { you: "You", agent: "Your agent can do this", wait: "Provider's clock", "their-admin": "Your user's admin" }
+// Same default as the site: "their admin" steps need a note the developer's users can forward.
+const ADMIN_NOTE = "Draft a short note my users can forward to their admin: what to approve, where, and why. Use placeholders for my product name."
 const REVIEW = { none: "Not required", optional: "Optional", required: "Required" }
 
 function fail(message) {
@@ -252,6 +254,8 @@ function showStep(slug, id, lang) {
   if (step.wait) out(wrap(`"${step.wait.asStated}"`, 1, `${dim("Provider says:")} `), "")
 
   step.instructions.forEach((text, i) => out(wrap(text, 2, `${dim(`${i + 1}.`)} `)))
+  const task = step.agentTask ?? (step.who === "their-admin" ? ADMIN_NOTE : null)
+  if (task) out("", wrap(task, 1, `${cyan("◆ Agent can do:")} `))
 
   if (step.fields.length) {
     const w = Math.min(24, Math.max(...step.fields.map((f) => f.label.length)) + 2)

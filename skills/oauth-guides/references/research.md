@@ -93,6 +93,8 @@ The exact contract is [guide.schema.json](guide.schema.json). A complete, checke
 
 Use `optional` together with `when` for conditional steps.
 
+**`agentTask`** goes on a `you` step that has a part a coding agent can do, such as editing a config file, running a CLI, or writing a redirect route. It's one sentence of at most 160 characters. Leave it out when the step is all console clicks.
+
 **Instructions** are short imperatives: at most 160 characters each and 8 per step. Put copy-ready values in `fields`, and keep prose out.
 
 **Evidence:**

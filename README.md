@@ -73,6 +73,12 @@ scripts/build-skill.mts        syncs guides + JSON schema into the skill and bui
   Optional steps say when they apply.
 - **Every step shows where it comes from.** Each step ends with "Checked live" (probes that passed), "Not confirmed" (what we couldn't verify) and "Sources". The build fails if a step or warning has none of these.
 - **Help, explained first.** "Stuck on this step?" starts with our explanation of the errors people actually hit, with the fix. Below that, "Still stuck? Ask …" routes you to the provider's support (email or help page) or Composio's Discord, with a ready-to-send message.
+- **Prompts for your coding agent.** 31 steps have a "Copy prompt" card:
+  - the agent steps (wiring the auth config into code, drafting review material);
+  - "their admin" steps, where the agent drafts a note your users forward to their admin;
+  - hands-on steps with a part an agent can do (`agentTask`), such as editing HubSpot's `app-hsmeta.json`, picking the narrowest scopes from your code, or adding a callback route.
+
+  The prompt is built from the step's own instructions, values and code, plus fixed rules: adapt to the project, never handle the client secret, leave placeholders for product details. Steps that are only console clicks don't get one.
 - **Tracker without a server.** Step status (done, blocked, skipped) is saved in `localStorage`, keyed by step ID, so guide updates keep finished steps.
 
 **The research agent** (`/new`)

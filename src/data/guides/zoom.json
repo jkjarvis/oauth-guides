@@ -1,7 +1,7 @@
 {
   "slug": "zoom",
   "name": "Zoom",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Build a Zoom General app and plug it into Composio. Works in your own account at once; other accounts need Zoom's review.",
   "appType": "General app (OAuth)",
@@ -582,6 +582,7 @@
         "Set the same URI as Redirect URI in your Composio auth config.",
         "Then verify your domain at submission: TXT record, HTML file, or meta tag."
       ],
+      "agentTask": "Add a route on my domain that 302-redirects to the Composio callback with the query string, in my app's framework.",
       "fields": [
         {
           "label": "Your redirect URI",

@@ -305,6 +305,11 @@
               "github-client-id"
             ]
           },
+          "agentTask": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
           "snippets": {
             "default": [],
             "type": "array",

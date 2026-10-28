@@ -1,7 +1,7 @@
 {
   "slug": "hubspot",
   "name": "HubSpot",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Build a HubSpot app with the CLI and plug it into Composio. No review up to 25 installs; past that, list it on the Marketplace.",
   "appType": "Developer platform app (project)",
@@ -102,6 +102,7 @@
         "Run hs account auth. Generate a Personal Access Key (Development → Keys) when prompted and paste it in.",
         "Your HubSpot user needs Developer tools access to upload projects."
       ],
+      "agentTask": "Install the HubSpot CLI and check its version. I'll paste the Personal Access Key myself when hs account auth asks.",
       "snippets": [
         {
           "lang": "bash",
@@ -238,6 +239,7 @@
         "Add only scopes your tools use. Listed apps must use every scope they request.",
         "Run hs project upload to build and deploy the change."
       ],
+      "agentTask": "Edit app-hsmeta.json: Composio callback in redirectUrls, oauth in requiredScopes, my tools' scopes in optionalScopes. Then hs project upload.",
       "fields": [
         {
           "label": "redirectUrls",

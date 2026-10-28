@@ -1,7 +1,7 @@
 {
   "slug": "gmail",
   "name": "Gmail",
-  "version": 1,
+  "version": 2,
   "lastVerified": "2026-10-28",
   "tagline": "Create your own Google OAuth client for Gmail. Your scopes decide the review: sensitive takes days, restricted takes weeks plus a yearly CASA audit.",
   "appType": "Google OAuth client (Web application)",
@@ -105,6 +105,7 @@
         "Only your own Workspace org will use it? Choose Internal in Audience and skip verification.",
         "Don't request scopes for future features. Google rejects scopes broader than what your app shows."
       ],
+      "agentTask": "Find the Gmail tools my code calls and suggest the narrowest scope for each, with the review path each one triggers.",
       "fields": [
         {
           "label": "Send only (sensitive)",
@@ -217,6 +218,7 @@
         "Go to APIs & Services → Library, search Gmail API, and click Enable.",
         "Or run the gcloud command below in the same project."
       ],
+      "agentTask": "Run the gcloud command, after checking gcloud is signed in and set to this Google Cloud project.",
       "fields": [
         {
           "label": "Service name",
@@ -799,6 +801,7 @@
         "Set the same URI as Redirect URI in your Composio auth config.",
         "Add your domain under Branding → Authorized domains."
       ],
+      "agentTask": "Add a route on my domain that 302-redirects to the Composio callback with the query string, in my app's framework.",
       "fields": [
         {
           "label": "Your redirect URI",

@@ -17,10 +17,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AgentPrompt } from "@/components/guide/agent-prompt"
 import { CopyButton } from "@/components/guide/copy-button"
 import { ClientIdCheck } from "@/components/guide/client-id-check"
 import { WhoChip } from "@/components/guide/labels"
 import { StepHelp } from "@/components/guide/step-help"
+import { agentCanHelp } from "@/lib/agent-prompt"
 import { formatMinutes } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import type { Guide, ProbeResult, Step } from "@/lib/guide-schema"
@@ -258,6 +260,8 @@ function StepView({
             ))}
           </Tabs>
         )}
+
+        {agentCanHelp(step) && <AgentPrompt guide={guide} step={step} />}
 
         {step.actions.length > 0 && (
           <div className="flex flex-wrap gap-2">

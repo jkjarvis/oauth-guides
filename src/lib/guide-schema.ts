@@ -59,6 +59,8 @@ export const Step = z.object({
   instructions: z.array(Short).min(1).max(8),
   fields: z.array(Field).default([]),
   check: z.enum(["github-client-id"]).optional(),
+  // The part of a hands-on step a coding agent can do (edit a config file, run a CLI). Agent steps don't need it.
+  agentTask: Short.optional(),
   snippets: z.array(Snippet).default([]),
   warnings: z.array(Warning).default([]),
   actions: z.array(z.object({ label: Title, url: HttpsUrl })).max(2).default([]),

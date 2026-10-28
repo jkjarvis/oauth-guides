@@ -31,6 +31,7 @@ The script's output is the interface: progress bars, step lists and step details
    - **Your agent can do this**: you do it. Adapt the step's code into their project (find where they create the Composio session; don't paste blindly), then tell them what changed.
    - **Provider's clock** (wait): when they've submitted, run `waiting <slug> <step>` and move on to steps that don't depend on approval. `status` shows how long they've waited against what the provider promised.
    - **Your user's admin**: someone in the end user's organization must act. Help them draft the request to that admin.
+   - A step that shows **◆ Agent can do:** has a part you handle (edit a config file, run a CLI, write a route, draft a note). Offer to do that part; the developer does the rest.
 5. **Record progress only when it's true.** Run `done` after the user confirms a hands-on step, or after you've verified your own work. For a GitHub Client ID, run `check-github-client-id <id>` and mark the step done if it passes. `skip` is for optional steps that don't apply. `block <slug> <step> "<reason>"` when they're stuck on something outside their control.
 6. **Stuck?** Run `help <slug> <step>`: known problems with fixes first, then the provider's support route and a ready-to-send message. Work through the known fixes before suggesting they contact anyone.
 
