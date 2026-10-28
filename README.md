@@ -65,8 +65,16 @@ skills/oauth-guides/         the skill: SKILL.md, scripts/oauth.mjs, bundled gui
 Every guide follows the same shape. What changes from provider to provider is the content and the steps that come after the test connection.
 
 ```mermaid
-flowchart LR
-  A["Create the app"]:::you --> B["Redirect URI<br/>and scopes"]:::you --> C["Credentials"]:::you --> D["Composio<br/>auth config"]:::you --> E["Wire into<br/>your code"]:::agent --> F["Test<br/>connection"]:::you --> G["Review or<br/>verification"]:::wait --> H["Admin approval"]:::admin
+flowchart TB
+  subgraph every ["Every guide"]
+    direction LR
+    A["Create the app"]:::you --> B["Redirect URI<br/>and scopes"]:::you --> C["Credentials"]:::you --> D["Composio<br/>auth config"]:::you --> E["Wire into<br/>your code"]:::agent --> F["Test<br/>connection"]:::you
+  end
+  subgraph some ["Depends on the provider"]
+    direction LR
+    G["Review or<br/>verification"]:::wait --> H["Admin approval in<br/>your user's org"]:::admin
+  end
+  every --> some
   classDef you fill:#f4f4f5,stroke:#71717a,color:#18181b
   classDef agent fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
   classDef wait fill:#fef3c7,stroke:#d97706,color:#78350f
