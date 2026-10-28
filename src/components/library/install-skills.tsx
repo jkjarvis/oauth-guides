@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CopyButton } from "@/components/guide/copy-button"
 
-const SITE = "https://composio-fawn.vercel.app"
+const SITE = "https://oauth-guides-xi.vercel.app"
 const TARBALL = `${SITE}/skills/oauth-guides.tar.gz`
 const install = (dir: string) => `mkdir -p ${dir} && curl -fsSL ${TARBALL} | tar -xz -C ${dir}`
 

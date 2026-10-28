@@ -5,7 +5,7 @@ description: Walks a developer through setting up their own OAuth app with a pro
 
 # OAuth Guides
 
-Step-by-step guides for registering an OAuth app with a provider, getting it approved, and using it in Composio. The same guides as https://composio-fawn.vercel.app, with progress tracked in the project.
+Step-by-step guides for registering an OAuth app with a provider, getting it approved, and using it in Composio. The same guides as https://oauth-guides-xi.vercel.app, with progress tracked in the project.
 
 Everything goes through one script. Paths below are relative to this file's directory:
 
@@ -24,7 +24,7 @@ The script's output is the interface: progress bars, step lists and step details
 1. **Find where they are.** Run `status`. If a guide is in progress, continue it. Otherwise run `list` (or `list <query>`) and pick the guide for their provider.
 2. **Not in the library?** Offer two options:
    - research it here: follow [references/research.md](references/research.md);
-   - or generate it on the web (`https://composio-fawn.vercel.app/new?app=<name>`, about 3 minutes) and paste the share link: `import "<link>"`.
+   - or generate it on the web (`https://oauth-guides-xi.vercel.app/new?app=<name>`, about 3 minutes) and paste the share link: `import "<link>"`.
 3. **Show the board, then one step at a time.** `status <slug>`, then `step <slug>` (it picks the next open step). Show it.
 4. **Do what you can, hand off the rest.** Each step says who acts:
    - **You** (the developer): they click through a console. Give them the links from the step and wait for them to say it's done.

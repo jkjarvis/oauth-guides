@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url"
 
 const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const STATE_DIR = path.resolve(process.env.OAUTH_GUIDES_DIR ?? ".oauth-guides")
-const SITE = "https://composio-fawn.vercel.app"
+const SITE = "https://oauth-guides-xi.vercel.app"
 const COMPOSIO_CALLBACK = "https://backend.composio.dev/api/v3/toolkits/auth/callback"
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
 const TIMEOUT_MS = 12_000

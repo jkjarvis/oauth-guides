@@ -8,20 +8,20 @@ Guides for setting up **your own OAuth app** with a provider and plugging it int
 
 It tracks your progress in the browser. For apps outside the library, an agent researches the provider live and writes a guide in the same format.
 
-**Live:** https://composio-fawn.vercel.app · **Generate a guide:** https://composio-fawn.vercel.app/new
+**Live:** https://oauth-guides-xi.vercel.app · **Generate a guide:** https://oauth-guides-xi.vercel.app/new
 
 **Use it in your coding agent:** click **Use in your agent** on the home page, or:
 
 ```bash
 # Claude Code
-mkdir -p ~/.claude/skills && curl -fsSL https://composio-fawn.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.claude/skills
+mkdir -p ~/.claude/skills && curl -fsSL https://oauth-guides-xi.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.claude/skills
 # Codex
-mkdir -p ~/.agents/skills && curl -fsSL https://composio-fawn.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.agents/skills
+mkdir -p ~/.agents/skills && curl -fsSL https://oauth-guides-xi.vercel.app/skills/oauth-guides.tar.gz | tar -xz -C ~/.agents/skills
 ```
 
 Then ask "Set up my own Slack OAuth app for Composio".
 
-**Library (11):** [GitHub](https://composio-fawn.vercel.app/github) · [Slack](https://composio-fawn.vercel.app/slack) · [Gmail](https://composio-fawn.vercel.app/gmail) · [Microsoft Outlook](https://composio-fawn.vercel.app/outlook) · [Meta](https://composio-fawn.vercel.app/meta) · [Notion](https://composio-fawn.vercel.app/notion) · [Linear](https://composio-fawn.vercel.app/linear) · [Jira](https://composio-fawn.vercel.app/jira) · [Dropbox](https://composio-fawn.vercel.app/dropbox) · [HubSpot](https://composio-fawn.vercel.app/hubspot) · [Zoom](https://composio-fawn.vercel.app/zoom)
+**Library (11):** [GitHub](https://oauth-guides-xi.vercel.app/github) · [Slack](https://oauth-guides-xi.vercel.app/slack) · [Gmail](https://oauth-guides-xi.vercel.app/gmail) · [Microsoft Outlook](https://oauth-guides-xi.vercel.app/outlook) · [Meta](https://oauth-guides-xi.vercel.app/meta) · [Notion](https://oauth-guides-xi.vercel.app/notion) · [Linear](https://oauth-guides-xi.vercel.app/linear) · [Jira](https://oauth-guides-xi.vercel.app/jira) · [Dropbox](https://oauth-guides-xi.vercel.app/dropbox) · [HubSpot](https://oauth-guides-xi.vercel.app/hubspot) · [Zoom](https://oauth-guides-xi.vercel.app/zoom)
 
 They were picked to cover different setup shapes:
 - **Instant:** GitHub, Linear.
