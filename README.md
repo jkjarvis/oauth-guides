@@ -108,7 +108,7 @@ scripts/build-skill.mts        syncs guides + JSON schema into the skill and bui
 - **Installed with one command per agent:**
   - Claude Code loads skills from `~/.claude/skills`; Codex from `~/.agents/skills`.
   - The tarball is rebuilt from `src/data` on every deploy.
-  - Since the repo is private, there's no plugin or `npx skills` install.
+  - The repo is public, and `skills/oauth-guides` is a complete skill folder, so it can also be copied straight from GitHub.
 - **Tested:**
   - All 131 steps render through `step` and `help`, and all 11 guides pass the skill's validator, matching the site.
   - Claude Code ran headless with the installed skill. It picked the skill from a plain request, showed the board and step verbatim, recorded progress across turns, and asked only for the public Client ID.
