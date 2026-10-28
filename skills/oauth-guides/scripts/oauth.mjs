@@ -32,7 +32,8 @@ function wrap(text, indent = 0, first = "") {
   const lines = []
   let line = ""
   for (const word of String(text).split(/\s+/)) {
-    if (line && visible(line) + 1 + visible(word) > max - (lines.length ? 0 : visible(first))) {
+    // Continuation lines are indented under the label, so every line gets the same width.
+    if (line && visible(line) + 1 + visible(word) > max - visible(first)) {
       lines.push(line)
       line = word
     } else line = line ? `${line} ${word}` : word
